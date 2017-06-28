@@ -2165,7 +2165,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const std::stri
     const uint64_t blocks_per_month = 60*60*24*30/seconds_per_block;
     uint64_t approx_blockchain_height = get_approximate_blockchain_height();
     if(approx_blockchain_height > 0) {
-      m_refresh_from_block_height = approx_blockchain_height - blocks_per_month;
+      m_refresh_from_block_height = 0;
     }
   }
   bool r = store_keys(m_keys_file, password, false);
