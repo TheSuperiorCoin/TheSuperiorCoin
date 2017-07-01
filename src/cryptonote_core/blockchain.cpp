@@ -89,18 +89,18 @@ static const struct {
   { 1, 1, 0, 1341378000 },
 
   // version 2 starts from block 1009827, which is on or around the 20th of March, 2016. Fork time finalised on 2015-09-20. No fork voting occurs for the v2 fork.
-  { 2, 3500, 0, 1442763710 },
+  { 2, 3657, 0, 1442763710 },
 
   // version 3 starts from block 1141317, which is on or around the 24th of September, 2016. Fork time finalised on 2016-03-21.
-  { 3, 3600, 0, 1458558528 },
+  { 3, 3700, 0, 1458558528 },
   
   // version 4 starts from block 1220516, which is on or around the 5th of January, 2017. Fork time finalised on 2016-09-18.
-  { 4, 370000, 0, 1483574400 },
+  { 4, 3750, 0, 1483574400 },
   
   // version 5 starts from block 1406997, which is on or around the 20th of September, 2017. Fork time finalised on 2016-09-18.
   { 5, 380000, 0, 1505865600 },
 };
-static const uint64_t mainnet_hard_fork_version_1_till = 3500;
+static const uint64_t mainnet_hard_fork_version_1_till = 3657;
 
 static const struct {
   uint8_t version;

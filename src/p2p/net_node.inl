@@ -403,13 +403,12 @@ namespace nodetool
     std::set<std::string> full_addrs;
     if (testnet)
     {
-      full_addrs.insert("52.164.120.113:17139");
-      full_addrs.insert("52.164.126.27:17139");
+
     }
     else
     {
-      full_addrs.insert("52.164.120.113:17139");
-      full_addrs.insert("52.164.126.27:17139");
+      full_addrs.insert("52.164.120.113:17369");
+      full_addrs.insert("52.164.126.27:17369");
     }
     return full_addrs;
   }

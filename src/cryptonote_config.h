@@ -65,11 +65,11 @@
 // COIN - number of smallest units in one coin
 #define COIN                                            ((uint64_t)100000000) // pow(10, 12)
 
-#define FEE_PER_KB_OLD                                  ((uint64_t)40000000) // pow(10, 10)
-#define FEE_PER_KB                                      ((uint64_t)40000000) // 2 * pow(10, 9)
-#define DYNAMIC_FEE_PER_KB_BASE_FEE                     ((uint64_t)20000000) // 2 * pow(10,9)
-#define DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD            ((uint64_t)100000000000) // 10 * pow(10,12)
-#define DYNAMIC_FEE_PER_KB_BASE_FEE_V5                  ((uint64_t)20000000 * (uint64_t)CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 / CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5)
+#define FEE_PER_KB_OLD                                  ((uint64_t)15000000) // pow(10, 10)
+#define FEE_PER_KB                                      ((uint64_t)15000000) // 2 * pow(10, 9)
+#define DYNAMIC_FEE_PER_KB_BASE_FEE                     ((uint64_t)15000000) // 2 * pow(10,9)
+#define DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD            ((uint64_t)1000000000) // 10 * pow(10,12)
+#define DYNAMIC_FEE_PER_KB_BASE_FEE_V5                  ((uint64_t)15000000 * (uint64_t)CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 / CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5)
 
 #define ORPHANED_BLOCKS_MAX_COUNT                       100
 
@@ -122,7 +122,7 @@
 
 #define ALLOW_DEBUG_COMMANDS
 
-#define CRYPTONOTE_NAME                         "Superiorv01031"
+#define CRYPTONOTE_NAME                         "SuperiorCoin"
 #define CRYPTONOTE_POOLDATA_FILENAME            "poolstate.bin"
 #define CRYPTONOTE_BLOCKCHAINDATA_FILENAME      "data.mdb"
 #define CRYPTONOTE_BLOCKCHAINDATA_LOCK_FILENAME "lock.mdb"
@@ -148,10 +148,10 @@ namespace config
 
   uint64_t const CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = 26;
   uint64_t const CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = 27;
-  uint16_t const P2P_DEFAULT_PORT = 17139;
+  uint16_t const P2P_DEFAULT_PORT = 17369;
   uint16_t const RPC_DEFAULT_PORT = 16035;
   boost::uuids::uuid const NETWORK_ID = { {
-      0xd7, 0xd7, 0xd7, 0x31, 0x6, 0x19, 0x81, 0x14, 0xe, 0xe, 0xe3, 0x25, 0x2b, 0xe3, 0xe, 0xe
+      0xd7, 0xd7, 0xd7, 0x31, 0x6, 0x19, 0xd7, 0xd7, 0xd7, 0x31, 0x6, 0x19, 0x2b, 0xe3, 0xe, 0xe
     } }; // Bender's nightmare
   std::string const GENESIS_TX = "013c01ff0001bce2c886ba8a02029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101dcd728bd3f8a8631a50a572165f6e40ddf78e871f254d5c70e1d03def3b1af2a";
   uint32_t const GENESIS_NONCE = 10000;
@@ -167,5 +167,6 @@ namespace config
       } }; // Bender's daydream
     std::string const GENESIS_TX = "013c01ff0001ffffffffffff0f029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101168d0c4ca86fb55a4cf6a36d31431be1c53a3bd7411bb24e8832410289fa6f3b";
     uint32_t const GENESIS_NONCE = 10001;
+
   }
 }
