@@ -128,10 +128,36 @@ namespace nodetool
     virtual std::map<uint32_t, time_t> get_blocked_ips() { CRITICAL_REGION_LOCAL(m_blocked_ips_lock); return m_blocked_ips; }
   private:
     const std::vector<std::string> m_seed_nodes_list =
-    { "seeds.moneroseeds.se"
-    , "seeds.moneroseeds.ae.org"
-    , "seeds.moneroseeds.ch"
-    , "seeds.moneroseeds.li"
+    { "ns1.thesuperiorcoin.com",
+      "ns2.thesuperiorcoin.com",
+      "ns3.thesuperiorcoin.com",
+      "ns4.thesuperiorcoin.com",
+      "ns5.thesuperiorcoin.com",
+      "ns6.thesuperiorcoin.com",
+      "ns7.thesuperiorcoin.com",
+      "ns8.thesuperiorcoin.com",
+      "ns9.thesuperiorcoin.com",
+      "ns10.thesuperiorcoin.com",
+      "ns11.thesuperiorcoin.com",
+      "ns12.thesuperiorcoin.com",
+      "ns13.thesuperiorcoin.com",
+      "ns14.thesuperiorcoin.com",
+      "ns15.thesuperiorcoin.com",
+      "ns16.thesuperiorcoin.com",
+      "ns17.thesuperiorcoin.com",
+      "ns18.thesuperiorcoin.com",
+      "ns19.thesuperiorcoin.com",
+      "ns20.thesuperiorcoin.com",
+      "ns21.thesuperiorcoin.com",
+      "ns22.thesuperiorcoin.com",
+      "ns23.thesuperiorcoin.com",
+      "ns24.thesuperiorcoin.com",
+      "ns25.thesuperiorcoin.com",
+      "ns26.thesuperiorcoin.com",
+      "ns27.thesuperiorcoin.com",
+      "ns28.thesuperiorcoin.com",
+      "ns29.thesuperiorcoin.com",
+      "ns30.thesuperiorcoin.com"
     };
 
     bool islimitup=false;
