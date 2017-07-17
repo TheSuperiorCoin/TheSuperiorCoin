@@ -4319,6 +4319,7 @@ bool simple_wallet::show_transfer(const std::vector<std::string> &args)
       success_msg_writer() << "Height: " << pd.m_block_height;
       success_msg_writer() << "Timestamp: " << get_human_readable_timestamp(pd.m_timestamp);
       success_msg_writer() << "Amount: " << print_money(pd.m_amount);
+      success_msg_writer() << "Unlock Time: " << pd.m_unlock_time;
       success_msg_writer() << "Payment ID: " << payment_id;
       success_msg_writer() << "Note: " << m_wallet->get_tx_note(txid);
       return true;
