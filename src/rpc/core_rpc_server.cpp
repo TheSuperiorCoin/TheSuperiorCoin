@@ -645,6 +645,7 @@ namespace cryptonote
   //------------------------------------------------------------------------------------------------------------------------------
   bool core_rpc_server::on_start_mining(const COMMAND_RPC_START_MINING::request& req, COMMAND_RPC_START_MINING::response& res)
   {
+MINFO("Is Merge Mining Arg?" << req.do_merge_mining);
     CHECK_CORE_READY();
     account_public_address adr;
     if(!get_account_address_from_str(adr, m_testnet, req.miner_address))

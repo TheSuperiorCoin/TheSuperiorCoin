@@ -504,12 +504,14 @@ namespace cryptonote
       uint64_t    threads_count;
       bool        do_background_mining;
       bool        ignore_battery;
+      bool        do_merge_mining;
 
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(miner_address)
         KV_SERIALIZE(threads_count)
         KV_SERIALIZE(do_background_mining)        
         KV_SERIALIZE(ignore_battery)        
+        KV_SERIALIZE(do_merge_mining)        
       END_KV_SERIALIZE_MAP()
     };
 

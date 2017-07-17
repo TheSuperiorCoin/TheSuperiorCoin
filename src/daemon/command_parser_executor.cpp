@@ -280,11 +280,18 @@ bool t_command_parser_executor::start_mining(const std::vector<std::string>& arg
   uint64_t threads_count = 1;
   bool do_background_mining = false;  
   bool ignore_battery = false;  
-  if(args.size() > 4)
+  bool do_merge_mining = false;  
+
+  if(args.size() > 5)
   {
     return false;
   }
   
+  if(args.size() == 5) 
+  {
+    do_merge_mining = args[4] == "true";
+  } 
+
   if(args.size() == 4)
   {
     ignore_battery = args[3] == "true";
@@ -301,7 +308,7 @@ bool t_command_parser_executor::start_mining(const std::vector<std::string>& arg
     threads_count = (ok && 0 < threads_count) ? threads_count : 1;
   }
 
-  m_executor.start_mining(adr, threads_count, testnet, do_background_mining, ignore_battery);
+  m_executor.start_mining(adr, threads_count, testnet, do_background_mining, ignore_battery, do_merge_mining);
 
   return true;
 }
