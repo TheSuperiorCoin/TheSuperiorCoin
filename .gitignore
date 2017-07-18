@@ -1,4 +1,7 @@
 /build
 /.idea
+*.swp
+*.swo
+*~
 
 
