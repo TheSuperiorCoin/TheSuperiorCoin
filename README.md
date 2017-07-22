@@ -4,9 +4,7 @@ Copyright (c) 2017, The Superior Coin
 
 ## Development Resources
 
-- Web: [thesuperiorcoin.com](https://thesuperiorcoin.com)
-- Forum: [www.facebook.com/groups/minesuperior/](https://www.facebook.com/groups/minesuperior/)
-- Mail: [thesuperiorcoin@gmail.com](mailto:thesuperiorcoin@gmail.com)
+- Nathan Senn 
 - GitHub: [https://github.com/TheSuperiorCoin/TheSuperiorCoin](https://github.com/TheSuperiorCoin/TheSuperiorCoin)
 - IRC: []()
 
