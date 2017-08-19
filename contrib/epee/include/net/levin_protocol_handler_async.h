@@ -39,8 +39,8 @@
 #include <random>
 #include <chrono>
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "net"
+#undef Superior_DEFAULT_LOG_CATEGORY
+#define Superior_DEFAULT_LOG_CATEGORY "net"
 
 namespace epee
 {

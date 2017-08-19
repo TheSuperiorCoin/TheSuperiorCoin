@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2017, The Superior Project
 //
 // All rights reserved.
 //
@@ -60,8 +60,8 @@
   #include "upnperrors.h"
 #endif
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "net.p2p"
+#undef Superior_DEFAULT_LOG_CATEGORY
+#define Superior_DEFAULT_LOG_CATEGORY "net.p2p"
 
 #define NET_MAKE_IP(b1,b2,b3,b4)  ((LPARAM)(((DWORD)(b1)<<24)+((DWORD)(b2)<<16)+((DWORD)(b3)<<8)+((DWORD)(b4))))
 
@@ -102,7 +102,7 @@ namespace nodetool
     const command_line::arg_descriptor<int64_t> arg_limit_rate_down = {"limit-rate-down", "set limit-rate-down [kB/s]", -1};
     const command_line::arg_descriptor<int64_t> arg_limit_rate = {"limit-rate", "set limit-rate [kB/s]", -1};
 
-    const command_line::arg_descriptor<bool> arg_save_graph = {"save-graph", "Save data for dr monero", false};
+    const command_line::arg_descriptor<bool> arg_save_graph = {"save-graph", "Save data for dr Superior", false};
   }
   //-----------------------------------------------------------------------------------
   template<class t_payload_net_handler>
@@ -403,13 +403,19 @@ namespace nodetool
     std::set<std::string> full_addrs;
     if (testnet)
     {
-
+          full_addrs.insert("52.170.46.130:17369");
+          full_addrs.insert("52.168.91.103:17369");
+          full_addrs.insert("52.168.12.187:17369");
+          full_addrs.insert("179.49.115.2:17369");
+          full_addrs.insert("13.82.181.134:17369");
     }
     else
     {
-      full_addrs.insert("52.168.12.187:17369");
+      full_addrs.insert("52.170.46.130:17369");
       full_addrs.insert("52.168.91.103:17369");
-      full_addrs.insert("179.49.119.178:17369");
+      full_addrs.insert("52.168.12.187:17369");
+      full_addrs.insert("179.49.115.2:17369");
+      full_addrs.insert("13.82.181.134:17369");
     }
     return full_addrs;
   }
@@ -1310,7 +1316,7 @@ namespace nodetool
     }
     rsp.connections_count = m_net_server.get_config_object().get_connections_count();
     rsp.incoming_connections_count = rsp.connections_count - get_outgoing_connections_count();
-    rsp.version = MONERO_VERSION_FULL;
+    rsp.version = Superior_VERSION_FULL;
     rsp.os_version = tools::get_os_version_string();
     m_payload_handler.get_stat_info(rsp.payload_info);
     return 1;

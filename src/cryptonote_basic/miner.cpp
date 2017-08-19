@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2017, The Superior Project
 //
 // All rights reserved.
 //
@@ -43,8 +43,8 @@
 #include "storages/portable_storage_template_helper.h"
 #include "boost/logic/tribool.hpp"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "miner"
+#undef Superior_DEFAULT_LOG_CATEGORY
+#define Superior_DEFAULT_LOG_CATEGORY "miner"
 
 using namespace epee;
 

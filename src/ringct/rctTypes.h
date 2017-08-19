@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Monero Research Labs
+// Copyright (c) 2016, Superior Research Labs
 //
 // Author: Shen Noether <shen.noether@gmx.com>
 //
@@ -60,7 +60,7 @@ extern "C" {
 #define DP(x)
 #endif
 
-//atomic units of moneros
+//atomic units of Superiors
 #define ATOMS 64
 
 //for printing large ints
@@ -116,12 +116,12 @@ namespace rct {
         BEGIN_SERIALIZE_OBJECT()
           FIELD(mask)
           FIELD(amount)
-          // FIELD(senderPk) // not serialized, as we do not use it in monero currently
+          // FIELD(senderPk) // not serialized, as we do not use it in Superior currently
         END_SERIALIZE()
     };
 
     //containers for representing amounts
-    typedef uint64_t xmr_amount;
+    typedef uint64_t sup_amount;
     typedef unsigned int bits[ATOMS];
     typedef key key64[64];
 
@@ -184,7 +184,7 @@ namespace rct {
         keyV pseudoOuts; //C - for simple rct
         vector<ecdhTuple> ecdhInfo;
         ctkeyV outPk;
-        xmr_amount txnFee; // contains b
+        sup_amount txnFee; // contains b
 
         template<bool W, template <bool> class Archive>
         bool serialize_rctsig_base(Archive<W> &ar, size_t inputs, size_t outputs)
@@ -400,7 +400,7 @@ namespace rct {
     void dp(const char * a, int l);
     void dp(keyV a);
     void dp(keyM a);
-    void dp(xmr_amount vali);
+    void dp(sup_amount vali);
     void dp(int vali);
     void dp(bits amountb);
     void dp(const char * st);
@@ -408,20 +408,20 @@ namespace rct {
     //various conversions
 
     //uint long long to 32 byte key
-    void d2h(key & amounth, xmr_amount val);
-    key d2h(xmr_amount val);
+    void d2h(key & amounth, sup_amount val);
+    key d2h(sup_amount val);
     //uint long long to int[64]
-    void d2b(bits  amountb, xmr_amount val);
+    void d2b(bits  amountb, sup_amount val);
     //32 byte key to uint long long
     // if the key holds a value > 2^64
     // then the value in the first 8 bytes is returned
-    xmr_amount h2d(const key &test);
+    sup_amount h2d(const key &test);
     //32 byte key to int[64]
     void h2b(bits  amountb2, const key & test);
     //int[64] to 32 byte key
     void b2h(key  & amountdh, bits amountb2);
     //int[64] to uint long long
-    xmr_amount b2d(bits amountb);
+    sup_amount b2d(bits amountb);
 
     static inline const rct::key pk2rct(const crypto::public_key &pk) { return (const rct::key&)pk; }
     static inline const rct::key sk2rct(const crypto::secret_key &sk) { return (const rct::key&)sk; }

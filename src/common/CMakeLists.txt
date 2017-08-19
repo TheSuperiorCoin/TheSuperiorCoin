@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2017, The Monero Project
+# Copyright (c) 2017-2020, The Superior Project
 #
 # All rights reserved.
 #
@@ -25,7 +25,7 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+# Parts of this file are originally copyright (c) 2014-2017 The Monero Project
 include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
 
 set(common_sources
@@ -70,9 +70,9 @@ set(common_private_headers
   thread_group.h
   updates.h)
 
-monero_private_headers(common
+Superior_private_headers(common
   ${common_private_headers})
-monero_add_library(common
+Superior_add_library(common
   ${common_sources}
   ${common_headers}
   ${common_private_headers})
@@ -91,5 +91,5 @@ target_link_libraries(common
     ${OPENSSL_LIBRARIES}
     ${EXTRA_LIBRARIES})
 
-#monero_install_headers(common
+#Superior_install_headers(common
 #  ${common_headers})

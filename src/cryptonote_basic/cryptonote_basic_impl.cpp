@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2017, The Superior Project
 //
 // All rights reserved.
 //
@@ -43,8 +43,8 @@ using namespace epee;
 #include "common/int-util.h"
 #include "common/dns_utils.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "cn"
+#undef Superior_DEFAULT_LOG_CATEGORY
+#define Superior_DEFAULT_LOG_CATEGORY "cn"
 
 namespace cryptonote {
 

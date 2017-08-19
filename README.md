@@ -8,9 +8,69 @@ Copyright (c) 2017, The Superior Coin
 - GitHub: [https://github.com/TheSuperiorCoin/TheSuperiorCoin](https://github.com/TheSuperiorCoin/TheSuperiorCoin)
 - IRC: []()
 
+## Build
+
+| Operating System      | Processor | Status |
+| --------------------- | -------- |--------|
+| Ubuntu 16.04          |  i686    | [![Ubuntu 16.04 i686](https://build.getSuperior.org/png?builder=Superior-static-ubuntu-i686)](https://build.getSuperior.org/builders/Superior-static-ubuntu-i686)
+| Ubuntu 16.04          |  amd64   | [![Ubuntu 16.04 amd64](https://build.getSuperior.org/png?builder=Superior-static-ubuntu-amd64)](https://build.getSuperior.org/builders/Superior-static-ubuntu-amd64)
+| Ubuntu 16.04          |  armv7   | [![Ubuntu 16.04 armv7](https://build.getSuperior.org/png?builder=Superior-static-ubuntu-arm7)](https://build.getSuperior.org/builders/Superior-static-ubuntu-arm7)
+| Debian Stable         |  armv8   | [![Debian armv8](https://build.getSuperior.org/png?builder=Superior-static-debian-armv8)](https://build.getSuperior.org/builders/Superior-static-debian-armv8)
+| OSX 10.10             |  amd64   | [![OSX 10.10 amd64](https://build.getSuperior.org/png?builder=Superior-static-osx-10.10)](https://build.getSuperior.org/builders/Superior-static-osx-10.10)
+| OSX 10.11             |  amd64   | [![OSX 10.11 amd64](https://build.getSuperior.org/png?builder=Superior-static-osx-10.11)](https://build.getSuperior.org/builders/Superior-static-osx-10.11)
+| OSX 10.12             |  amd64   | [![OSX 10.12 amd64](https://build.getSuperior.org/png?builder=Superior-static-osx-10.12)](https://build.getSuperior.org/builders/Superior-static-osx-10.12)
+| FreeBSD 11            |  amd64   | [![FreeBSD 11 amd64](https://build.getSuperior.org/png?builder=Superior-static-freebsd64)](https://build.getSuperior.org/builders/Superior-static-freebsd64)
+| DragonFly BSD 4.6     |  amd64   | [![DragonFly BSD amd64](https://build.getSuperior.org/png?builder=Superior-static-dragonflybsd-amd64)](https://build.getSuperior.org/builders/Superior-static-dragonflybsd-amd64)
+| Windows (MSYS2/MinGW) |  i686    | [![Windows (MSYS2/MinGW) i686](https://build.getSuperior.org/png?builder=Superior-static-win32)](https://build.getSuperior.org/builders/Superior-static-win32)
+| Windows (MSYS2/MinGW) |  amd64   | [![Windows (MSYS2/MinGW) amd64](https://build.getSuperior.org/png?builder=Superior-static-win64)](https://build.getSuperior.org/builders/Superior-static-win64)
+
+## Coverage
+
+| Type      | Status |
+|-----------|--------|
+| Coverity  | [![Coverity Status](https://scan.coverity.com/projects/9657/badge.svg)](https://scan.coverity.com/projects/9657/)
+| Coveralls | [![Coveralls Status](https://coveralls.io/repos/github/Superior-project/Superior/badge.svg?branch=master)](https://coveralls.io/github/Superior-project/Superior?branch=master)
+| License   | [![License](https://img.shields.io/badge/license-BSD3-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 ## Introduction
 
+Superior is a private, secure, untraceable, decentralised digital currency. You are your bank, you control your funds, and nobody can trace your transfers unless you allow them to do so.
+
+**Privacy:** Superior uses a cryptographically sound system to allow you to send and receive funds without your transactions being easily revealed on the blockchain (the ledger of transactions that everyone has). This ensures that your purchases, receipts, and all transfers remain absolutely private by default.
+
+**Security:** Using the power of a distributed peer-to-peer consensus network, every transaction on the network is cryptographically secured. Individual wallets have a 25 word mnemonic seed that is only displayed once, and can be written down to backup the wallet. Wallet files are encrypted with a passphrase to ensure they are useless if stolen.
+
+**Untraceability:** By taking advantage of ring signatures, a special property of a certain type of cryptography, Superior is able to ensure that transactions are not only untraceable, but have an optional measure of ambiguity that ensures that transactions cannot easily be tied back to an individual user or computer.
+
+## About this Project
+
+This is the core implementation of Superior. It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Superior that uses the protocol and network in a compatible manner.
+
+As with many development projects, the repository on Github is considered to be the "staging" area for the latest changes. Before changes are merged into that branch on the main repository, they are tested by individual developers in their own branches, submitted as a pull request, and then subsequently tested by contributors who focus on testing and code reviews. That having been said, the repository should be carefully considered before using it in a production environment, unless there is a patch in the repository for a particular show-stopping issue you are experiencing. It is generally a better idea to use a tagged release for stability.
+
+**Anyone is welcome to contribute to Superior's codebase!** If you have a fix or code change, feel free to submit is as a pull request directly to the "master" branch. In cases where the change is relatively small or does not affect other parts of the codebase it may be merged in immediately by any one of the collaborators. On the other hand, if the change is particularly large or complex, it is expected that it will be discussed at length either well in advance of the pull request being submitted, or even directly on the pull request.
+
+## Supporting the Project
+
+Superior development can be supported directly through donations.
+
+Both Superior and Bitcoin donations can be made to donate.getSuperior.org if using a client that supports the [OpenAlias](https://openalias.org) standard
+
+The Superior donation address is: `44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A` (viewkey: `f359631075708155cc3d92a32b75a7d02a5dcf27756707b47a2b31b21c389501`)
+
+The Bitcoin donation address is: `1KTexdemPdxSBcG55heUuTjDRYqbC5ZL8H`
+
+*Note: you can easily donate sup to the Superior donation address by using the `donate` command. Type `help` in the command-line wallet for details.*
+
+Core development funding and/or some supporting services are also graciously provided by sponsors:
+
+[<img width="80" src="https://static.getSuperior.org/images/sponsors/mySuperior.png"/>](https://mySuperior.com)
+[<img width="150" src="https://static.getSuperior.org/images/sponsors/kitware.png?1"/>](http://kitware.com)
+[<img width="100" src="https://static.getSuperior.org/images/sponsors/dome9.png"/>](http://dome9.com)
+[<img width="150" src="https://static.getSuperior.org/images/sponsors/araxis.png"/>](http://araxis.com)
+[<img width="150" src="https://static.getSuperior.org/images/sponsors/jetbrains.png"/>](http://www.jetbrains.com/)
+[<img width="150" src="https://static.getSuperior.org/images/sponsors/navicat.png"/>](http://www.navicat.com/)
+[<img width="150" src="https://static.getSuperior.org/images/sponsors/symas.png"/>](http://www.symas.com/)
 
 There are also several mining pools that kindly donate a portion of their fees, [a list of them can be found on our Bitcointalk post](https://bitcointalk.org/index.php?topic=583449.0).
 
@@ -21,6 +81,25 @@ See [LICENSE](LICENSE).
 ## Installing Superior Coin from a Package
 
 Packages are available for
+
+* Arch Linux (via [AUR](https://aur.archlinux.org/)):
+  - Stable release: [`Superior`](https://aur.archlinux.org/packages/Superior)
+  - Bleeding edge: [`bitSuperior-git`](https://aur.archlinux.org/packages/bitSuperior-git)
+
+* OS X via [Homebrew](http://brew.sh)
+
+        brew tap sammy007/cryptonight
+        brew install Superior --build-from-source
+
+* Docker
+
+        docker build -t Superior .
+     
+        # either run in foreground
+        docker run -it -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 18080:18080 Superior
+
+        # or in background
+        docker run -it -d -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 18080:18080 Superior
 
 Packaging for your favorite distribution would be a welcome contribution!
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2017-2020, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -122,7 +122,7 @@ namespace command_line
   };
   const command_line::arg_descriptor<std::string> arg_check_updates = {
     "check-updates"
-  , "Check for new versions of monero: [disabled|notify|download|update]"
+  , "Check for new versions of Superior: [disabled|notify|download|update]"
   , "notify"
   };
 }

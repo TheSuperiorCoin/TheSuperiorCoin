@@ -1,4 +1,4 @@
-The Monero command line tools can be translated in various languages.
+The Superior command line tools can be translated in various languages.
 In order to use the same translation workflow as the future GUI, they
 use Qt Linguist translation files. However, to avoid the dependencies
 on Qt this normally implies, they use a custom loader to read those
@@ -13,11 +13,11 @@ To update ts files after changing source code:
 
 To add a new language, eg Spanish (ISO code es):
 
-  cp translations/monero.ts translations/monero_es.ts
+  cp translations/Superior.ts translations/Superior_es.ts
 
 To edit translations for Spanish:
 
-  linguist translations/monero_es.ts
+  linguist translations/Superior_es.ts
 
 To build translations after modifying them:
 
@@ -25,7 +25,7 @@ To build translations after modifying them:
 
 To test a translation:
 
-  LANG=es ./build/release/bin/superior-wallet-cli
+  LANG=es ./build/release/bin/Superior-wallet-cli
 
 To add new translatable sources in the source:
 

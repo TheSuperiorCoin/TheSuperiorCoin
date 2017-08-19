@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2017, The Monero Project
+# Copyright (c) 2014-2017, The Superior Project
 #
 # All rights reserved.
 #
@@ -53,9 +53,9 @@ if (BERKELEY_DB)
   )
 endif()
 
-monero_private_headers(blockchain_db
+Superior_private_headers(blockchain_db
   ${crypto_private_headers})
-monero_add_library(blockchain_db
+Superior_add_library(blockchain_db
   ${blockchain_db_sources}
   ${blockchain_db_headers}
   ${blockchain_db_private_headers})

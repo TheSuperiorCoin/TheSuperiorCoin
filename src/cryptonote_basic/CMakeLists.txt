@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2017, The Monero Project
+# Copyright (c) 2014-2017, The Superior Project
 #
 # All rights reserved.
 #
@@ -53,9 +53,9 @@ set(cryptonote_basic_private_headers
   tx_extra.h
   verification_context.h)
 
-monero_private_headers(cryptonote_basic
+Superior_private_headers(cryptonote_basic
   ${crypto_private_headers})
-monero_add_library(cryptonote_basic
+Superior_add_library(cryptonote_basic
   ${cryptonote_basic_sources}
   ${cryptonote_basic_headers}
   ${cryptonote_basic_private_headers})

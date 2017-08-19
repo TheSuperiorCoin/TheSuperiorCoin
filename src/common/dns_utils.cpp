@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2017-2020, The Superior Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
 #include "common/command_line.h"
 #include "common/i18n.h"
 #include "common/dns_utils.h"
@@ -42,8 +42,8 @@
 using namespace epee;
 namespace bf = boost::filesystem;
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "net.dns"
+#undef Superior_DEFAULT_LOG_CATEGORY
+#define Superior_DEFAULT_LOG_CATEGORY "net.dns"
 
 static boost::mutex instance_lock;
 
@@ -339,8 +339,8 @@ const char *tr(const char *str) { return i18n_translate(str, "tools::dns_utils")
 // TODO: parse the string in a less stupid way, probably with regex
 std::string address_from_txt_record(const std::string& s)
 {
-  // make sure the txt record has "oa1:xmr" and find it
-  auto pos = s.find("oa1:xmr");
+  // make sure the txt record has "oa1:sup" and find it
+  auto pos = s.find("oa1:sup");
   if (pos == std::string::npos)
     return {};
   // search from there to find "recipient_address="
@@ -365,18 +365,18 @@ std::string address_from_txt_record(const std::string& s)
   return {};
 }
 /**
- * @brief gets a monero address from the TXT record of a DNS entry
+ * @brief gets a Superior address from the TXT record of a DNS entry
  *
- * gets the monero address from the TXT record of the DNS entry associated
+ * gets the Superior address from the TXT record of the DNS entry associated
  * with <url>.  If this lookup fails, or the TXT record does not contain an
- * XMR address in the correct format, returns an empty string.  <dnssec_valid>
+ * sup address in the correct format, returns an empty string.  <dnssec_valid>
  * will be set true or false according to whether or not the DNS query passes
  * DNSSEC validation.
  *
  * @param url the url to look up
  * @param dnssec_valid return-by-reference for DNSSEC status of query
  *
- * @return a monero address (as a string) or an empty string
+ * @return a Superior address (as a string) or an empty string
  */
 std::vector<std::string> addresses_from_url(const std::string& url, bool& dnssec_valid)
 {
@@ -393,7 +393,7 @@ std::vector<std::string> addresses_from_url(const std::string& url, bool& dnssec
   }
   else dnssec_valid = false;
 
-  // for each txt record, try to find a monero address in it.
+  // for each txt record, try to find a Superior address in it.
   for (auto& rec : records)
   {
     std::string addr = address_from_txt_record(rec);
@@ -417,7 +417,7 @@ std::string get_account_address_as_str_from_url(const std::string& url, bool& dn
   // for now, move on only if one address found
   if (addresses.size() > 1)
   {
-    LOG_ERROR("not yet supported: Multiple Monero addresses found for given URL: " << url);
+    LOG_ERROR("not yet supported: Multiple Superior addresses found for given URL: " << url);
     return {};
   }
   if (!cli_confirm)
@@ -436,7 +436,7 @@ std::string get_account_address_as_str_from_url(const std::string& url, bool& dn
   std::stringstream prompt;
   prompt << tr("For URL: ") << url
          << ", " << dnssec_str << std::endl
-         << tr(" Monero Address = ") << addresses[0]
+         << tr(" Superior Address = ") << addresses[0]
          << std::endl
          << tr("Is this OK? (Y/n) ")
   ;  
@@ -528,7 +528,7 @@ bool load_txt_records_from_dns(std::vector<std::string> &good_records, const std
 
   if (num_valid_records < 2)
   {
-    LOG_PRINT_L0("WARNING: no two valid MoneroPulse DNS checkpoint records were received");
+    LOG_PRINT_L0("WARNING: no two valid SuperiorPulse DNS checkpoint records were received");
     return false;
   }
 
@@ -550,7 +550,7 @@ bool load_txt_records_from_dns(std::vector<std::string> &good_records, const std
 
   if (good_records_index < 0)
   {
-    LOG_PRINT_L0("WARNING: no two MoneroPulse DNS checkpoint records matched");
+    LOG_PRINT_L0("WARNING: no two SuperiorPulse DNS checkpoint records matched");
     return false;
   }
 

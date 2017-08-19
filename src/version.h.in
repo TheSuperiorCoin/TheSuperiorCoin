@@ -1,4 +1,4 @@
-#define MONERO_VERSION_TAG "@VERSIONTAG@"
-#define MONERO_VERSION "0.10.3.1"
-#define MONERO_RELEASE_NAME "Wolfram Warptangent"
-#define MONERO_VERSION_FULL MONERO_VERSION "-" MONERO_VERSION_TAG
+#define Superior_VERSION_TAG "@VERSIONTAG@"
+#define Superior_VERSION "0.10.3.1"
+#define Superior_RELEASE_NAME "Wolfram Warptangent"
+#define Superior_VERSION_FULL Superior_VERSION "-" Superior_VERSION_TAG

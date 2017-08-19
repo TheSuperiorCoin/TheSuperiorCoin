@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2017, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -26,7 +26,10 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+//  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
+//
+// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+
 
 #include "gtest/gtest.h"
 
@@ -55,7 +58,7 @@ namespace
 
   // try with blocks ~ 1GB. Passing 2 GB will break on 32 bit systems
 
-  TEST_F(fee, 10xmr)
+  TEST_F(fee, 10sup)
   {
     // CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 and lower are clamped
     ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(10000000000000, CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2, 3), clamp_fee(2000000000));
@@ -70,7 +73,7 @@ namespace
     ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(10000000000000, CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 * 20000ull, 3), clamp_fee(2000000000 / 20000));
   }
 
-  TEST_F(fee, 1xmr)
+  TEST_F(fee, 1sup)
   {
     // CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 and lower are clamped
     ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(1000000000000, CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2, 3), clamp_fee(200000000));
@@ -85,7 +88,7 @@ namespace
     ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(1000000000000, CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 * 20000ull, 3), clamp_fee(200000000 / 20000));
   }
 
-  TEST_F(fee, dot3xmr)
+  TEST_F(fee, dot3sup)
   {
     // CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 and lower are clamped
     ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(300000000000, CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2, 3), clamp_fee(60000000));
@@ -110,11 +113,11 @@ namespace
   TEST_F(fee, double_at_full)
   {
     static const uint64_t block_rewards[] = {
-      20000000000000ull, // 20 monero
+      20000000000000ull, // 20 Superior
       13000000000000ull,
       1000000000000ull,
-      600000000000ull, // .6 monero, minimum reward per block at 2min
-      300000000000ull, // .3 monero, minimum reward per block at 1min
+      600000000000ull, // .6 Superior, minimum reward per block at 2min
+      300000000000ull, // .3 Superior, minimum reward per block at 1min
     };
     static const uint64_t median_block_sizes[] = {
       CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2,

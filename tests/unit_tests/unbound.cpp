@@ -1,4 +1,4 @@
-// Copyright (c) 2016, The Monero Project
+// Copyright (c) 2016, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -26,7 +26,10 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+//  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
+//
+// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+
 
 #include "gtest/gtest.h"
 
@@ -36,7 +39,7 @@ extern "C" int dnskey_algo_id_is_supported(int);
 
 TEST(unbound, supported_algorithms)
 {
-  // Monero causes these to be tried, but we don't have access
+  // Superior causes these to be tried, but we don't have access
   // to this internal unbound header here, so we use raw numbers
   // LDNS_RSASHA1            = 5,
   // LDNS_RSASHA1_NSEC3      = 7,

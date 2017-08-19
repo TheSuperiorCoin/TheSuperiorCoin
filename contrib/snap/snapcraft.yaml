@@ -1,8 +1,8 @@
-name: monero
+name: Superior
 version: 0.10.2-1
-summary: "Monero: the secure, private, untraceable cryptocurrency https://getmonero.org"
+summary: "Superior: the secure, private, untraceable cryptocurrency https://getSuperior.org"
 description: |
-    Monero is a private, secure, untraceable, decentralised digital currency.
+    Superior is a private, secure, untraceable, decentralised digital currency.
     You are your bank, you control your funds, and nobody can trace your transfers
     unless you allow them to do so.
 grade: devel
