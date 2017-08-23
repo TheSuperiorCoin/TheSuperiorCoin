@@ -208,7 +208,7 @@ bool WalletManagerImpl::checkPayment(const std::string &address_text, const std:
   }
   tx_key = *reinterpret_cast<const crypto::secret_key*>(tx_key_data.data());
 
-  bool testnet = address_text[0] != '4';
+  bool testnet = address_text[0] != '5';
   cryptonote::account_public_address address;
   bool has_payment_id;
   crypto::hash8 payment_id;
