@@ -143,20 +143,20 @@ TEST(DNSResolver, GetTXTRecord)
 {
   bool avail, valid;
 
-  std::vector<std::string> records = tools::DNSResolver::instance().get_txt_record("donate.getSuperior.org", avail, valid);
+  std::vector<std::string> records = tools::DNSResolver::instance().get_txt_record("donate.superior-coin", avail, valid);
 
   EXPECT_NE(0, records.size());
 
   for (auto& rec : records)
   {
-    std::cout << "TXT record for donate.getSuperior.org: " << rec << std::endl;
+    std::cout << "TXT record for donate.superior-coin: " << rec << std::endl;
   }
 
   // replace first @ with .
-  std::string addr = tools::DNSResolver::instance().get_dns_format_from_oa_address("donate@getSuperior.org");
-  EXPECT_STREQ("donate.getSuperior.org", addr.c_str());
+  std::string addr = tools::DNSResolver::instance().get_dns_format_from_oa_address("donate@superior-coin");
+  EXPECT_STREQ("donate.superior-coin", addr.c_str());
 
   // no change
-  addr = tools::DNSResolver::instance().get_dns_format_from_oa_address("donate.getSuperior.org");
-  EXPECT_STREQ("donate.getSuperior.org", addr.c_str());
+  addr = tools::DNSResolver::instance().get_dns_format_from_oa_address("donate.superior-coin");
+  EXPECT_STREQ("donate.superior-coin", addr.c_str());
 }
