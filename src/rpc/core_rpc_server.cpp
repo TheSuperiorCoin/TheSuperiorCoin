@@ -227,6 +227,28 @@ namespace cryptonote
     res.status = CORE_RPC_STATUS_OK;
     return true;
   }
+    bool core_rpc_server::on_get_alt_blocks_hashes(const COMMAND_RPC_GET_ALT_BLOCKS_HASHES::request& req, COMMAND_RPC_GET_ALT_BLOCKS_HASHES::response& res)
+    {
+      CHECK_CORE_BUSY();
+      std::list<block> blks;
+
+      if(!m_core.get_alternative_blocks(blks))
+      {
+          res.status = "Failed";
+          return false;
+      }
+
+      res.blks_hashes.reserve(blks.size());
+
+      for (auto const& blk: blks)
+      {
+          res.blks_hashes.push_back(epee::string_tools::pod_to_hex(get_block_hash(blk)));
+      }
+
+      MDEBUG("on_get_alt_blocks_hashes: " << blks.size() << " blocks " );
+      res.status = CORE_RPC_STATUS_OK;
+      return true;
+  }
   //------------------------------------------------------------------------------------------------------------------------------
   bool core_rpc_server::on_get_blocks_by_height(const COMMAND_RPC_GET_BLOCKS_BY_HEIGHT::request& req, COMMAND_RPC_GET_BLOCKS_BY_HEIGHT::response& res)
   {
@@ -608,7 +630,7 @@ namespace cryptonote
       }
       res.status = "Failed";
       if ((res.low_mixin = tvc.m_low_mixin))
-        res.reason = "mixin too low";
+        res.reason = "ring size too small";
       if ((res.double_spend = tvc.m_double_spend))
         res.reason = "double spend";
       if ((res.invalid_input = tvc.m_invalid_input))
@@ -736,12 +758,20 @@ namespace cryptonote
 
     for (auto & entry : white_list)
     {
-      res.white_list.emplace_back(entry.id, entry.adr.ip, entry.adr.port, entry.last_seen);
+      if (entry.adr.get_type_id() == epee::net_utils::ipv4_network_address::ID)
+        res.white_list.emplace_back(entry.id, entry.adr.as<epee::net_utils::ipv4_network_address>().ip(),
+            entry.adr.as<epee::net_utils::ipv4_network_address>().port(), entry.last_seen);
+      else
+        res.white_list.emplace_back(entry.id, entry.adr.str(), entry.last_seen);
     }
 
     for (auto & entry : gray_list)
     {
-      res.gray_list.emplace_back(entry.id, entry.adr.ip, entry.adr.port, entry.last_seen);
+      if (entry.adr.get_type_id() == epee::net_utils::ipv4_network_address::ID)
+        res.gray_list.emplace_back(entry.id, entry.adr.as<epee::net_utils::ipv4_network_address>().ip(),
+            entry.adr.as<epee::net_utils::ipv4_network_address>().port(), entry.last_seen);
+      else
+        res.gray_list.emplace_back(entry.id, entry.adr.str(), entry.last_seen);
     }
 
     res.status = CORE_RPC_STATUS_OK;
@@ -793,6 +823,14 @@ namespace cryptonote
   {
     CHECK_CORE_BUSY();
     m_core.get_pool_transaction_hashes(res.tx_hashes);
+    res.status = CORE_RPC_STATUS_OK;
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool core_rpc_server::on_get_transaction_pool_stats(const COMMAND_RPC_GET_TRANSACTION_POOL_STATS::request& req, COMMAND_RPC_GET_TRANSACTION_POOL_STATS::response& res)
+  {
+    CHECK_CORE_BUSY();
+    m_core.get_pool_transaction_stats(res.pool_stats);
     res.status = CORE_RPC_STATUS_OK;
     return true;
   }
@@ -883,7 +921,7 @@ namespace cryptonote
     block b = AUTO_VAL_INIT(b);
     cryptonote::blobdata blob_reserve;
     blob_reserve.resize(req.reserve_size, 0);
-    if(!m_core.get_block_template(b, acc, res.difficulty, res.height, blob_reserve))
+    if(!m_core.get_block_template(b, acc, res.difficulty, res.height, res.expected_reward, blob_reserve))
     {
       error_resp.code = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
       error_resp.message = "Internal error: failed to create block template";
@@ -1114,8 +1152,8 @@ namespace cryptonote
         return false;
       }
       res.headers.push_back(block_header_response());
-      bool responce_filled = fill_block_header_response(blk, false, block_height, block_hash, res.headers.back());
-      if (!responce_filled)
+      bool response_filled = fill_block_header_response(blk, false, block_height, block_hash, res.headers.back());
+      if (!response_filled)
       {
         error_resp.code = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
         error_resp.message = "Internal error: can't produce valid response.";
@@ -1300,12 +1338,16 @@ namespace cryptonote
     }
 
     auto now = time(nullptr);
-    std::map<uint32_t, time_t> blocked_ips = m_p2p.get_blocked_ips();
-    for (std::map<uint32_t, time_t>::const_iterator i = blocked_ips.begin(); i != blocked_ips.end(); ++i)
+    std::map<std::string, time_t> blocked_hosts = m_p2p.get_blocked_hosts();
+    for (std::map<std::string, time_t>::const_iterator i = blocked_hosts.begin(); i != blocked_hosts.end(); ++i)
     {
       if (i->second > now) {
         COMMAND_RPC_GETBANS::ban b;
-        b.ip = i->first;
+        b.host = i->first;
+        b.ip = 0;
+        uint32_t ip;
+        if (epee::string_tools::get_ip_int32_from_string(ip, i->first))
+          b.ip = ip;
         b.seconds = i->second - now;
         res.bans.push_back(b);
       }
@@ -1326,10 +1368,24 @@ namespace cryptonote
 
     for (auto i = req.bans.begin(); i != req.bans.end(); ++i)
     {
-      if (i->ban)
-        m_p2p.block_ip(i->ip, i->seconds);
+      epee::net_utils::network_address na;
+      if (!i->host.empty())
+      {
+        if (!epee::net_utils::create_network_address(na, i->host))
+        {
+          error_resp.code = CORE_RPC_ERROR_CODE_WRONG_PARAM;
+          error_resp.message = "Unsupported host type";
+          return false;
+        }
+      }
       else
-        m_p2p.unblock_ip(i->ip);
+      {
+        na.reset(new epee::net_utils::ipv4_network_address(i->ip, 0));
+      }
+      if (i->ban)
+        m_p2p.block_host(na, i->seconds);
+      else
+        m_p2p.unblock_host(na);
     }
 
     res.status = CORE_RPC_STATUS_OK;
@@ -1585,6 +1641,107 @@ namespace cryptonote
     }
 
     res.status = "'update' not implemented yet";
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool core_rpc_server::on_relay_tx(const COMMAND_RPC_RELAY_TX::request& req, COMMAND_RPC_RELAY_TX::response& res, epee::json_rpc::error& error_resp)
+  {
+    if(!check_core_busy())
+    {
+      error_resp.code = CORE_RPC_ERROR_CODE_CORE_BUSY;
+      error_resp.message = "Core is busy.";
+      return false;
+    }
+
+    bool failed = false;
+    for (const auto &str: req.txids)
+    {
+      cryptonote::blobdata txid_data;
+      if(!epee::string_tools::parse_hexstr_to_binbuff(str, txid_data))
+      {
+        res.status = std::string("Invalid transaction id: ") + str;
+        failed = true;
+      }
+      crypto::hash txid = *reinterpret_cast<const crypto::hash*>(txid_data.data());
+
+      cryptonote::blobdata txblob;
+      bool r = m_core.get_pool_transaction(txid, txblob);
+      if (r)
+      {
+        cryptonote_connection_context fake_context = AUTO_VAL_INIT(fake_context);
+        NOTIFY_NEW_TRANSACTIONS::request r;
+        r.txs.push_back(txblob);
+        m_core.get_protocol()->relay_transactions(r, fake_context);
+        //TODO: make sure that tx has reached other nodes here, probably wait to receive reflections from other nodes
+      }
+      else
+      {
+        res.status = std::string("Transaction not found in pool: ") + str;
+        failed = true;
+      }
+    }
+
+    if (failed)
+    {
+      return false;
+    }
+
+    res.status = CORE_RPC_STATUS_OK;
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool core_rpc_server::on_sync_info(const COMMAND_RPC_SYNC_INFO::request& req, COMMAND_RPC_SYNC_INFO::response& res, epee::json_rpc::error& error_resp)
+  {
+    if(!check_core_busy())
+    {
+      error_resp.code = CORE_RPC_ERROR_CODE_CORE_BUSY;
+      error_resp.message = "Core is busy.";
+      return false;
+    }
+
+    crypto::hash top_hash;
+    if (!m_core.get_blockchain_top(res.height, top_hash))
+    {
+      res.status = "Failed";
+      return false;
+    }
+    ++res.height; // turn top block height into blockchain height
+    res.target_height = m_core.get_target_blockchain_height();
+
+    for (const auto &c: m_p2p.get_payload_object().get_connections())
+      res.peers.push_back({c});
+    const cryptonote::block_queue &block_queue = m_p2p.get_payload_object().get_block_queue();
+    block_queue.foreach([&](const cryptonote::block_queue::span &span) {
+      uint32_t speed = (uint32_t)(100.0f * block_queue.get_speed(span.connection_id) + 0.5f);
+      std::string address = "";
+      for (const auto &c: m_p2p.get_payload_object().get_connections())
+        if (c.connection_id == span.connection_id)
+          address = c.address;
+      res.spans.push_back({span.start_block_height, span.nblocks, span.connection_id, (uint32_t)(span.rate + 0.5f), speed, span.size, address});
+      return true;
+    });
+
+    res.status = CORE_RPC_STATUS_OK;
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool core_rpc_server::on_get_txpool_backlog(const COMMAND_RPC_GET_TRANSACTION_POOL_BACKLOG::request& req, COMMAND_RPC_GET_TRANSACTION_POOL_BACKLOG::response& res, epee::json_rpc::error& error_resp)
+  {
+    if(!check_core_busy())
+    {
+      error_resp.code = CORE_RPC_ERROR_CODE_CORE_BUSY;
+      error_resp.message = "Core is busy.";
+      return false;
+    }
+
+    if (!m_core.get_txpool_backlog(res.backlog))
+    {
+      error_resp.code = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
+      error_resp.message = "Failed to get txpool backlog";
+      return false;
+    }
+
+    res.status = CORE_RPC_STATUS_OK;
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------

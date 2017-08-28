@@ -185,7 +185,7 @@ namespace cryptonote
 						     , "the-superior-coin.com"
     };
 
-    static const std::vector<std::string> testnet_dns_urls = { "superiorcoinpool"
+    static const std::vector<std::string> testnet_dns_urls = { "superiorcoinpool.com"
 							    , "superior-coin.com"
                               , "superior-coin.info"
                               , "the-superior-coin.com"

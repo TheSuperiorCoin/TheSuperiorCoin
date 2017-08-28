@@ -49,7 +49,7 @@ namespace cryptonote
 // advance which version they will stop working with
 // Don't go over 32767 for any of these
 #define CORE_RPC_VERSION_MAJOR 1
-#define CORE_RPC_VERSION_MINOR 8
+#define CORE_RPC_VERSION_MINOR 13
 #define MAKE_CORE_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define CORE_RPC_VERSION MAKE_CORE_RPC_VERSION(CORE_RPC_VERSION_MAJOR, CORE_RPC_VERSION_MINOR)
 
@@ -146,6 +146,25 @@ namespace cryptonote
     };
   };
 
+    struct COMMAND_RPC_GET_ALT_BLOCKS_HASHES
+    {
+        struct request
+        {
+            BEGIN_KV_SERIALIZE_MAP()
+            END_KV_SERIALIZE_MAP()
+        };
+
+        struct response
+        {
+            std::vector<std::string> blks_hashes;
+            std::string status;
+
+            BEGIN_KV_SERIALIZE_MAP()
+                KV_SERIALIZE(blks_hashes)
+                KV_SERIALIZE(status)
+            END_KV_SERIALIZE_MAP()
+        };
+    };
   struct COMMAND_RPC_GET_HASHES_FAST
   {
 
@@ -692,6 +711,7 @@ namespace cryptonote
       uint64_t difficulty;
       uint64_t height;
       uint64_t reserved_offset;
+      uint64_t expected_reward;
       std::string prev_hash;
       blobdata blocktemplate_blob;
       blobdata blockhashing_blob;
@@ -701,6 +721,7 @@ namespace cryptonote
         KV_SERIALIZE(difficulty)
         KV_SERIALIZE(height)
         KV_SERIALIZE(reserved_offset)
+        KV_SERIALIZE(expected_reward)
         KV_SERIALIZE(prev_hash)
         KV_SERIALIZE(blocktemplate_blob)
         KV_SERIALIZE(blockhashing_blob)
@@ -859,18 +880,23 @@ namespace cryptonote
 
   struct peer {
     uint64_t id;
+    std::string host;
     uint32_t ip;
     uint16_t port;
     uint64_t last_seen;
 
     peer() = default;
 
+    peer(uint64_t id, const std::string &host, uint64_t last_seen)
+      : id(id), host(host), ip(0), port(0), last_seen(last_seen)
+    {}
     peer(uint64_t id, uint32_t ip, uint16_t port, uint64_t last_seen)
-      : id(id), ip(ip), port(port), last_seen(last_seen)
+      : id(id), host(std::to_string(ip)), ip(ip), port(port), last_seen(last_seen)
     {}
 
     BEGIN_KV_SERIALIZE_MAP()
       KV_SERIALIZE(id)
+      KV_SERIALIZE(host)
       KV_SERIALIZE(ip)
       KV_SERIALIZE(port)
       KV_SERIALIZE(last_seen)
@@ -1041,6 +1067,93 @@ namespace cryptonote
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
         KV_SERIALIZE_CONTAINER_POD_AS_BLOB(tx_hashes)
+      END_KV_SERIALIZE_MAP()
+    };
+  };
+
+  struct tx_backlog_entry
+  {
+    uint64_t blob_size;
+    uint64_t fee;
+    uint64_t time_in_pool;
+  };
+
+  struct COMMAND_RPC_GET_TRANSACTION_POOL_BACKLOG
+  {
+    struct request
+    {
+      BEGIN_KV_SERIALIZE_MAP()
+      END_KV_SERIALIZE_MAP()
+    };
+
+    struct response
+    {
+      std::string status;
+      std::vector<tx_backlog_entry> backlog;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(status)
+        KV_SERIALIZE_CONTAINER_POD_AS_BLOB(backlog)
+      END_KV_SERIALIZE_MAP()
+    };
+  };
+
+  struct txpool_histo
+  {
+    uint32_t txs;
+    uint64_t bytes;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(txs)
+      KV_SERIALIZE(bytes)
+    END_KV_SERIALIZE_MAP()
+  };
+
+  struct txpool_stats
+  {
+    uint64_t bytes_total;
+    uint32_t bytes_min;
+    uint32_t bytes_max;
+    uint64_t fee_total;
+    uint64_t oldest;
+    uint32_t txs_total;
+    uint32_t num_failing;
+    uint32_t num_10m;
+    uint32_t num_not_relayed;
+    uint64_t histo_98pc;
+    std::vector<txpool_histo> histo;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(bytes_total)
+      KV_SERIALIZE(bytes_min)
+      KV_SERIALIZE(bytes_max)
+      KV_SERIALIZE(fee_total)
+      KV_SERIALIZE(oldest)
+      KV_SERIALIZE(txs_total)
+      KV_SERIALIZE(num_failing)
+      KV_SERIALIZE(num_10m)
+      KV_SERIALIZE(num_not_relayed)
+      KV_SERIALIZE(histo_98pc)
+      KV_SERIALIZE_CONTAINER_POD_AS_BLOB(histo)
+    END_KV_SERIALIZE_MAP()
+  };
+
+  struct COMMAND_RPC_GET_TRANSACTION_POOL_STATS
+  {
+    struct request
+    {
+      BEGIN_KV_SERIALIZE_MAP()
+      END_KV_SERIALIZE_MAP()
+    };
+
+    struct response
+    {
+      std::string status;
+      txpool_stats pool_stats;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(status)
+        KV_SERIALIZE(pool_stats)
       END_KV_SERIALIZE_MAP()
     };
   };
@@ -1224,10 +1337,12 @@ namespace cryptonote
   {
     struct ban
     {
+      std::string host;
       uint32_t ip;
       uint32_t seconds;
 
       BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(host)
         KV_SERIALIZE(ip)
         KV_SERIALIZE(seconds)
       END_KV_SERIALIZE_MAP()
@@ -1255,11 +1370,13 @@ namespace cryptonote
   {
     struct ban
     {
+      std::string host;
       uint32_t ip;
       bool ban;
       uint32_t seconds;
 
       BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(host)
         KV_SERIALIZE(ip)
         KV_SERIALIZE(ban)
         KV_SERIALIZE(seconds)
@@ -1492,6 +1609,83 @@ namespace cryptonote
         KV_SERIALIZE(auto_uri)
         KV_SERIALIZE(hash)
         KV_SERIALIZE(path)
+      END_KV_SERIALIZE_MAP()
+    };
+  };
+
+  struct COMMAND_RPC_RELAY_TX
+  {
+    struct request
+    {
+      std::list<std::string> txids;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(txids)
+      END_KV_SERIALIZE_MAP()
+    };
+
+    struct response
+    {
+      std::string status;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(status)
+      END_KV_SERIALIZE_MAP()
+    };
+  };
+
+  struct COMMAND_RPC_SYNC_INFO
+  {
+    struct request
+    {
+      BEGIN_KV_SERIALIZE_MAP()
+      END_KV_SERIALIZE_MAP()
+    };
+
+    struct peer
+    {
+      connection_info info;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(info)
+      END_KV_SERIALIZE_MAP()
+    };
+
+    struct span
+    {
+      uint64_t start_block_height;
+      uint64_t nblocks;
+      boost::uuids::uuid connection_id;
+      uint32_t rate;
+      uint32_t speed;
+      uint64_t size;
+      std::string remote_address;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(start_block_height)
+        KV_SERIALIZE(nblocks)
+        KV_SERIALIZE_VAL_POD_AS_BLOB(connection_id)
+        KV_SERIALIZE(rate)
+        KV_SERIALIZE(speed)
+        KV_SERIALIZE(size)
+        KV_SERIALIZE(remote_address)
+      END_KV_SERIALIZE_MAP()
+    };
+
+    struct response
+    {
+      std::string status;
+      uint64_t height;
+      uint64_t target_height;
+      std::list<peer> peers;
+      std::list<span> spans;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(status)
+        KV_SERIALIZE(height)
+        KV_SERIALIZE(target_height)
+        KV_SERIALIZE(peers)
+        KV_SERIALIZE(spans)
       END_KV_SERIALIZE_MAP()
     };
   };

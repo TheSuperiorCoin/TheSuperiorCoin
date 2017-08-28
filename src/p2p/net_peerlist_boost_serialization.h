@@ -30,16 +30,35 @@
 
 #pragma once
 
+#include "net/net_utils_base.h"
+
 namespace boost
 {
   namespace serialization
   {
-    //BOOST_CLASS_VERSION(odetool::net_adress, 1)
     template <class Archive, class ver_type>
-    inline void serialize(Archive &a,  nodetool::net_address& na, const ver_type ver)
+    inline void serialize(Archive &a, epee::net_utils::network_address& na, const ver_type ver)
     {
-      a & na.ip;
-      a & na.port;
+      uint8_t type;
+      if (typename Archive::is_saving())
+        type = na.get_type_id();
+      a & type;
+      switch (type)
+      {
+        case epee::net_utils::ipv4_network_address::ID:
+          if (!typename Archive::is_saving())
+            na.reset(new epee::net_utils::ipv4_network_address(0, 0));
+          a & na.as<epee::net_utils::ipv4_network_address>();
+          break;
+        default:
+          throw std::runtime_error("Unsupported network address type");
+      }
+    }
+    template <class Archive, class ver_type>
+    inline void serialize(Archive &a, epee::net_utils::ipv4_network_address& na, const ver_type ver)
+    {
+      a & na.m_ip;
+      a & na.m_port;
     }
 
 
@@ -49,6 +68,14 @@ namespace boost
       a & pl.adr;
       a & pl.id;
       a & pl.last_seen;
-    }    
+    }
+
+    template <class Archive, class ver_type>
+    inline void serialize(Archive &a, nodetool::anchor_peerlist_entry& pl, const ver_type ver)
+    {
+      a & pl.adr;
+      a & pl.id;
+      a & pl.first_seen;
+    }
   }
 }

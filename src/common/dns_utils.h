@@ -102,7 +102,7 @@ public:
    *
    * @return A vector of strings containing a TXT record; or an empty vector
    */
-  // TODO: modify this to accomodate DNSSEC
+  // TODO: modify this to accommodate DNSSEC
    std::vector<std::string> get_txt_record(const std::string& url, bool& dnssec_available, bool& dnssec_valid);
 
   /**
@@ -143,7 +143,7 @@ private:
    *
    * @return A vector of strings containing the requested record; or an empty vector
    */
-  // TODO: modify this to accomodate DNSSEC
+  // TODO: modify this to accommodate DNSSEC
   std::vector<std::string> get_record(const std::string& url, int record_type, std::string (*reader)(const char *,size_t), bool& dnssec_available, bool& dnssec_valid);
 
   /**
@@ -164,7 +164,7 @@ namespace dns_utils
 std::string address_from_txt_record(const std::string& s);
 std::vector<std::string> addresses_from_url(const std::string& url, bool& dnssec_valid);
 
-std::string get_account_address_as_str_from_url(const std::string& url, bool& dnssec_valid, bool cli_confirm = true);
+std::string get_account_address_as_str_from_url(const std::string& url, bool& dnssec_valid, std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> confirm_dns);
 
 bool load_txt_records_from_dns(std::vector<std::string> &records, const std::vector<std::string> &dns_urls);
 

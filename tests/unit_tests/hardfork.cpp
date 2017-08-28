@@ -34,7 +34,7 @@
 #include <algorithm>
 #include "gtest/gtest.h"
 
-#include "blockchain_db/lmdb/db_lmdb.h"
+#include "blockchain_db/blockchain_db.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
 #include "cryptonote_basic/hardfork.h"
 
@@ -50,6 +50,7 @@ public:
   virtual void open(const std::string& filename, const int db_flags = 0) { }
   virtual void close() {}
   virtual void sync() {}
+  virtual void safesyncmode(const bool onoff) {}
   virtual void reset() {}
   virtual std::vector<std::string> get_filenames() const { return std::vector<std::string>(); }
   virtual std::string get_db_name() const { return std::string(); }
@@ -109,11 +110,21 @@ public:
   virtual void remove_spent_key(const crypto::key_image& k_image) {}
 
   virtual bool for_all_key_images(std::function<bool(const crypto::key_image&)>) const { return true; }
-  virtual bool for_all_blocks(std::function<bool(uint64_t, const crypto::hash&, const cryptonote::block&)>) const { return true; }
+  virtual bool for_blocks_range(const uint64_t&, const uint64_t&, std::function<bool(uint64_t, const crypto::hash&, const cryptonote::block&)>) const { return true; }
   virtual bool for_all_transactions(std::function<bool(const crypto::hash&, const cryptonote::transaction&)>) const { return true; }
   virtual bool for_all_outputs(std::function<bool(uint64_t amount, const crypto::hash &tx_hash, size_t tx_idx)> f) const { return true; }
   virtual bool is_read_only() const { return false; }
   virtual std::map<uint64_t, std::tuple<uint64_t, uint64_t, uint64_t>> get_output_histogram(const std::vector<uint64_t> &amounts, bool unlocked, uint64_t recent_cutoff) const { return std::map<uint64_t, std::tuple<uint64_t, uint64_t, uint64_t>>(); }
+
+  virtual void add_txpool_tx(const transaction &tx, const txpool_tx_meta_t& details) {}
+  virtual void update_txpool_tx(const crypto::hash &txid, const txpool_tx_meta_t& details) {}
+  virtual uint64_t get_txpool_tx_count() const { return 0; }
+  virtual bool txpool_has_tx(const crypto::hash &txid) const { return false; }
+  virtual void remove_txpool_tx(const crypto::hash& txid) {}
+  virtual txpool_tx_meta_t get_txpool_tx_meta(const crypto::hash& txid) const { return txpool_tx_meta_t(); }
+  virtual bool get_txpool_tx_blob(const crypto::hash& txid, cryptonote::blobdata &bd) const { return false; }
+  virtual cryptonote::blobdata get_txpool_tx_blob(const crypto::hash& txid) const { return ""; }
+  virtual bool for_all_txpool_txes(std::function<bool(const crypto::hash&, const txpool_tx_meta_t&, const cryptonote::blobdata*)>, bool include_blob = false) const { return false; }
 
   virtual void add_block( const block& blk
                         , const size_t& block_size

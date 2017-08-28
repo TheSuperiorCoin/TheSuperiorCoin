@@ -27,12 +27,13 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
+#include <string>
 
 #ifndef WIN32
 
 namespace posix {
 
-void fork();
+void fork(const std::string & pidfile);
 
 }
 

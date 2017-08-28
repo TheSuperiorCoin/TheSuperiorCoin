@@ -79,6 +79,7 @@ file(COPY
   DESTINATION data)
 
 add_subdirectory(core_tests)
+add_subdirectory(fuzz)
 add_subdirectory(crypto)
 add_subdirectory(functional_tests)
 add_subdirectory(performance_tests)
@@ -116,6 +117,7 @@ set(enabled_tests
     hash
     performance_tests
     core_proxy
+    fuzz
     unit_tests)
 
 add_custom_target(tests DEPENDS enabled_tests)

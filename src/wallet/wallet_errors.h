@@ -49,6 +49,7 @@ namespace tools
     //     wallet_runtime_error *
     //       wallet_internal_error
     //         unexpected_txin_type
+    //         wallet_not_initialized
     //   std::logic_error
     //     wallet_logic_error *
     //       file_exists
@@ -176,6 +177,15 @@ namespace tools
     private:
       cryptonote::transaction m_tx;
     };
+    //----------------------------------------------------------------------------------------------------
+    struct wallet_not_initialized : public wallet_internal_error
+    {
+      explicit wallet_not_initialized(std::string&& loc)
+        : wallet_internal_error(std::move(loc), "wallet is not initialized")
+      {
+      }
+    };
+
     //----------------------------------------------------------------------------------------------------
     const char* const file_error_messages[] = {
       "file already exists",
@@ -407,7 +417,7 @@ namespace tools
       typedef std::unordered_map<uint64_t, uint64_t> scanty_outs_t;
 
       explicit not_enough_outs_to_mix(std::string&& loc, const scanty_outs_t& scanty_outs, size_t mixin_count)
-        : transfer_error(std::move(loc), "not enough outputs to mix")
+        : transfer_error(std::move(loc), "not enough outputs to use")
         , m_scanty_outs(scanty_outs)
         , m_mixin_count(mixin_count)
       {
@@ -419,7 +429,7 @@ namespace tools
       std::string to_string() const
       {
         std::ostringstream ss;
-        ss << transfer_error::to_string() << ", mixin_count = " << m_mixin_count << ", scanty_outs:";
+        ss << transfer_error::to_string() << ", ring size = " << (m_mixin_count + 1) << ", scanty_outs:";
         for (const auto& out: m_scanty_outs)
         {
           ss << '\n' << cryptonote::print_money(out.first) << " - " << out.second;

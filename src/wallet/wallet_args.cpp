@@ -149,8 +149,10 @@ namespace wallet_args
 
     if (command_line::get_arg(vm, command_line::arg_help))
     {
-      tools::msg_writer() << "Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")";
-      tools::msg_writer() << wallet_args::tr("Usage:") << ' ' << usage;
+      tools::msg_writer() << "Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")" << ENDL;
+      tools::msg_writer() << wallet_args::tr("This is the command line Superior wallet. It needs to connect to a Superior\n"
+												"daemon to work correctly.") << ENDL;
+      tools::msg_writer() << wallet_args::tr("Usage:") << ENDL << "  " << usage;
       tools::msg_writer() << desc_all;
       return boost::none;
     }

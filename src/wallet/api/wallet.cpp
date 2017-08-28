@@ -35,6 +35,7 @@
 #include "transaction_history.h"
 #include "address_book.h"
 #include "common_defines.h"
+#include "common/util.h"
 
 #include "mnemonics/electrum-words.h"
 #include <boost/format.hpp>
@@ -99,7 +100,7 @@ struct Wallet2CallbackImpl : public tools::i_wallet2_callback
         }
     }
 
-    virtual void on_money_received(uint64_t height, const crypto::hash &txid, uint64_t amount)
+    virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount)
     {
 
         std::string tx_hash =  epee::string_tools::pod_to_hex(txid);
@@ -114,7 +115,7 @@ struct Wallet2CallbackImpl : public tools::i_wallet2_callback
         }
     }
 
-    virtual void on_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, uint64_t amount)
+    virtual void on_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount)
     {
 
         std::string tx_hash =  epee::string_tools::pod_to_hex(txid);
@@ -129,8 +130,8 @@ struct Wallet2CallbackImpl : public tools::i_wallet2_callback
         }
     }
 
-    virtual void on_money_spent(uint64_t height, const crypto::hash &txid, uint64_t amount,
-                                const cryptonote::transaction& spend_tx)
+    virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& in_tx,
+                                uint64_t amount, const cryptonote::transaction& spend_tx)
     {
         // TODO;
         std::string tx_hash = epee::string_tools::pod_to_hex(txid);
@@ -144,7 +145,7 @@ struct Wallet2CallbackImpl : public tools::i_wallet2_callback
         }
     }
 
-    virtual void on_skip_transaction(uint64_t height, const crypto::hash &txid)
+    virtual void on_skip_transaction(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx)
     {
         // TODO;
     }
@@ -464,7 +465,8 @@ bool WalletImpl::recoverFromKeys(const std::string &path,
     {
         if (has_spendkey) {
             m_wallet->generate(path, "", address, spendkey, viewkey);
-            LOG_PRINT_L1("Generated new wallet from keys");
+            setSeedLanguage(language);
+            LOG_PRINT_L1("Generated new wallet from keys with seed language: " + language);
         }
         else {
             m_wallet->generate(path, "", address, viewkey);
@@ -618,9 +620,24 @@ std::string WalletImpl::integratedAddress(const std::string &payment_id) const
     return m_wallet->get_account().get_public_integrated_address_str(pid, m_wallet->testnet());
 }
 
-std::string WalletImpl::privateViewKey() const
+std::string WalletImpl::secretViewKey() const
 {
     return epee::string_tools::pod_to_hex(m_wallet->get_account().get_keys().m_view_secret_key);
+}
+
+std::string WalletImpl::publicViewKey() const
+{
+    return epee::string_tools::pod_to_hex(m_wallet->get_account().get_keys().m_account_address.m_view_public_key);
+}
+
+std::string WalletImpl::secretSpendKey() const
+{
+    return epee::string_tools::pod_to_hex(m_wallet->get_account().get_keys().m_spend_secret_key);
+}
+
+std::string WalletImpl::publicSpendKey() const
+{
+    return epee::string_tools::pod_to_hex(m_wallet->get_account().get_keys().m_account_address.m_spend_public_key);
 }
 
 std::string WalletImpl::path() const
@@ -952,7 +969,7 @@ PendingTransaction *WalletImpl::createTransaction(const string &dst_addr, const 
                                                                           static_cast<uint32_t>(priority),
                                                                           extra, m_trustedDaemon);
             } else {
-                transaction->m_pending_tx = m_wallet->create_transactions_all(addr, fake_outs_count, 0 /* unlock_time */,
+                transaction->m_pending_tx = m_wallet->create_transactions_all(0, addr, fake_outs_count, 0 /* unlock_time */,
                                                                           static_cast<uint32_t>(priority),
                                                                           extra, m_trustedDaemon);
             }
@@ -993,9 +1010,9 @@ PendingTransaction *WalletImpl::createTransaction(const string &dst_addr, const 
 
         } catch (const tools::error::not_enough_outs_to_mix& e) {
             std::ostringstream writer;
-            writer << tr("not enough outputs for specified mixin_count") << " = " << e.mixin_count() << ":";
+            writer << tr("not enough outputs for specified ring size") << " = " << (e.mixin_count() + 1) << ":";
             for (const std::pair<uint64_t, uint64_t> outs_for_amount : e.scanty_outs()) {
-                writer << "\n" << tr("output amount") << " = " << print_money(outs_for_amount.first) << ", " << tr("found outputs to mix") << " = " << outs_for_amount.second;
+                writer << "\n" << tr("output amount") << " = " << print_money(outs_for_amount.first) << ", " << tr("found outputs to use") << " = " << outs_for_amount.second;
             }
             m_errorString = writer.str();
             m_status = Status_Error;
@@ -1087,9 +1104,9 @@ PendingTransaction *WalletImpl::createSweepUnmixableTransaction()
 
         } catch (const tools::error::not_enough_outs_to_mix& e) {
             std::ostringstream writer;
-            writer << tr("not enough outputs for specified mixin_count") << " = " << e.mixin_count() << ":";
+            writer << tr("not enough outputs for specified ring size") << " = " << (e.mixin_count() + 1) << ":";
             for (const std::pair<uint64_t, uint64_t> outs_for_amount : e.scanty_outs()) {
-                writer << "\n" << tr("output amount") << " = " << print_money(outs_for_amount.first) << ", " << tr("found outputs to mix") << " = " << outs_for_amount.second;
+                writer << "\n" << tr("output amount") << " = " << print_money(outs_for_amount.first) << ", " << tr("found outputs to use") << " = " << outs_for_amount.second;
             }
             m_errorString = writer.str();
             m_status = Status_Error;
@@ -1393,6 +1410,11 @@ bool WalletImpl::doInit(const string &daemon_address, uint64_t upper_transaction
 bool WalletImpl::parse_uri(const std::string &uri, std::string &address, std::string &payment_id, uint64_t &amount, std::string &tx_description, std::string &recipient_name, std::vector<std::string> &unknown_parameters, std::string &error)
 {
     return m_wallet->parse_uri(uri, address, payment_id, amount, tx_description, recipient_name, unknown_parameters, error);
+}
+
+std::string WalletImpl::getDefaultDataDir() const
+{
+ return tools::get_default_data_dir();
 }
 
 bool WalletImpl::rescanSpent()

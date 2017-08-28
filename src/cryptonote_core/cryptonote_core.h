@@ -40,6 +40,7 @@
 #include "cryptonote_protocol/cryptonote_protocol_handler_common.h"
 #include "storages/portable_storage_template_helper.h"
 #include "common/download.h"
+#include "common/thread_group.h"
 #include "tx_pool.h"
 #include "blockchain.h"
 #include "cryptonote_basic/miner.h"
@@ -115,6 +116,22 @@ namespace cryptonote
      bool handle_incoming_tx(const blobdata& tx_blob, tx_verification_context& tvc, bool keeped_by_block, bool relayed, bool do_not_relay);
 
      /**
+      * @brief handles a list of incoming transactions
+      *
+      * Parses incoming transactions and, if nothing is obviously wrong,
+      * passes them along to the transaction pool
+      *
+      * @param tx_blobs the txs to handle
+      * @param tvc metadata about the transactions' validity
+      * @param keeped_by_block if the transactions have been in a block
+      * @param relayed whether or not the transactions were relayed to us
+      * @param do_not_relay whether to prevent the transactions from being relayed
+      *
+      * @return true if the transactions made it to the transaction pool, otherwise false
+      */
+     bool handle_incoming_txs(const std::list<blobdata>& tx_blobs, std::vector<tx_verification_context>& tvc, bool keeped_by_block, bool relayed, bool do_not_relay);
+
+     /**
       * @brief handles an incoming block
       *
       * periodic update to checkpoints is triggered here
@@ -180,7 +197,7 @@ namespace cryptonote
       *
       * @note see Blockchain::create_block_template
       */
-     virtual bool get_block_template(block& b, const account_public_address& adr, difficulty_type& diffic, uint64_t& height, const blobdata& ex_nonce);
+     virtual bool get_block_template(block& b, const account_public_address& adr, difficulty_type& diffic, uint64_t& height, uint64_t& expected_reward, const blobdata& ex_nonce);
 
      /**
       * @brief called when a transaction is relayed
@@ -390,12 +407,33 @@ namespace cryptonote
      void set_enforce_dns_checkpoints(bool enforce_dns);
 
      /**
+      * @brief set whether or not to enable or disable DNS checkpoints
+      *
+      * @param disble whether to disable DNS checkpoints
+      */
+     void disable_dns_checkpoints(bool disable = true) { m_disable_dns_checkpoints = disable; }
+
+     /**
+      * @copydoc tx_memory_pool::have_tx
+      *
+      * @note see tx_memory_pool::have_tx
+      */
+     bool pool_has_tx(const crypto::hash &txid) const;
+
+     /**
       * @copydoc tx_memory_pool::get_transactions
       *
       * @note see tx_memory_pool::get_transactions
       */
      bool get_pool_transactions(std::list<transaction>& txs) const;
      
+     /**
+      * @copydoc tx_memory_pool::get_txpool_backlog
+      *
+      * @note see tx_memory_pool::get_txpool_backlog
+      */
+     bool get_txpool_backlog(std::vector<tx_backlog_entry>& backlog) const;
+
      /**
       * @copydoc tx_memory_pool::get_transactions
       *
@@ -404,11 +442,18 @@ namespace cryptonote
      bool get_pool_transaction_hashes(std::vector<crypto::hash>& txs) const;
 
      /**
+      * @copydoc tx_memory_pool::get_transactions
+      *
+      * @note see tx_memory_pool::get_transactions
+      */
+     bool get_pool_transaction_stats(struct txpool_stats& stats) const;
+
+     /**
       * @copydoc tx_memory_pool::get_transaction
       *
       * @note see tx_memory_pool::get_transaction
       */
-     bool get_pool_transaction(const crypto::hash& id, transaction& tx) const;     
+     bool get_pool_transaction(const crypto::hash& id, cryptonote::blobdata& tx) const;
 
      /**
       * @copydoc tx_memory_pool::get_pool_transactions_and_spent_keys_info
@@ -481,6 +526,13 @@ namespace cryptonote
       * @note see Blockchain::get_tail_id
       */
      crypto::hash get_tail_id() const;
+
+     /**
+      * @copydoc Blockchain::get_block_cumulative_difficulty
+      *
+      * @note see Blockchain::get_block_cumulative_difficulty
+      */
+     difficulty_type get_block_cumulative_difficulty(uint64_t height) const;
 
      /**
       * @copydoc Blockchain::get_random_outs_for_amounts
@@ -569,6 +621,13 @@ namespace cryptonote
      void on_synchronized();
 
      /**
+      * @copydoc Blockchain::safesyncmode
+      *
+      * 2note see Blockchain::safesyncmode
+      */
+     void safesyncmode(const bool onoff);
+
+     /**
       * @brief sets the target blockchain height
       *
       * @param target_blockchain_height the height to set
@@ -581,6 +640,20 @@ namespace cryptonote
       * @param target_blockchain_height the target height
       */
      uint64_t get_target_blockchain_height() const;
+
+     /**
+      * @brief return the ideal hard fork version for a given block height
+      *
+      * @return what it says above
+      */
+     uint8_t get_ideal_hard_fork_version(uint64_t height) const;
+
+     /**
+      * @brief return the hard fork version for a given block height
+      *
+      * @return what it says above
+      */
+     uint8_t get_hard_fork_version(uint64_t height) const;
 
      /**
       * @brief gets start_time
@@ -639,7 +712,7 @@ namespace cryptonote
       *
       * @return the number of blocks to sync in one go
       */
-     size_t get_block_sync_size() const { return block_sync_size; }
+     size_t get_block_sync_size(uint64_t height) const;
 
      /**
       * @brief get the sum of coinbase tx amounts between blocks
@@ -658,7 +731,7 @@ namespace cryptonote
    private:
 
      /**
-      * @copydoc add_new_tx(const transaction&, tx_verification_context&, bool)
+      * @copydoc add_new_tx(transaction&, tx_verification_context&, bool)
       *
       * @param tx_hash the transaction's hash
       * @param tx_prefix_hash the transaction prefix' hash
@@ -667,7 +740,7 @@ namespace cryptonote
       * @param do_not_relay whether to prevent the transaction from being relayed
       *
       */
-     bool add_new_tx(const transaction& tx, const crypto::hash& tx_hash, const crypto::hash& tx_prefix_hash, size_t blob_size, tx_verification_context& tvc, bool keeped_by_block, bool relayed, bool do_not_relay);
+     bool add_new_tx(transaction& tx, const crypto::hash& tx_hash, const crypto::hash& tx_prefix_hash, size_t blob_size, tx_verification_context& tvc, bool keeped_by_block, bool relayed, bool do_not_relay);
 
      /**
       * @brief add a new transaction to the transaction pool
@@ -684,7 +757,7 @@ namespace cryptonote
       * is already in a block on the Blockchain, or is successfully added
       * to the transaction pool
       */
-     bool add_new_tx(const transaction& tx, tx_verification_context& tvc, bool keeped_by_block, bool relayed, bool do_not_relay);
+     bool add_new_tx(transaction& tx, tx_verification_context& tvc, bool keeped_by_block, bool relayed, bool do_not_relay);
 
      /**
       * @copydoc Blockchain::add_new_block
@@ -739,6 +812,9 @@ namespace cryptonote
       */
      bool check_tx_semantic(const transaction& tx, bool keeped_by_block) const;
 
+     bool handle_incoming_tx_pre(const blobdata& tx_blob, tx_verification_context& tvc, cryptonote::transaction &tx, crypto::hash &tx_hash, crypto::hash &tx_prefixt_hash, bool keeped_by_block, bool relayed, bool do_not_relay);
+     bool handle_incoming_tx_post(const blobdata& tx_blob, tx_verification_context& tvc, cryptonote::transaction &tx, crypto::hash &tx_hash, crypto::hash &tx_prefixt_hash, bool keeped_by_block, bool relayed, bool do_not_relay);
+
      /**
       * @copydoc miner::on_block_chain_update
       *
@@ -765,6 +841,15 @@ namespace cryptonote
       * @return false if any key image is repeated, otherwise true
       */
      bool check_tx_inputs_keyimages_diff(const transaction& tx) const;
+
+     /**
+      * @brief verify that each ring uses distinct members
+      *
+      * @param tx the transaction to check
+      *
+      * @return false if any ring uses duplicate members, true otherwise
+      */
+     bool check_tx_inputs_ring_members_diff(const transaction& tx) const;
 
      /**
       * @brief verify that each input key image in a transaction is in
@@ -839,12 +924,16 @@ namespace cryptonote
      time_t m_last_json_checkpoints_update; //!< time when json checkpoints were last updated
 
      std::atomic_flag m_checkpoints_updating; //!< set if checkpoints are currently updating to avoid multiple threads attempting to update at once
+     bool m_disable_dns_checkpoints;
 
      size_t block_sync_size;
 
      time_t start_time;
 
      std::unordered_set<crypto::hash> bad_semantics_txes[2];
+     boost::mutex bad_semantics_txes_lock;
+
+     tools::thread_group m_threadpool;
 
      enum {
        UPDATES_DISABLED,

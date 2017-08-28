@@ -48,7 +48,7 @@ Superior_add_library(ringct
 target_link_libraries(ringct
   PUBLIC
     common
-    crypto
+    cncrypto
     cryptonote_basic
   PRIVATE
     ${EXTRA_LIBRARIES})

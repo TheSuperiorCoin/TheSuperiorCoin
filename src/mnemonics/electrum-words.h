@@ -60,7 +60,7 @@ namespace crypto
   {
 
     const int seed_length = 24;
-    const std::string old_language_name = "OldEnglish";
+    const std::string old_language_name = "EnglishOld";
     /*!
      * \brief Converts seed words to bytes (secret key).
      * \param  words           String containing the words separated by spaces.
@@ -92,7 +92,7 @@ namespace crypto
      * \param  seed The seed to check (a space delimited concatenated word list)
      * \return      true if the seed passed is a old style seed false if not.
      */
-    bool get_is_old_style_seed(const std::string &seed);
+    bool get_is_old_style_seed(std::string seed);
   }
 }
 

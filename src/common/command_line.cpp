@@ -37,6 +37,10 @@
 #include "cryptonote_config.h"
 #include "string_tools.h"
 
+#ifdef HAVE_READLINE
+  #include "readline_buffer.h"
+#endif
+
 namespace command_line
 {
   namespace
@@ -49,6 +53,9 @@ namespace command_line
 
   std::string input_line(const std::string& prompt)
   {
+#ifdef HAVE_READLINE
+    rdln::suspend_readline pause_readline;
+#endif
     std::cout << prompt;
 
     std::string buf;
@@ -89,7 +96,7 @@ namespace command_line
   , "checkpoints from DNS server will be enforced"
   , false
   };
-  std::string arg_db_type_description = "Specify database type, available: " + boost::algorithm::join(cryptonote::blockchain_db_types, ", ");
+  std::string arg_db_type_description = "Specify database type, available: " + cryptonote::blockchain_db_types(", ");
   const command_line::arg_descriptor<std::string> arg_db_type = {
     "db-type"
   , arg_db_type_description.c_str()
@@ -99,6 +106,11 @@ namespace command_line
     "db-sync-mode"
   , "Specify sync option, using format [safe|fast|fastest]:[sync|async]:[nblocks_per_sync]." 
   , "fast:async:1000"
+  };
+  const arg_descriptor<bool> arg_db_salvage  = {
+    "db-salvage"
+  , "Try to salvage a blockchain database if it seems corrupted"
+  , false
   };
   const command_line::arg_descriptor<uint64_t> arg_fast_block_sync = {
     "fast-block-sync"
@@ -117,8 +129,8 @@ namespace command_line
   };
   const command_line::arg_descriptor<size_t> arg_block_sync_size  = {
     "block-sync-size"
-  , "How many blocks to sync at once during chain synchronization."
-  , BLOCKS_SYNCHRONIZING_DEFAULT_COUNT
+  , "How many blocks to sync at once during chain synchronization (0 = adaptive)."
+  , 0
   };
   const command_line::arg_descriptor<std::string> arg_check_updates = {
     "check-updates"

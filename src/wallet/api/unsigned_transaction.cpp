@@ -101,18 +101,19 @@ bool UnsignedTransactionImpl::checkLoadedTx(const std::function<size_t()> get_nu
 {
   // gather info to ask the user
   uint64_t amount = 0, amount_to_dests = 0, change = 0;
-  size_t min_mixin = ~0;
+  size_t min_ring_size = ~0;
   std::unordered_map<std::string, uint64_t> dests;
   const std::string wallet_address = m_wallet.m_wallet->get_account().get_public_address_str(m_wallet.m_wallet->testnet());
+  int first_known_non_zero_change_index = -1;
   for (size_t n = 0; n < get_num_txes(); ++n)
   {
     const tools::wallet2::tx_construction_data &cd = get_tx(n);
     for (size_t s = 0; s < cd.sources.size(); ++s)
     {
       amount += cd.sources[s].amount;
-      size_t mixin = cd.sources[s].outputs.size() - 1;
-      if (mixin < min_mixin)
-        min_mixin = mixin;
+      size_t ring_size = cd.sources[s].outputs.size();
+      if (ring_size < min_ring_size)
+        min_ring_size = ring_size;
     }
     for (size_t d = 0; d < cd.splitted_dsts.size(); ++d)
     {
@@ -140,11 +141,16 @@ bool UnsignedTransactionImpl::checkLoadedTx(const std::function<size_t()> get_nu
         m_errorString = tr("Claimed change is larger than payment to the change address");
         return  false;
       }
-      if (memcmp(&cd.change_dts.addr, &get_tx(0).change_dts.addr, sizeof(cd.change_dts.addr)))
+      if (cd.change_dts.amount > 0)
       {
-        m_status = Status_Error;
-        m_errorString = tr("Change does to more than one address");
-        return false;
+        if (first_known_non_zero_change_index == -1)
+          first_known_non_zero_change_index = n;
+        if (memcmp(&cd.change_dts.addr, &get_tx(first_known_non_zero_change_index).change_dts.addr, sizeof(cd.change_dts.addr)))
+        {
+          m_status = Status_Error;
+          m_errorString = tr("Change goes to more than one address");
+          return false;
+        }
       }
       change += cd.change_dts.amount;
       it->second -= cd.change_dts.amount;
@@ -172,7 +178,7 @@ bool UnsignedTransactionImpl::checkLoadedTx(const std::function<size_t()> get_nu
   else
     change_string += tr("no change");
   uint64_t fee = amount - amount_to_dests;
-  m_confirmationMessage = (boost::format(tr("Loaded %lu transactions, for %s, fee %s, %s, %s, with min mixin %lu. %s")) % (unsigned long)get_num_txes() % cryptonote::print_money(amount) % cryptonote::print_money(fee) % dest_string % change_string % (unsigned long)min_mixin % extra_message).str();
+  m_confirmationMessage = (boost::format(tr("Loaded %lu transactions, for %s, fee %s, %s, %s, with min ring size %lu. %s")) % (unsigned long)get_num_txes() % cryptonote::print_money(amount) % cryptonote::print_money(fee) % dest_string % change_string % (unsigned long)min_ring_size % extra_message).str();
   return true;
 }
 

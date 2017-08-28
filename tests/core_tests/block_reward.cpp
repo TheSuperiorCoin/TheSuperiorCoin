@@ -244,7 +244,7 @@ bool gen_block_reward::mark_checked_block(cryptonote::core& /*c*/, size_t ev_ind
   return true;
 }
 
-bool gen_block_reward::check_block_rewards(cryptonote::core& c, size_t /*ev_index*/, const std::vector<test_event_entry>& events)
+bool gen_block_reward::check_block_rewards(cryptonote::core& /*c*/, size_t /*ev_index*/, const std::vector<test_event_entry>& events)
 {
   DEFINE_TESTS_ERROR_CONTEXT("gen_block_reward_without_txs::check_block_rewards");
 
@@ -257,11 +257,11 @@ bool gen_block_reward::check_block_rewards(cryptonote::core& c, size_t /*ev_inde
   }
 
   std::array<uint64_t, 7> blk_rewards;
-  blk_rewards[0] = MONEY_SUPPLY >> EMISSION_SPEED_FACTOR_PER_MINUTE_;
+  blk_rewards[0] = MONEY_SUPPLY >> EMISSION_SPEED_FACTOR_PER_MINUTE;
   uint64_t cumulative_reward = blk_rewards[0];
   for (size_t i = 1; i < blk_rewards.size(); ++i)
   {
-    blk_rewards[i] = (MONEY_SUPPLY - cumulative_reward) >> EMISSION_SPEED_FACTOR_PER_MINUTE_;
+    blk_rewards[i] = (MONEY_SUPPLY - cumulative_reward) >> EMISSION_SPEED_FACTOR_PER_MINUTE;
     cumulative_reward += blk_rewards[i];
   }
 
