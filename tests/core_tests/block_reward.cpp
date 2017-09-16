@@ -248,12 +248,12 @@ bool gen_block_reward::check_block_rewards(cryptonote::core& /*c*/, size_t /*ev_
 {
   DEFINE_TESTS_ERROR_CONTEXT("gen_block_reward_without_txs::check_block_rewards");
 
-  int EMISSION_SPEED_FACTOR_PER_MINUTE_ = 0;
+  int EMISSION_SPEED_FACTOR_PER_MINUTE = 0;
   if(c.get_current_blockchain_height() < 2) {
-    EMISSION_SPEED_FACTOR_PER_MINUTE_ = (int)EMISSION_SPEED_FACTOR_PER_MINUTE_v1;
+    EMISSION_SPEED_FACTOR_PER_MINUTE = (int)EMISSION_SPEED_FACTOR_PER_MINUTE_v1;
   }
   else {
-    EMISSION_SPEED_FACTOR_PER_MINUTE_ = (int)EMISSION_SPEED_FACTOR_PER_MINUTE_v2;
+    EMISSION_SPEED_FACTOR_PER_MINUTE = (int)EMISSION_SPEED_FACTOR_PER_MINUTE_v2;
   }
 
   std::array<uint64_t, 7> blk_rewards;
