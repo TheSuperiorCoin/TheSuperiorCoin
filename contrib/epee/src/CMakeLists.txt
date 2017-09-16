@@ -27,8 +27,12 @@
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## Parts of this file are originally copyright (c) 2014-2017 The Monero Project
 
+if (USE_READLINE AND GNU_READLINE_FOUND)
+  add_library(epee STATIC hex.cpp http_auth.cpp mlog.cpp string_tools.cpp readline_buffer.cpp)
+else()
+  add_library(epee STATIC hex.cpp http_auth.cpp mlog.cpp string_tools.cpp)
+endif()
 
-add_library(epee STATIC http_auth.cpp mlog.cpp string_tools.cpp)
 # Build and install libepee if we're building for GUI
 if (BUILD_GUI_DEPS)
     if(IOS)
@@ -42,7 +46,8 @@ endif()
 
 target_link_libraries(epee
   PUBLIC
-    crypto
+    cncrypto
+    easylogging
     ${Boost_FILESYSTEM_LIBRARY}
   PRIVATE
     ${EXTRA_LIBRARIES})
