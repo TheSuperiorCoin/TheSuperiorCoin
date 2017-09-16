@@ -68,9 +68,9 @@ set(crypto_private_headers
   skein.h
   skein_port.h)
 
-Superior_private_headers(crypto
+Superior_private_headers(cncrypto
   ${crypto_private_headers})
-Superior_add_library(crypto
+Superior_add_library(cncrypto
   ${crypto_sources}
   ${crypto_headers}
   ${crypto_private_headers})
