@@ -244,7 +244,7 @@ bool gen_block_reward::mark_checked_block(cryptonote::core& /*c*/, size_t ev_ind
   return true;
 }
 
-bool gen_block_reward::check_block_rewards(cryptonote::core& /*c*/, size_t /*ev_index*/, const std::vector<test_event_entry>& events)
+bool gen_block_reward::check_block_rewards(cryptonote::core& c, size_t /*ev_index*/, const std::vector<test_event_entry>& events)
 {
   DEFINE_TESTS_ERROR_CONTEXT("gen_block_reward_without_txs::check_block_rewards");
 
