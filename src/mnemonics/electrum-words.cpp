@@ -56,7 +56,7 @@
 #include "french.h"
 #include "italian.h"
 #include "german.h"
-#include "spanish.h"
+// #include "spanish.h"
 #include "portuguese.h"
 #include "japanese.h"
 #include "russian.h"
@@ -87,7 +87,7 @@ namespace
       Language::Singleton<Language::English>::instance(),
       Language::Singleton<Language::Dutch>::instance(),
       Language::Singleton<Language::French>::instance(),
-      Language::Singleton<Language::Spanish>::instance(),
+     // Language::Singleton<Language::Spanish>::instance(),
       Language::Singleton<Language::German>::instance(),
       Language::Singleton<Language::Italian>::instance(),
       Language::Singleton<Language::Portuguese>::instance(),
@@ -324,10 +324,10 @@ namespace crypto
       {
         language = Language::Singleton<Language::French>::instance();
       }
-      else if (language_name == "Spanish")
-      {
-        language = Language::Singleton<Language::Spanish>::instance();
-      }
+      //else if (language_name == "Spanish")
+      //{
+      //  language = Language::Singleton<Language::Spanish>::instance();
+      //}
       else if (language_name == "Portuguese")
       {
         language = Language::Singleton<Language::Portuguese>::instance();
@@ -396,7 +396,7 @@ namespace crypto
         Language::Singleton<Language::English>::instance(),
         Language::Singleton<Language::Dutch>::instance(),
         Language::Singleton<Language::French>::instance(),
-        Language::Singleton<Language::Spanish>::instance(),
+       // Language::Singleton<Language::Spanish>::instance(),
         Language::Singleton<Language::German>::instance(),
         Language::Singleton<Language::Italian>::instance(),
         Language::Singleton<Language::Portuguese>::instance(),
