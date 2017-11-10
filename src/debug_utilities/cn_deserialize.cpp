@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2020, The Superior Project
+// Copyright (c) 2014-2017, The Monero Project
 //
 // All rights reserved.
 //
@@ -25,16 +25,15 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
+
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "cryptonote_basic/tx_extra.h"
 #include "cryptonote_core/blockchain.h"
-#include "blockchain_utilities.h"
 #include "common/command_line.h"
 #include "version.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "bcutil"
+#undef MONERO_DEFAULT_LOG_CATEGORY
+#define MONERO_DEFAULT_LOG_CATEGORY "debugtools.deserialize"
 
 namespace po = boost::program_options;
 using namespace epee;
@@ -77,7 +76,7 @@ int main(int argc, char* argv[])
 
   if (command_line::get_arg(vm, command_line::arg_help))
   {
-    std::cout << "Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")" << ENDL << ENDL;
+    std::cout << "superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")" << ENDL << ENDL;
     std::cout << desc_options << std::endl;
     return 1;
   }

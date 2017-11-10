@@ -125,6 +125,10 @@ bool WalletManagerImpl::walletExists(const std::string &path)
     return false;
 }
 
+bool WalletManagerImpl::verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool watch_only) const
+{
+	    return tools::wallet2::verify_password(keys_file_name, password, watch_only);
+}
 
 std::vector<std::string> WalletManagerImpl::findWallets(const std::string &path)
 {
@@ -207,7 +211,7 @@ bool WalletManagerImpl::checkPayment(const std::string &address_text, const std:
     return false;
   }
   tx_key = *reinterpret_cast<const crypto::secret_key*>(tx_key_data.data());
-
+//do not change this since address starts with 5
   bool testnet = address_text[0] != '5';
   cryptonote::account_public_address address;
   bool has_payment_id;

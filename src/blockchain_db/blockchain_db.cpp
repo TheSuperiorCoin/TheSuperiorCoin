@@ -31,6 +31,20 @@
 #include "blockchain_db.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
 #include "profile_tools.h"
+#include "ringct/rctOps.h"
+
+#include "lmdb/db_lmdb.h"
+#ifdef BERKELEY_DB
+#include "berkeleydb/db_bdb.h"
+#endif
+
+static const char *db_types[] = {
+  "lmdb",
+#ifdef BERKELEY_DB
+  "berkeley",
+#endif
+  NULL
+};
 
 #undef Superior_DEFAULT_LOG_CATEGORY
 #define Superior_DEFAULT_LOG_CATEGORY "blockchain.db"
@@ -39,6 +53,41 @@ using epee::string_tools::pod_to_hex;
 
 namespace cryptonote
 {
+
+bool blockchain_valid_db_type(const std::string& db_type)
+{
+  int i;
+  for (i=0; db_types[i]; i++)
+  {
+    if (db_types[i] == db_type)
+      return true;
+  }
+  return false;
+}
+
+std::string blockchain_db_types(const std::string& sep)
+{
+  int i;
+  std::string ret = "";
+  for (i=0; db_types[i]; i++)
+  {
+    if (i)
+      ret += sep;
+    ret += db_types[i];
+  }
+  return ret;
+}
+
+BlockchainDB *new_db(const std::string& db_type)
+{
+  if (db_type == "lmdb")
+    return new BlockchainLMDB();
+#if defined(BERKELEY_DB)
+  if (db_type == "berkeley")
+    return new BlockchainBDB();
+#endif
+  return NULL;
+}
 
 void BlockchainDB::pop_block()
 {
@@ -292,7 +341,7 @@ void BlockchainDB::fixup()
 
   if (get_block_hash_from_height(0) == mainnet_genesis_hash)
   {
-    // block 202612 (511 key images in 511 transactions)
+    // block 202612 (511 key images in 511 transactions) this needs fixed before this block
     static const char * const key_images_202612[] =
     {
       "51fc647fb27439fbb3672197d2068e4110391edf80d822f58607bd5757cba7f3",
@@ -807,7 +856,7 @@ void BlockchainDB::fixup()
       "e88a6d2daa863c0787cc523a2cab45c546fad788951b10d75e2b0954db24cca7",
       "38f531e67f88f66de44d3357c8e8f2db456160ca31dd2024c9562f6afd260278",
     };
-    // block 685498 (13 key images in one transaction)
+    // block 685498 (13 key images in one transaction) this needs fixed before this block
     static const char * const key_images_685498[] =
     {
       "749b7277aa21c70c417f255fb181c3a30b44277edf657eaaebf28a2709dd2a90",

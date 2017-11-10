@@ -26,6 +26,7 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "misc_log_ex.h"
 #include "util.h"
 #include "dns_utils.h"
 #include "updates.h"
@@ -44,10 +45,10 @@ namespace tools
 
     // All four SuperiorPulse domains have DNSSEC on and valid
     static const std::vector<std::string> dns_urls = {
-        "updates.Superiorpulse.org",
-        "updates.Superiorpulse.net",
-        "updates.Superiorpulse.co",
-        "updates.Superiorpulse.se"
+        "superior-coin.com",
+        "the-superior-coin.com",
+        "superiorcoinpool.com",
+        "superior-coin.info"
     };
 
     if (!tools::dns_utils::load_txt_records_from_dns(records, dns_urls))

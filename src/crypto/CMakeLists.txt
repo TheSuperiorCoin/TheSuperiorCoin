@@ -68,13 +68,13 @@ set(crypto_private_headers
   skein.h
   skein_port.h)
 
-Superior_private_headers(crypto
+Superior_private_headers(cncrypto
   ${crypto_private_headers})
-Superior_add_library(crypto
+Superior_add_library(cncrypto
   ${crypto_sources}
   ${crypto_headers}
   ${crypto_private_headers})
-target_link_libraries(crypto
+target_link_libraries(cncrypto
   PUBLIC
     ${Boost_SYSTEM_LIBRARY}
   PRIVATE
@@ -93,7 +93,7 @@ endif()
 # Because of the way Qt works on android with JNI, the code does not live in the main android thread
 # So this code runs with a 1 MB default stack size. 
 # This will force the use of the heap for the allocation of the scratchpad
-if (ANDROID)
+if (ANDROID OR IOS)
   if( BUILD_GUI_DEPS )
     add_definitions(-DFORCE_USE_HEAP=1)
   endif()

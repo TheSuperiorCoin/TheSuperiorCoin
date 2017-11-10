@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-ENV SRC_DIR /usr/local/src/Superior
+ENV SRC_DIR /usr/local/src/TheSuperiorCoin
 
 RUN set -x \
   && buildDeps=' \

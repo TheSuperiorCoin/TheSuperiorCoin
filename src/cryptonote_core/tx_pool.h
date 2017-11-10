@@ -27,6 +27,8 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+// Parts of this file are originally 2014-2017, The Monero Project
+
 
 #pragma once
 #include "include_base_utils.h"
@@ -43,6 +45,7 @@
 #include "math_helper.h"
 #include "cryptonote_basic/cryptonote_basic_impl.h"
 #include "cryptonote_basic/verification_context.h"
+#include "blockchain_db/blockchain_db.h"
 #include "crypto/hash.h"
 #include "rpc/core_rpc_server_commands_defs.h"
 
@@ -100,12 +103,12 @@ namespace cryptonote
 
 
     /**
-     * @copydoc add_tx(const transaction&, tx_verification_context&, bool, bool, uint8_t)
+     * @copydoc add_tx(transaction&, tx_verification_context&, bool, bool, uint8_t)
      *
      * @param id the transaction's hash
      * @param blob_size the transaction's size
      */
-    bool add_tx(const transaction &tx, const crypto::hash &id, size_t blob_size, tx_verification_context& tvc, bool kept_by_block, bool relayed, bool do_not_relay, uint8_t version);
+    bool add_tx(transaction &tx, const crypto::hash &id, size_t blob_size, tx_verification_context& tvc, bool kept_by_block, bool relayed, bool do_not_relay, uint8_t version);
 
     /**
      * @brief add a transaction to the transaction pool
@@ -124,7 +127,7 @@ namespace cryptonote
      *
      * @return true if the transaction passes validations, otherwise false
      */
-    bool add_tx(const transaction &tx, tx_verification_context& tvc, bool kept_by_block, bool relayed, bool do_not_relay, uint8_t version);
+    bool add_tx(transaction &tx, tx_verification_context& tvc, bool kept_by_block, bool relayed, bool do_not_relay, uint8_t version);
 
     /**
      * @brief takes a transaction with the given hash from the pool
@@ -199,7 +202,7 @@ namespace cryptonote
      *
      * @return true
      */
-    bool init(const std::string& config_folder);
+    bool init();
 
     /**
      * @brief attempts to save the transaction pool state to disk
@@ -220,11 +223,12 @@ namespace cryptonote
      * @param already_generated_coins the current total number of coins "minted"
      * @param total_size return-by-reference the total size of the new block
      * @param fee return-by-reference the total of fees from the included transactions
+     * @param expected_reward return-by-reference the total reward awarded to the miner finding this block, including transaction fees
      * @param version hard fork version to use for consensus rules
      *
      * @return true
      */
-    bool fill_block_template(block &bl, size_t median_size, uint64_t already_generated_coins, size_t &total_size, uint64_t &fee, uint8_t version);
+    bool fill_block_template(block &bl, size_t median_size, uint64_t already_generated_coins, size_t &total_size, uint64_t &fee, uint64_t &expected_reward, uint8_t version);
 
     /**
      * @brief get a list of all transactions in the pool
@@ -239,6 +243,20 @@ namespace cryptonote
      * @param txs return-by-reference the list of transactions
      */
     void get_transaction_hashes(std::vector<crypto::hash>& txs) const;
+
+    /**
+     * @brief get (size, fee, receive time) for all transaction in the pool
+     *
+     * @param txs return-by-reference that data
+     */
+    void get_transaction_backlog(std::vector<tx_backlog_entry>& backlog) const;
+
+    /**
+     * @brief get a summary statistics of all transaction hashes in the pool
+     *
+     * @param stats return-by-reference the pool statistics
+     */
+    void get_transaction_stats(struct txpool_stats& stats) const;
 
     /**
      * @brief get information about all transactions and key images in the pool
@@ -256,11 +274,11 @@ namespace cryptonote
      * @brief get a specific transaction from the pool
      *
      * @param h the hash of the transaction to get
-     * @param tx return-by-reference the transaction requested
+     * @param tx return-by-reference the transaction blob requested
      *
      * @return true if the transaction is found, otherwise false
      */
-    bool get_transaction(const crypto::hash& h, transaction& tx) const;
+    bool get_transaction(const crypto::hash& h, cryptonote::blobdata& txblob) const;
 
     /**
      * @brief get a list of all relayable transactions and their hashes
@@ -274,14 +292,14 @@ namespace cryptonote
      *
      * @return true
      */
-    bool get_relayable_transactions(std::list<std::pair<crypto::hash, cryptonote::transaction>>& txs) const;
+    bool get_relayable_transactions(std::list<std::pair<crypto::hash, cryptonote::blobdata>>& txs) const;
 
     /**
      * @brief tell the pool that certain transactions were just relayed
      *
      * @param txs the list of transactions (and their hashes)
      */
-    void set_relayed(const std::list<std::pair<crypto::hash, cryptonote::transaction>>& txs);
+    void set_relayed(const std::list<std::pair<crypto::hash, cryptonote::blobdata>>& txs);
 
     /**
      * @brief get the total number of transactions in the pool
@@ -315,28 +333,6 @@ namespace cryptonote
 
 #define CURRENT_MEMPOOL_ARCHIVE_VER    11
 #define CURRENT_MEMPOOL_TX_DETAILS_ARCHIVE_VER    12
-
-    /**
-     * @brief serialize the transaction pool to/from disk
-     *
-     * If the archive version passed is older than the version compiled
-     * in, this function does nothing, as it cannot deserialize after a
-     * format change.
-     *
-     * @tparam archive_t the archive class
-     * @param a the archive to serialize to/from
-     * @param version the archive version
-     */
-    template<class archive_t>
-    void serialize(archive_t & a, const unsigned int version)
-    {
-      if(version < CURRENT_MEMPOOL_ARCHIVE_VER )
-        return;
-      CRITICAL_REGION_LOCAL(m_transactions_lock);
-      a & m_transactions;
-      a & m_spent_key_images;
-      a & m_timed_out_transactions;
-    }
 
     /**
      * @brief information about a single transaction
@@ -377,6 +373,13 @@ namespace cryptonote
     };
 
   private:
+
+    /**
+     * @brief insert key images into m_spent_key_images
+     *
+     * @return true on success, false on error
+     */
+    bool insert_key_images(const transaction &tx, bool kept_by_block);
 
     /**
      * @brief remove old transactions from the pool
@@ -452,10 +455,7 @@ namespace cryptonote
      *
      * @return true if the transaction is good to go, otherwise false
      */
-    bool is_transaction_ready_to_go(tx_details& txd) const;
-
-    //! map transactions (and related info) by their hashes
-    typedef std::unordered_map<crypto::hash, tx_details > transactions_container;
+    bool is_transaction_ready_to_go(txpool_tx_meta_t& txd, transaction &tx) const;
 
     //TODO: confirm the below comments and investigate whether or not this
     //      is the desired behavior
@@ -472,7 +472,6 @@ namespace cryptonote
 public:
 #endif
     mutable epee::critical_section m_transactions_lock;  //!< lock for the pool
-    transactions_container m_transactions;  //!< container for transactions in the pool
 #if defined(DEBUG_CREATE_BLOCK_TEMPLATE)
 private:
 #endif
@@ -503,7 +502,6 @@ private:
      */
     std::unordered_set<crypto::hash> m_timed_out_transactions;
 
-    std::string m_config_folder;  //!< the folder to save state to
     Blockchain& m_blockchain;  //!< reference to the Blockchain object
   };
 }

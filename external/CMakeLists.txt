@@ -35,11 +35,12 @@
 # We always compile if we are building statically to reduce static dependency issues...
 # ...except for FreeBSD, because FreeBSD is a special case that doesn't play well with
 # others.
-
+if(NOT IOS)
 find_package(Miniupnpc QUIET)
+endif()
 
 # If we have the correct shared version and we're not building static, use it
-if(STATIC)
+if(STATIC OR IOS)
  set(USE_SHARED_MINIUPNPC false)
 elseif(MINIUPNP_FOUND AND MINIUPNPC_VERSION_1_7_OR_HIGHER)
  set(USE_SHARED_MINIUPNPC true)
@@ -99,3 +100,4 @@ else()
 endif()
 
 add_subdirectory(db_drivers)
+add_subdirectory(easylogging++)

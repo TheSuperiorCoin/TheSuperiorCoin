@@ -256,7 +256,8 @@ bool t_command_parser_executor::start_mining(const std::vector<std::string>& arg
     if(!cryptonote::get_account_integrated_address_from_str(adr, has_payment_id, payment_id, true, args.front()))
     {
       bool dnssec_valid;
-      std::string address_str = tools::dns_utils::get_account_address_as_str_from_url(args.front(), dnssec_valid);
+      std::string address_str = tools::dns_utils::get_account_address_as_str_from_url(args.front(), dnssec_valid,
+          [](const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid){return addresses[0];});
       if(!cryptonote::get_account_integrated_address_from_str(adr, has_payment_id, payment_id, false, address_str))
       {
         if(!cryptonote::get_account_integrated_address_from_str(adr, has_payment_id, payment_id, true, address_str))
@@ -561,6 +562,28 @@ bool t_command_parser_executor::update(const std::vector<std::string>& args)
   }
 
   return m_executor.update(args.front());
+}
+
+bool t_command_parser_executor::relay_tx(const std::vector<std::string>& args)
+{
+  if (args.size() != 1) return false;
+
+  std::string txid;
+  crypto::hash hash;
+  if (!parse_hash256(args[0], hash))
+  {
+    std::cout << "failed to parse tx id" << std::endl;
+    return true;
+  }
+  txid = args[0];
+  return m_executor.relay_tx(txid);
+}
+
+bool t_command_parser_executor::sync_info(const std::vector<std::string>& args)
+{
+  if (args.size() != 0) return false;
+
+  return m_executor.sync_info();
 }
 
 } // namespace daemonize

@@ -89,9 +89,8 @@ namespace cryptonote {
   bool get_block_reward(size_t median_size, size_t current_block_size, uint64_t already_generated_coins, uint64_t &reward, uint8_t version) {
     static_assert(DIFFICULTY_TARGET_V2%60==0&&DIFFICULTY_TARGET_V1%60==0,"difficulty targets must be a multiple of 60");
     const int target = version < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
-    const int EMISSION_SPEED_FACTOR_PER_MINUTE_ = version < 2 ? (int)EMISSION_SPEED_FACTOR_PER_MINUTE_v1 : (int)EMISSION_SPEED_FACTOR_PER_MINUTE_v2;
     const int target_minutes = target / 60;
-    const int emission_speed_factor = EMISSION_SPEED_FACTOR_PER_MINUTE_ - (target_minutes-1);
+    const int emission_speed_factor = EMISSION_SPEED_FACTOR_PER_MINUTE - (target_minutes-1);
 
     uint64_t base_reward = (MONEY_SUPPLY - already_generated_coins) >> emission_speed_factor;
     if (base_reward < FINAL_SUBSIDY_PER_MINUTE*target_minutes)
@@ -309,13 +308,13 @@ namespace cryptonote {
     , crypto::hash8& payment_id
     , bool testnet
     , const std::string& str_or_url
-    , bool cli_confirm
+    , std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm
     )
   {
     if (get_account_integrated_address_from_str(address, has_payment_id, payment_id, testnet, str_or_url))
       return true;
     bool dnssec_valid;
-    std::string address_str = tools::dns_utils::get_account_address_as_str_from_url(str_or_url, dnssec_valid, cli_confirm);
+    std::string address_str = tools::dns_utils::get_account_address_as_str_from_url(str_or_url, dnssec_valid, dns_confirm);
     return !address_str.empty() &&
       get_account_integrated_address_from_str(address, has_payment_id, payment_id, testnet, address_str);
   }
@@ -324,12 +323,12 @@ namespace cryptonote {
       cryptonote::account_public_address& address
     , bool testnet
     , const std::string& str_or_url
-    , bool cli_confirm
+    , std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm
     )
   {
     bool has_payment_id;
     crypto::hash8 payment_id;
-    return get_account_address_from_str_or_url(address, has_payment_id, payment_id, testnet, str_or_url, cli_confirm);
+    return get_account_address_from_str_or_url(address, has_payment_id, payment_id, testnet, str_or_url, dns_confirm);
   }
   //--------------------------------------------------------------------------------
   bool operator ==(const cryptonote::transaction& a, const cryptonote::transaction& b) {

@@ -124,6 +124,33 @@ struct tx_data_t
 };
 #pragma pack(pop)
 
+/**
+ * @brief a struct containing txpool per transaction metadata
+ */
+struct txpool_tx_meta_t
+{
+  crypto::hash max_used_block_id;
+  crypto::hash last_failed_id;
+  uint64_t blob_size;
+  uint64_t fee;
+  uint64_t max_used_block_height;
+  uint64_t last_failed_height;
+  uint64_t receive_time;
+  uint64_t last_relayed_time;
+  // 112 bytes
+  uint8_t kept_by_block;
+  uint8_t relayed;
+  uint8_t do_not_relay;
+
+  uint8_t padding[77]; // till 192 bytes
+};
+
+#define DBF_SAFE       1
+#define DBF_FAST       2
+#define DBF_FASTEST    4
+#define DBF_RDONLY     8
+#define DBF_SALVAGE 0x10
+
 /***********************************
  * Exception Definitions
  ***********************************/
@@ -577,6 +604,13 @@ public:
    * subclass of DB_EXCEPTION
    */
   virtual void sync() = 0;
+
+  /**
+   * @brief toggle safe syncs for the DB
+   *
+   * Used to switch DBF_SAFE on or off after starting up with DBF_FAST.
+   */
+  virtual void safesyncmode(const bool onoff) = 0;
 
   /**
    * @brief Remove everything from the BlockchainDB
@@ -1252,6 +1286,81 @@ public:
   virtual bool has_key_image(const crypto::key_image& img) const = 0;
 
   /**
+   * @brief add a txpool transaction
+   *
+   * @param details the details of the transaction to add
+   */
+  virtual void add_txpool_tx(const transaction &tx, const txpool_tx_meta_t& details) = 0;
+
+  /**
+   * @brief update a txpool transaction's metadata
+   *
+   * @param txid the txid of the transaction to update
+   * @param details the details of the transaction to update
+   */
+  virtual void update_txpool_tx(const crypto::hash &txid, const txpool_tx_meta_t& details) = 0;
+
+  /**
+   * @brief get the number of transactions in the txpool
+   */
+  virtual uint64_t get_txpool_tx_count() const = 0;
+
+  /**
+   * @brief check whether a txid is in the txpool
+   */
+  virtual bool txpool_has_tx(const crypto::hash &txid) const = 0;
+
+  /**
+   * @brief remove a txpool transaction
+   *
+   * @param txid the transaction id of the transation to remove
+   */
+  virtual void remove_txpool_tx(const crypto::hash& txid) = 0;
+
+  /**
+   * @brief get a txpool transaction's metadata
+   *
+   * @param txid the transaction id of the transation to lookup
+   *
+   * @return the metadata associated with that transaction
+   */
+  virtual txpool_tx_meta_t get_txpool_tx_meta(const crypto::hash& txid) const = 0;
+
+  /**
+   * @brief get a txpool transaction's blob
+   *
+   * @param txid the transaction id of the transation to lookup
+   * @param bd the blob to return
+   *
+   * @return true if the txid was in the txpool, false otherwise
+   */
+  virtual bool get_txpool_tx_blob(const crypto::hash& txid, cryptonote::blobdata &bd) const = 0;
+
+  /**
+   * @brief get a txpool transaction's blob
+   *
+   * @param txid the transaction id of the transation to lookup
+   *
+   * @return the blob for that transaction
+   */
+  virtual cryptonote::blobdata get_txpool_tx_blob(const crypto::hash& txid) const = 0;
+
+  /**
+   * @brief runs a function over all txpool transactions
+   *
+   * The subclass should run the passed function for each txpool tx it has
+   * stored, passing the tx id and metadata as its parameters.
+   *
+   * If any call to the function returns false, the subclass should return
+   * false.  Otherwise, the subclass returns true.
+   *
+   * @param std::function fn the function to run
+   *
+   * @return false if the function returns false for any transaction, otherwise true
+   */
+  virtual bool for_all_txpool_txes(std::function<bool(const crypto::hash&, const txpool_tx_meta_t&, const cryptonote::blobdata*)>, bool include_blob = false) const = 0;
+
+  /**
    * @brief runs a function over all key images stored
    *
    * The subclass should run the passed function for each key image it has
@@ -1267,10 +1376,10 @@ public:
   virtual bool for_all_key_images(std::function<bool(const crypto::key_image&)>) const = 0;
 
   /**
-   * @brief runs a function over all blocks stored
+   * @brief runs a function over a range of blocks
    *
-   * The subclass should run the passed function for each block it has
-   * stored, passing (block_height, block_hash, block) as its parameters.
+   * The subclass should run the passed function for each block in the
+   * specified range, passing (block_height, block_hash, block) as its parameters.
    *
    * If any call to the function returns false, the subclass should return
    * false.  Otherwise, the subclass returns true.
@@ -1278,11 +1387,13 @@ public:
    * The subclass should throw DB_ERROR if any of the expected values are
    * not found.  Current implementations simply return false.
    *
+   * @param h1 the start height
+   * @param h2 the end height
    * @param std::function fn the function to run
    *
    * @return false if the function returns false for any block, otherwise true
    */
-  virtual bool for_all_blocks(std::function<bool(uint64_t, const crypto::hash&, const cryptonote::block&)>) const = 0;
+  virtual bool for_blocks_range(const uint64_t& h1, const uint64_t& h2, std::function<bool(uint64_t, const crypto::hash&, const cryptonote::block&)>) const = 0;
 
   /**
    * @brief runs a function over all transactions stored
@@ -1393,6 +1504,7 @@ public:
 
 };  // class BlockchainDB
 
+BlockchainDB *new_db(const std::string& db_type);
 
 }  // namespace cryptonote
 

@@ -37,6 +37,7 @@
 #include <time.h>
 #include <iostream>
 #include <boost/algorithm/string.hpp>
+#include "mnemonics/chinese_simplified.h"
 #include "mnemonics/english.h"
 #include "mnemonics/spanish.h"
 #include "mnemonics/portuguese.h"
@@ -46,7 +47,8 @@
 #include "mnemonics/russian.h"
 #include "mnemonics/french.h"
 #include "mnemonics/dutch.h"
-#include "mnemonics/old_english.h"
+#include "mnemonics/esperanto.h"
+#include "mnemonics/english_old.h"
 #include "mnemonics/language_base.h"
 #include "mnemonics/singleton.h"
 
@@ -158,6 +160,7 @@ TEST(mnemonics, all_languages)
 {
   srand(time(NULL));
   std::vector<Language::Base*> languages({
+    Language::Singleton<Language::Chinese_Simplified>::instance(),
     Language::Singleton<Language::English>::instance(),
     Language::Singleton<Language::Spanish>::instance(),
     Language::Singleton<Language::Portuguese>::instance(),
@@ -167,6 +170,7 @@ TEST(mnemonics, all_languages)
     Language::Singleton<Language::Russian>::instance(),
     Language::Singleton<Language::French>::instance(),
     Language::Singleton<Language::Dutch>::instance(),
+    Language::Singleton<Language::Esperanto>::instance()
   });
 
   for (std::vector<Language::Base*>::iterator it = languages.begin(); it != languages.end(); it++)
@@ -193,9 +197,9 @@ TEST(mnemonics, language_detection_with_bad_checksum)
 
     res = crypto::ElectrumWords::words_to_bytes(base_seed, key, language_name);
     ASSERT_EQ(true, res);
-    ASSERT_STREQ(language_name.c_str(), "Portuguese");
+    ASSERT_STREQ(language_name.c_str(), "Português");
 
     res = crypto::ElectrumWords::words_to_bytes(base_seed + " " + real_checksum, key, language_name);
     ASSERT_EQ(true, res);
-    ASSERT_STREQ(language_name.c_str(), "Portuguese");
+    ASSERT_STREQ(language_name.c_str(), "Português");
 }

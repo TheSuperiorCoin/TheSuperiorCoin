@@ -54,7 +54,7 @@
 #include "net_peerlist_boost_serialization.h"
 
 
-#define CURRENT_PEERLIST_STORAGE_ARCHIVE_VER    4
+#define CURRENT_PEERLIST_STORAGE_ARCHIVE_VER    6
 
 namespace nodetool
 {
@@ -77,13 +77,14 @@ namespace nodetool
     bool get_gray_peer_by_index(peerlist_entry& p, size_t i);
     bool append_with_peer_white(const peerlist_entry& pr);
     bool append_with_peer_gray(const peerlist_entry& pr);
-    bool set_peer_just_seen(peerid_type peer, uint32_t ip, uint32_t port);
-    bool set_peer_just_seen(peerid_type peer, const net_address& addr);
+    bool append_with_peer_anchor(const anchor_peerlist_entry& ple);
+    bool set_peer_just_seen(peerid_type peer, const epee::net_utils::network_address& addr);
     bool set_peer_unreachable(const peerlist_entry& pr);
-    bool is_ip_allowed(uint32_t ip);
+    bool is_host_allowed(const epee::net_utils::network_address &address);
     bool get_random_gray_peer(peerlist_entry& pe);
     bool remove_from_peer_gray(const peerlist_entry& pe);
-
+    bool get_and_empty_anchor_peerlist(std::vector<anchor_peerlist_entry>& apl);
+    bool remove_from_peer_anchor(const epee::net_utils::network_address& addr);
     
   private:
     struct by_time{};
@@ -128,7 +129,7 @@ namespace nodetool
       peerlist_entry,
       boost::multi_index::indexed_by<
       // access by peerlist_entry::net_adress
-      boost::multi_index::ordered_unique<boost::multi_index::tag<by_addr>, boost::multi_index::member<peerlist_entry,net_address,&peerlist_entry::adr> >,
+      boost::multi_index::ordered_unique<boost::multi_index::tag<by_addr>, boost::multi_index::member<peerlist_entry,epee::net_utils::network_address,&peerlist_entry::adr> >,
       // sort by peerlist_entry::last_seen<
       boost::multi_index::ordered_non_unique<boost::multi_index::tag<by_time>, boost::multi_index::member<peerlist_entry,int64_t,&peerlist_entry::last_seen> >
       > 
@@ -140,16 +141,55 @@ namespace nodetool
       // access by peerlist_entry::id<
       boost::multi_index::ordered_unique<boost::multi_index::tag<by_id>, boost::multi_index::member<peerlist_entry,uint64_t,&peerlist_entry::id> >,
       // access by peerlist_entry::net_adress
-      boost::multi_index::ordered_unique<boost::multi_index::tag<by_addr>, boost::multi_index::member<peerlist_entry,net_address,&peerlist_entry::adr> >,
+      boost::multi_index::ordered_unique<boost::multi_index::tag<by_addr>, boost::multi_index::member<peerlist_entry,epee::net_utils::network_address,&peerlist_entry::adr> >,
       // sort by peerlist_entry::last_seen<
       boost::multi_index::ordered_non_unique<boost::multi_index::tag<by_time>, boost::multi_index::member<peerlist_entry,int64_t,&peerlist_entry::last_seen> >
       > 
     > peers_indexed_old;
-  public:    
+
+    typedef boost::multi_index_container<
+      anchor_peerlist_entry,
+      boost::multi_index::indexed_by<
+      // access by anchor_peerlist_entry::net_adress
+      boost::multi_index::ordered_unique<boost::multi_index::tag<by_addr>, boost::multi_index::member<anchor_peerlist_entry,epee::net_utils::network_address,&anchor_peerlist_entry::adr> >,
+      // sort by anchor_peerlist_entry::first_seen
+      boost::multi_index::ordered_non_unique<boost::multi_index::tag<by_time>, boost::multi_index::member<anchor_peerlist_entry,int64_t,&anchor_peerlist_entry::first_seen> >
+      >
+    > anchor_peers_indexed;
+  public:
     
+    template <class Archive, class List, class Element, class t_version_type>
+    void serialize_peers(Archive &a, List &list, Element ple, const t_version_type ver)
+    {
+      if (typename Archive::is_saving())
+      {
+        uint64_t size = list.size();
+        a & size;
+        for (auto p: list)
+        {
+          a & p;
+        }
+      }
+      else
+      {
+        uint64_t size;
+        a & size;
+        list.clear();
+        while (size--)
+        {
+          a & ple;
+          list.insert(ple);
+        }
+      }
+    }
+
     template <class Archive, class t_version_type>
     void serialize(Archive &a,  const t_version_type ver)
     {
+      // at v6, we drop existing peerlists, because annoying change
+      if (ver < 6)
+        return;
+
       if(ver < 3)
         return;
       CRITICAL_REGION_LOCAL(m_peerlist_lock);
@@ -161,8 +201,26 @@ namespace nodetool
         peers_indexed_from_old(pio, m_peers_white);
         return;
       }
+
+#if 0
+      // trouble loading more than one peer, can't find why
       a & m_peers_white;
       a & m_peers_gray;
+#else
+      serialize_peers(a, m_peers_white, peerlist_entry(), ver);
+      serialize_peers(a, m_peers_gray, peerlist_entry(), ver);
+#endif
+
+      if(ver < 5) {
+        return;
+      }
+
+#if 0
+      // trouble loading more than one peer, can't find why
+      a & m_peers_anchor;
+#else
+      serialize_peers(a, m_peers_anchor, anchor_peerlist_entry(), ver);
+#endif
     }
 
   private: 
@@ -178,6 +236,7 @@ namespace nodetool
 
     peers_indexed m_peers_gray;
     peers_indexed m_peers_white;
+    anchor_peers_indexed m_peers_anchor;
   };
   //--------------------------------------------------------------------------------------------------
   inline
@@ -264,13 +323,13 @@ namespace nodetool
   }
   //--------------------------------------------------------------------------------------------------
   inline 
-  bool peerlist_manager::is_ip_allowed(uint32_t ip)
+  bool peerlist_manager::is_host_allowed(const epee::net_utils::network_address &address)
   {
     //never allow loopback ip
-    if(epee::net_utils::is_ip_loopback(ip))
+    if(address.is_loopback())
       return false;
 
-    if(!m_allow_local_ip && epee::net_utils::is_ip_local(ip))
+    if(!m_allow_local_ip && address.is_local())
       return false;
 
     return true;
@@ -316,16 +375,7 @@ namespace nodetool
   }
   //--------------------------------------------------------------------------------------------------
   inline
-  bool peerlist_manager::set_peer_just_seen(peerid_type peer, uint32_t ip, uint32_t port)
-  {
-    net_address addr;
-    addr.ip = ip;
-    addr.port = port;
-    return set_peer_just_seen(peer, addr);
-  }
-  //--------------------------------------------------------------------------------------------------
-  inline
-  bool peerlist_manager::set_peer_just_seen(peerid_type peer, const net_address& addr)
+  bool peerlist_manager::set_peer_just_seen(peerid_type peer, const epee::net_utils::network_address& addr)
   {
     TRY_ENTRY();
     CRITICAL_REGION_LOCAL(m_peerlist_lock);
@@ -342,7 +392,7 @@ namespace nodetool
   bool peerlist_manager::append_with_peer_white(const peerlist_entry& ple)
   {
     TRY_ENTRY();
-    if(!is_ip_allowed(ple.adr.ip))
+    if(!is_host_allowed(ple.adr))
       return true;
 
      CRITICAL_REGION_LOCAL(m_peerlist_lock);
@@ -372,7 +422,7 @@ namespace nodetool
   bool peerlist_manager::append_with_peer_gray(const peerlist_entry& ple)
   {
     TRY_ENTRY();
-    if(!is_ip_allowed(ple.adr.ip))
+    if(!is_host_allowed(ple.adr))
       return true;
 
     CRITICAL_REGION_LOCAL(m_peerlist_lock);
@@ -395,6 +445,24 @@ namespace nodetool
     }
     return true;
     CATCH_ENTRY_L0("peerlist_manager::append_with_peer_gray()", false);
+  }
+  //--------------------------------------------------------------------------------------------------
+  inline
+  bool peerlist_manager::append_with_peer_anchor(const anchor_peerlist_entry& ple)
+  {
+    TRY_ENTRY();
+
+    CRITICAL_REGION_LOCAL(m_peerlist_lock);
+
+    auto by_addr_it_anchor = m_peers_anchor.get<by_addr>().find(ple.adr);
+
+    if(by_addr_it_anchor == m_peers_anchor.get<by_addr>().end()) {
+      m_peers_anchor.insert(ple);
+    }
+
+    return true;
+
+    CATCH_ENTRY_L0("peerlist_manager::append_with_peer_anchor()", false);
   }
   //--------------------------------------------------------------------------------------------------
   inline
@@ -435,7 +503,46 @@ namespace nodetool
 
     CATCH_ENTRY_L0("peerlist_manager::remove_from_peer_gray()", false);
   }
-    //--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
+  inline
+  bool peerlist_manager::get_and_empty_anchor_peerlist(std::vector<anchor_peerlist_entry>& apl)
+  {
+    TRY_ENTRY();
+
+    CRITICAL_REGION_LOCAL(m_peerlist_lock);
+
+    auto begin = m_peers_anchor.get<by_time>().begin();
+    auto end = m_peers_anchor.get<by_time>().end();
+
+    std::for_each(begin, end, [&apl](const anchor_peerlist_entry &a) {
+      apl.push_back(a);
+    });
+
+    m_peers_anchor.get<by_time>().clear();
+
+    return true;
+
+    CATCH_ENTRY_L0("peerlist_manager::get_and_empty_anchor_peerlist()", false);
+  }
+  //--------------------------------------------------------------------------------------------------
+  inline
+  bool peerlist_manager::remove_from_peer_anchor(const epee::net_utils::network_address& addr)
+  {
+    TRY_ENTRY();
+
+    CRITICAL_REGION_LOCAL(m_peerlist_lock);
+
+    anchor_peers_indexed::index_iterator<by_addr>::type iterator = m_peers_anchor.get<by_addr>().find(addr);
+
+    if (iterator != m_peers_anchor.get<by_addr>().end()) {
+      m_peers_anchor.erase(iterator);
+    }
+
+    return true;
+
+    CATCH_ENTRY_L0("peerlist_manager::remove_from_peer_anchor()", false);
+  }
+  //--------------------------------------------------------------------------------------------------
 }
 
 BOOST_CLASS_VERSION(nodetool::peerlist_manager, CURRENT_PEERLIST_STORAGE_ARCHIVE_VER)

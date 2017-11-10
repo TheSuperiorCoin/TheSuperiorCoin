@@ -73,7 +73,10 @@ public:
     bool setPassword(const std::string &password);
     std::string address() const;
     std::string integratedAddress(const std::string &payment_id) const;
-    std::string privateViewKey() const;
+    std::string secretViewKey() const;
+    std::string publicViewKey() const;
+    std::string secretSpendKey() const;
+    std::string publicSpendKey() const;
     std::string path() const;
     bool store(const std::string &path);
     std::string filename() const;
@@ -95,6 +98,7 @@ public:
     void setAutoRefreshInterval(int millis);
     int autoRefreshInterval() const;
     void setRefreshFromBlockHeight(uint64_t refresh_from_block_height);
+    uint64_t getRefreshFromBlockHeight() const { return m_wallet->get_refresh_from_block_height(); };
     void setRecoveringFromSeed(bool recoveringFromSeed);
     bool watchOnly() const;
     bool rescanSpent();
@@ -125,6 +129,7 @@ public:
     virtual void startRefresh();
     virtual void pauseRefresh();
     virtual bool parse_uri(const std::string &uri, std::string &address, std::string &payment_id, uint64_t &amount, std::string &tx_description, std::string &recipient_name, std::vector<std::string> &unknown_parameters, std::string &error);
+    virtual std::string getDefaultDataDir() const;
 
 private:
     void clearStatus() const;

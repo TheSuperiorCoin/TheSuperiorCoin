@@ -108,7 +108,7 @@ if (NOT BUILD_GUI_DEPS)
       epee
       rpc
       cryptonote_core
-      crypto
+      cncrypto
       common
       ${Boost_CHRONO_LIBRARY}
       ${Boost_PROGRAM_OPTIONS_LIBRARY}
@@ -126,14 +126,19 @@ endif()
 
 # build and install libwallet_merged only if we building for GUI
 if (BUILD_GUI_DEPS)
-    set(libs_to_merge wallet cryptonote_core cryptonote_basic mnemonics common crypto ringct)
+    set(libs_to_merge wallet cryptonote_core cryptonote_basic mnemonics common cncrypto ringct)
 
     foreach(lib ${libs_to_merge})
         list(APPEND objlibs $<TARGET_OBJECTS:obj_${lib}>) # matches naming convention in src/CMakeLists.txt
     endforeach()
     add_library(wallet_merged STATIC ${objlibs})
+    if(IOS)
+        set(lib_folder lib-${ARCH})
+    else()
+        set(lib_folder lib)
+    endif()
     install(TARGETS wallet_merged
-        ARCHIVE DESTINATION lib)
+        ARCHIVE DESTINATION ${lib_folder})
 
     install(FILES ${wallet_api_headers}
         DESTINATION include/wallet)

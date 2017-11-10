@@ -246,7 +246,17 @@ t_command_server::t_command_server(
     m_command_lookup.set_handler(
       "update"
     , std::bind(&t_command_parser_executor::update, &m_parser, p::_1)
-    , "subcommands: check (check if an update is available), download (download it is there is), update (not implemented)"
+    , "subcommands: check (check if an update is available), download (download it if there is), update (not implemented)"
+    );
+    m_command_lookup.set_handler(
+      "relay_tx"
+    , std::bind(&t_command_parser_executor::relay_tx, &m_parser, p::_1)
+    , "Relay a given transaction by its txid"
+    );
+    m_command_lookup.set_handler(
+      "sync_info"
+    , std::bind(&t_command_parser_executor::sync_info, &m_parser, p::_1)
+    , "Print information about blockchain sync state"
     );
 }
 

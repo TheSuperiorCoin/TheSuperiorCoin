@@ -1,4 +1,4 @@
 #define Superior_VERSION_TAG "@VERSIONTAG@"
-#define Superior_VERSION "0.10.3.1"
-#define Superior_RELEASE_NAME "Wolfram Warptangent"
+#define Superior_VERSION "0.11.0.0"
+#define Superior_RELEASE_NAME "Helium Hydra"
 #define Superior_VERSION_FULL Superior_VERSION "-" Superior_VERSION_TAG

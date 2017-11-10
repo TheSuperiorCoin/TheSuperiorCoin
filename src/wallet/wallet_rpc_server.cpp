@@ -45,6 +45,7 @@ using namespace epee;
 #include "string_coding.h"
 #include "string_tools.h"
 #include "crypto/hash.h"
+#include "mnemonics/electrum-words.h"
 #include "rpc/rpc_args.h"
 #include "rpc/core_rpc_server_commands_defs.h"
 
@@ -56,6 +57,7 @@ namespace
   const command_line::arg_descriptor<std::string, true> arg_rpc_bind_port = {"rpc-bind-port", "Sets bind port for server"};
   const command_line::arg_descriptor<bool> arg_disable_rpc_login = {"disable-rpc-login", "Disable HTTP authentication for RPC connections served by this process"};
   const command_line::arg_descriptor<bool> arg_trusted_daemon = {"trusted-daemon", "Enable commands which rely on a trusted daemon", false};
+  const command_line::arg_descriptor<std::string> arg_wallet_dir = {"wallet-dir", "Directory for newly created wallets"};
 
   constexpr const char default_rpc_username[] = "Superior";
 }
@@ -68,8 +70,9 @@ namespace tools
   }
 
   //------------------------------------------------------------------------------------------------------------------------------
-  wallet_rpc_server::wallet_rpc_server(wallet2& w):m_wallet(w), rpc_login_filename(), m_stop(false), m_trusted_daemon(false)
-  {}
+  wallet_rpc_server::wallet_rpc_server():m_wallet(NULL), rpc_login_filename(), m_stop(false), m_trusted_daemon(false)
+  {
+  }
   //------------------------------------------------------------------------------------------------------------------------------
   wallet_rpc_server::~wallet_rpc_server()
   {
@@ -81,12 +84,17 @@ namespace tools
     catch (...) {}
   }
   //------------------------------------------------------------------------------------------------------------------------------
+  void wallet_rpc_server::set_wallet(wallet2 *cr)
+  {
+    m_wallet = cr;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::run()
   {
     m_stop = false;
     m_net_server.add_idle_handler([this](){
       try {
-        m_wallet.refresh();
+        if (m_wallet) m_wallet->refresh();
       } catch (const std::exception& ex) {
         LOG_ERROR("Exception at while refreshing, what=" << ex.what());
       }
@@ -105,23 +113,54 @@ namespace tools
     return epee::http_server_impl_base<wallet_rpc_server, connection_context>::run(1, true);
   }
   //------------------------------------------------------------------------------------------------------------------------------
-  bool wallet_rpc_server::init(const boost::program_options::variables_map& vm)
+  void wallet_rpc_server::stop()
   {
-    auto rpc_config = cryptonote::rpc_args::process(vm);
+    if (m_wallet)
+    {
+      m_wallet->store();
+      delete m_wallet;
+      m_wallet = NULL;
+    }
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool wallet_rpc_server::init(const boost::program_options::variables_map *vm)
+  {
+    auto rpc_config = cryptonote::rpc_args::process(*vm);
     if (!rpc_config)
       return false;
 
-    boost::optional<epee::net_utils::http::login> http_login{};
-    std::string bind_port = command_line::get_arg(vm, arg_rpc_bind_port);
-    const bool disable_auth = command_line::get_arg(vm, arg_disable_rpc_login);
-    m_trusted_daemon = command_line::get_arg(vm, arg_trusted_daemon);
-    if (!command_line::has_arg(vm, arg_trusted_daemon))
+    m_vm = vm;
+    tools::wallet2 *walvars;
+    std::unique_ptr<tools::wallet2> tmpwal;
+
+    if (m_wallet)
+      walvars = m_wallet;
+    else
     {
-      if (tools::is_local_address(m_wallet.get_daemon_address()))
+      tmpwal = tools::wallet2::make_dummy(*m_vm);
+      walvars = tmpwal.get();
+    }
+    boost::optional<epee::net_utils::http::login> http_login{};
+    std::string bind_port = command_line::get_arg(*m_vm, arg_rpc_bind_port);
+    const bool disable_auth = command_line::get_arg(*m_vm, arg_disable_rpc_login);
+    m_trusted_daemon = command_line::get_arg(*m_vm, arg_trusted_daemon);
+    if (!command_line::has_arg(*m_vm, arg_trusted_daemon))
+    {
+      if (tools::is_local_address(walvars->get_daemon_address()))
       {
         MINFO(tr("Daemon is local, assuming trusted"));
         m_trusted_daemon = true;
       }
+    }
+    if (command_line::has_arg(*m_vm, arg_wallet_dir))
+    {
+      m_wallet_dir = command_line::get_arg(*m_vm, arg_wallet_dir);
+#ifdef _WIN32
+#define MKDIR(path, mode)    mkdir(path)
+#else
+#define MKDIR(path, mode)    mkdir(path, mode)
+#endif
+      MKDIR(m_wallet_dir.c_str(), 0700);
     }
 
     if (disable_auth)
@@ -173,12 +212,32 @@ namespace tools
       LOG_PRINT_L0(tr("RPC username/password is stored in file ") << temp);
     } // end auth enabled
 
-    m_http_client.set_server(m_wallet.get_daemon_address(), m_wallet.get_daemon_login());
+    m_http_client.set_server(walvars->get_daemon_address(), walvars->get_daemon_login());
 
     m_net_server.set_threads_prefix("RPC");
     return epee::http_server_impl_base<wallet_rpc_server, connection_context>::init(
       std::move(bind_port), std::move(rpc_config->bind_ip), std::move(http_login)
     );
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool wallet_rpc_server::not_open(epee::json_rpc::error& er)
+  {
+      er.code = WALLET_RPC_ERROR_CODE_NOT_OPEN;
+      er.message = "No wallet file";
+      return false;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  uint64_t wallet_rpc_server::adjust_mixin(uint64_t mixin)
+  {
+    if (mixin < 4 && m_wallet->use_fork_rules(6, 10)) {
+      MWARNING("Requested ring size " << (mixin + 1) << " too low for hard fork 6, using 5");
+      mixin = 4;
+    }
+    else if (mixin < 2 && m_wallet->use_fork_rules(2, 10)) {
+      MWARNING("Requested ring size " << (mixin + 1) << " too low for hard fork 2, using 3");
+      mixin = 2;
+    }
+    return mixin;
   }
   //------------------------------------------------------------------------------------------------------------------------------
   void wallet_rpc_server::fill_transfer_entry(tools::wallet_rpc::transfer_entry &entry, const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd)
@@ -190,8 +249,9 @@ namespace tools
     entry.height = pd.m_block_height;
     entry.timestamp = pd.m_timestamp;
     entry.amount = pd.m_amount;
+    entry.unlock_time = pd.m_unlock_time;
     entry.fee = 0; // TODO
-    entry.note = m_wallet.get_tx_note(pd.m_tx_hash);
+    entry.note = m_wallet->get_tx_note(pd.m_tx_hash);
     entry.type = "in";
   }
   //------------------------------------------------------------------------------------------------------------------------------
@@ -203,16 +263,17 @@ namespace tools
       entry.payment_id = entry.payment_id.substr(0,16);
     entry.height = pd.m_block_height;
     entry.timestamp = pd.m_timestamp;
+    entry.unlock_time = pd.m_unlock_time;
     entry.fee = pd.m_amount_in - pd.m_amount_out;
     uint64_t change = pd.m_change == (uint64_t)-1 ? 0 : pd.m_change; // change may not be known
     entry.amount = pd.m_amount_in - change - entry.fee;
-    entry.note = m_wallet.get_tx_note(txid);
+    entry.note = m_wallet->get_tx_note(txid);
 
     for (const auto &d: pd.m_dests) {
       entry.destinations.push_back(wallet_rpc::transfer_destination());
       wallet_rpc::transfer_destination &td = entry.destinations.back();
       td.amount = d.amount;
-      td.address = get_account_address_as_str(m_wallet.testnet(), d.addr);
+      td.address = get_account_address_as_str(m_wallet->testnet(), d.addr);
     }
 
     entry.type = "out";
@@ -230,7 +291,8 @@ namespace tools
     entry.timestamp = pd.m_timestamp;
     entry.fee = pd.m_amount_in - pd.m_amount_out;
     entry.amount = pd.m_amount_in - pd.m_change - entry.fee;
-    entry.note = m_wallet.get_tx_note(txid);
+    entry.unlock_time = pd.m_tx.unlock_time;
+    entry.note = m_wallet->get_tx_note(txid);
     entry.type = is_failed ? "failed" : "pending";
   }
   //------------------------------------------------------------------------------------------------------------------------------
@@ -243,17 +305,19 @@ namespace tools
     entry.height = 0;
     entry.timestamp = pd.m_timestamp;
     entry.amount = pd.m_amount;
+    entry.unlock_time = pd.m_unlock_time;
     entry.fee = 0; // TODO
-    entry.note = m_wallet.get_tx_note(pd.m_tx_hash);
+    entry.note = m_wallet->get_tx_note(pd.m_tx_hash);
     entry.type = "pool";
   }
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_getbalance(const wallet_rpc::COMMAND_RPC_GET_BALANCE::request& req, wallet_rpc::COMMAND_RPC_GET_BALANCE::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     try
     {
-      res.balance = m_wallet.balance();
-      res.unlocked_balance = m_wallet.unlocked_balance();
+      res.balance = m_wallet->balance();
+      res.unlocked_balance = m_wallet->unlocked_balance();
     }
     catch (const std::exception& e)
     {
@@ -266,9 +330,10 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_getaddress(const wallet_rpc::COMMAND_RPC_GET_ADDRESS::request& req, wallet_rpc::COMMAND_RPC_GET_ADDRESS::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     try
     {
-      res.address = m_wallet.get_account().get_public_address_str(m_wallet.testnet());
+      res.address = m_wallet->get_account().get_public_address_str(m_wallet->testnet());
     }
     catch (const std::exception& e)
     {
@@ -281,9 +346,10 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_getheight(const wallet_rpc::COMMAND_RPC_GET_HEIGHT::request& req, wallet_rpc::COMMAND_RPC_GET_HEIGHT::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     try
     {
-      res.height = m_wallet.get_blockchain_current_height();
+      res.height = m_wallet->get_blockchain_current_height();
     }
     catch (const std::exception& e)
     {
@@ -303,10 +369,25 @@ namespace tools
       cryptonote::tx_destination_entry de;
       bool has_payment_id;
       crypto::hash8 new_payment_id;
-      if(!get_account_address_from_str_or_url(de.addr, has_payment_id, new_payment_id, m_wallet.testnet(), it->address, false))
+      er.message = "";
+      if(!get_account_address_from_str_or_url(de.addr, has_payment_id, new_payment_id, m_wallet->testnet(), it->address,
+        [&er](const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid)->std::string {
+          if (!dnssec_valid)
+          {
+            er.message = std::string("Invalid DNSSEC for ") + url;
+            return {};
+          }
+          if (addresses.empty())
+          {
+            er.message = std::string("No Superior address found at ") + url;
+            return {};
+          }
+          return addresses[0];
+        }))
       {
         er.code = WALLET_RPC_ERROR_CODE_WRONG_ADDRESS;
-        er.message = std::string("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: ") + it->address;
+        if (er.message.empty())
+          er.message = std::string("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: ") + it->address;
         return false;
       }
       de.amount = it->amount;
@@ -373,8 +454,9 @@ namespace tools
     std::vector<cryptonote::tx_destination_entry> dsts;
     std::vector<uint8_t> extra;
 
-    LOG_PRINT_L3("on_transfer_split starts");
-    if (m_wallet.restricted())
+    LOG_PRINT_L3("on_transfer starts");
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -389,12 +471,8 @@ namespace tools
 
     try
     {
-      uint64_t mixin = req.mixin;
-      if (mixin < 2 && m_wallet.use_fork_rules(2, 10)) {
-        LOG_PRINT_L1("Requested mixin " << req.mixin << " too low for hard fork 2, using 2");
-        mixin = 2;
-      }
-      std::vector<wallet2::pending_tx> ptx_vector = m_wallet.create_transactions_2(dsts, mixin, req.unlock_time, req.priority, extra, m_trusted_daemon);
+      uint64_t mixin = adjust_mixin(req.mixin);
+      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, mixin, req.unlock_time, req.priority, extra, m_trusted_daemon);
 
       // reject proposed transactions if there are more than one.  see on_transfer_split below.
       if (ptx_vector.size() != 1)
@@ -404,7 +482,8 @@ namespace tools
         return false;
       }
 
-      m_wallet.commit_tx(ptx_vector);
+      if (!req.do_not_relay)
+        m_wallet->commit_tx(ptx_vector);
 
       // populate response with tx hash
       res.tx_hash = epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx_vector.back().tx));
@@ -413,6 +492,13 @@ namespace tools
         res.tx_key = epee::string_tools::pod_to_hex(ptx_vector.back().tx_key);
       }
       res.fee = ptx_vector.back().fee;
+
+      if (req.get_tx_hex)
+      {
+        cryptonote::blobdata blob;
+        tx_to_blob(ptx_vector.back().tx, blob);
+        res.tx_blob = epee::string_tools::buff_to_hex_nodelimer(blob);
+      }
       return true;
     }
     catch (const tools::error::daemon_busy& e)
@@ -442,7 +528,8 @@ namespace tools
     std::vector<cryptonote::tx_destination_entry> dsts;
     std::vector<uint8_t> extra;
 
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -457,19 +544,19 @@ namespace tools
 
     try
     {
-      uint64_t mixin = req.mixin;
-      if (mixin < 2 && m_wallet.use_fork_rules(2, 10)) {
-        LOG_PRINT_L1("Requested mixin " << req.mixin << " too low for hard fork 2, using 2");
-        mixin = 2;
-      }
+      uint64_t mixin = adjust_mixin(req.mixin);
+      uint64_t ptx_amount;
       std::vector<wallet2::pending_tx> ptx_vector;
       LOG_PRINT_L2("on_transfer_split calling create_transactions_2");
-      ptx_vector = m_wallet.create_transactions_2(dsts, mixin, req.unlock_time, req.priority, extra, m_trusted_daemon);
+      ptx_vector = m_wallet->create_transactions_2(dsts, mixin, req.unlock_time, req.priority, extra, m_trusted_daemon);
       LOG_PRINT_L2("on_transfer_split called create_transactions_2");
 
-      LOG_PRINT_L2("on_transfer_split calling commit_txyy");
-      m_wallet.commit_tx(ptx_vector);
-      LOG_PRINT_L2("on_transfer_split called commit_txyy");
+      if (!req.do_not_relay)
+      {
+        LOG_PRINT_L2("on_transfer_split calling commit_tx");
+        m_wallet->commit_tx(ptx_vector);
+        LOG_PRINT_L2("on_transfer_split called commit_tx");
+      }
 
       // populate response with tx hashes
       for (auto & ptx : ptx_vector)
@@ -479,7 +566,20 @@ namespace tools
         {
           res.tx_key_list.push_back(epee::string_tools::pod_to_hex(ptx.tx_key));
         }
+        // Compute amount leaving wallet in tx. By convention dests does not include change outputs
+        ptx_amount = 0;
+        for(auto & dt: ptx.dests)
+          ptx_amount += dt.amount;
+        res.amount_list.push_back(ptx_amount);
+
         res.fee_list.push_back(ptx.fee);
+
+        if (req.get_tx_hex)
+        {
+          cryptonote::blobdata blob;
+          tx_to_blob(ptx.tx, blob);
+          res.tx_blob_list.push_back(epee::string_tools::buff_to_hex_nodelimer(blob));
+        }
       }
 
       return true;
@@ -507,7 +607,8 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_sweep_dust(const wallet_rpc::COMMAND_RPC_SWEEP_DUST::request& req, wallet_rpc::COMMAND_RPC_SWEEP_DUST::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -516,9 +617,10 @@ namespace tools
 
     try
     {
-      std::vector<wallet2::pending_tx> ptx_vector = m_wallet.create_unmixable_sweep_transactions(m_trusted_daemon);
+      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_unmixable_sweep_transactions(m_trusted_daemon);
 
-      m_wallet.commit_tx(ptx_vector);
+      if (!req.do_not_relay)
+        m_wallet->commit_tx(ptx_vector);
 
       // populate response with tx hashes
       for (auto & ptx : ptx_vector)
@@ -529,6 +631,12 @@ namespace tools
           res.tx_key_list.push_back(epee::string_tools::pod_to_hex(ptx.tx_key));
         }
         res.fee_list.push_back(ptx.fee);
+        if (req.get_tx_hex)
+        {
+          cryptonote::blobdata blob;
+          tx_to_blob(ptx.tx, blob);
+          res.tx_blob_list.push_back(epee::string_tools::buff_to_hex_nodelimer(blob));
+        }
       }
 
       return true;
@@ -559,7 +667,8 @@ namespace tools
     std::vector<cryptonote::tx_destination_entry> dsts;
     std::vector<uint8_t> extra;
 
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -578,9 +687,11 @@ namespace tools
 
     try
     {
-      std::vector<wallet2::pending_tx> ptx_vector = m_wallet.create_transactions_all(dsts[0].addr, req.mixin, req.unlock_time, req.priority, extra, m_trusted_daemon);
+      uint64_t mixin = adjust_mixin(req.mixin);
+      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_all(req.below_amount, dsts[0].addr, mixin, req.unlock_time, req.priority, extra, m_trusted_daemon);
 
-      m_wallet.commit_tx(ptx_vector);
+      if (!req.do_not_relay)
+        m_wallet->commit_tx(ptx_vector);
 
       // populate response with tx hashes
       for (auto & ptx : ptx_vector)
@@ -590,7 +701,12 @@ namespace tools
         {
           res.tx_key_list.push_back(epee::string_tools::pod_to_hex(ptx.tx_key));
         }
-        res.fee_list.push_back(ptx.fee);
+        if (req.get_tx_hex)
+        {
+          cryptonote::blobdata blob;
+          tx_to_blob(ptx.tx, blob);
+          res.tx_blob_list.push_back(epee::string_tools::buff_to_hex_nodelimer(blob));
+        }
       }
 
       return true;
@@ -618,6 +734,7 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_make_integrated_address(const wallet_rpc::COMMAND_RPC_MAKE_INTEGRATED_ADDRESS::request& req, wallet_rpc::COMMAND_RPC_MAKE_INTEGRATED_ADDRESS::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     try
     {
       crypto::hash8 payment_id;
@@ -635,7 +752,7 @@ namespace tools
         }
       }
 
-      res.integrated_address = m_wallet.get_account().get_public_integrated_address_str(payment_id, m_wallet.testnet());
+      res.integrated_address = m_wallet->get_account().get_public_integrated_address_str(payment_id, m_wallet->testnet());
       res.payment_id = epee::string_tools::pod_to_hex(payment_id);
       return true;
     }
@@ -650,13 +767,14 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_split_integrated_address(const wallet_rpc::COMMAND_RPC_SPLIT_INTEGRATED_ADDRESS::request& req, wallet_rpc::COMMAND_RPC_SPLIT_INTEGRATED_ADDRESS::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     try
     {
       cryptonote::account_public_address address;
       crypto::hash8 payment_id;
       bool has_payment_id;
 
-      if(!get_account_integrated_address_from_str(address, has_payment_id, payment_id, m_wallet.testnet(), req.integrated_address))
+      if(!get_account_integrated_address_from_str(address, has_payment_id, payment_id, m_wallet->testnet(), req.integrated_address))
       {
         er.code = WALLET_RPC_ERROR_CODE_WRONG_ADDRESS;
         er.message = "Invalid address";
@@ -668,7 +786,7 @@ namespace tools
         er.message = "Address is not an integrated address";
         return false;
       }
-      res.standard_address = get_account_address_as_str(m_wallet.testnet(),address);
+      res.standard_address = get_account_address_as_str(m_wallet->testnet(),address);
       res.payment_id = epee::string_tools::pod_to_hex(payment_id);
       return true;
     }
@@ -683,7 +801,8 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_store(const wallet_rpc::COMMAND_RPC_STORE::request& req, wallet_rpc::COMMAND_RPC_STORE::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -692,7 +811,7 @@ namespace tools
 
     try
     {
-      m_wallet.store();
+      m_wallet->store();
     }
     catch (const std::exception& e)
     {
@@ -705,6 +824,7 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_get_payments(const wallet_rpc::COMMAND_RPC_GET_PAYMENTS::request& req, wallet_rpc::COMMAND_RPC_GET_PAYMENTS::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     crypto::hash payment_id;
     crypto::hash8 payment_id8;
     cryptonote::blobdata payment_id_blob;
@@ -734,7 +854,7 @@ namespace tools
 
     res.payments.clear();
     std::list<wallet2::payment_details> payment_list;
-    m_wallet.get_payments(payment_id, payment_list);
+    m_wallet->get_payments(payment_id, payment_list);
     for (auto & payment : payment_list)
     {
       wallet_rpc::payment_details rpc_payment;
@@ -752,12 +872,13 @@ namespace tools
   bool wallet_rpc_server::on_get_bulk_payments(const wallet_rpc::COMMAND_RPC_GET_BULK_PAYMENTS::request& req, wallet_rpc::COMMAND_RPC_GET_BULK_PAYMENTS::response& res, epee::json_rpc::error& er)
   {
     res.payments.clear();
+    if (!m_wallet) return not_open(er);
 
     /* If the payment ID list is empty, we get payments to any payment ID (or lack thereof) */
     if (req.payment_ids.empty())
     {
       std::list<std::pair<crypto::hash,wallet2::payment_details>> payment_list;
-      m_wallet.get_payments(payment_list, req.min_block_height);
+      m_wallet->get_payments(payment_list, req.min_block_height);
 
       for (auto & payment : payment_list)
       {
@@ -806,7 +927,7 @@ namespace tools
       }
 
       std::list<wallet2::payment_details> payment_list;
-      m_wallet.get_payments(payment_id, payment_list, req.min_block_height);
+      m_wallet->get_payments(payment_id, payment_list, req.min_block_height);
 
       for (auto & payment : payment_list)
       {
@@ -825,6 +946,7 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_incoming_transfers(const wallet_rpc::COMMAND_RPC_INCOMING_TRANSFERS::request& req, wallet_rpc::COMMAND_RPC_INCOMING_TRANSFERS::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     if(req.transfer_type.compare("all") != 0 && req.transfer_type.compare("available") != 0 && req.transfer_type.compare("unavailable") != 0)
     {
       er.code = WALLET_RPC_ERROR_CODE_TRANSFER_TYPE;
@@ -846,7 +968,7 @@ namespace tools
     }
 
     wallet2::transfer_container transfers;
-    m_wallet.get_transfers(transfers);
+    m_wallet->get_transfers(transfers);
 
     bool transfers_found = false;
     for (const auto& td : transfers)
@@ -873,7 +995,8 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_query_key(const wallet_rpc::COMMAND_RPC_QUERY_KEY::request& req, wallet_rpc::COMMAND_RPC_QUERY_KEY::response& res, epee::json_rpc::error& er)
   {
-      if (m_wallet.restricted())
+      if (!m_wallet) return not_open(er);
+      if (m_wallet->restricted())
       {
         er.code = WALLET_RPC_ERROR_CODE_DENIED;
         er.message = "Command unavailable in restricted mode.";
@@ -882,7 +1005,7 @@ namespace tools
 
       if (req.key_type.compare("mnemonic") == 0)
       {
-        if (!m_wallet.get_seed(res.key))
+        if (!m_wallet->get_seed(res.key))
         {
             er.message = "The wallet is non-deterministic. Cannot display seed.";
             return false;
@@ -890,7 +1013,7 @@ namespace tools
       }
       else if(req.key_type.compare("view_key") == 0)
       {
-          res.key = string_tools::pod_to_hex(m_wallet.get_account().get_keys().m_view_secret_key);
+          res.key = string_tools::pod_to_hex(m_wallet->get_account().get_keys().m_view_secret_key);
       }
       else
       {
@@ -903,7 +1026,8 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_rescan_blockchain(const wallet_rpc::COMMAND_RPC_RESCAN_BLOCKCHAIN::request& req, wallet_rpc::COMMAND_RPC_RESCAN_BLOCKCHAIN::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -912,7 +1036,7 @@ namespace tools
 
     try
     {
-      m_wallet.rescan_blockchain();
+      m_wallet->rescan_blockchain();
     }
     catch (const std::exception& e)
     {
@@ -925,20 +1049,22 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_sign(const wallet_rpc::COMMAND_RPC_SIGN::request& req, wallet_rpc::COMMAND_RPC_SIGN::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
       return false;
     }
 
-    res.signature = m_wallet.sign(req.data);
+    res.signature = m_wallet->sign(req.data);
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_verify(const wallet_rpc::COMMAND_RPC_VERIFY::request& req, wallet_rpc::COMMAND_RPC_VERIFY::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -948,20 +1074,34 @@ namespace tools
     cryptonote::account_public_address address;
     bool has_payment_id;
     crypto::hash8 payment_id;
-    if(!get_account_address_from_str_or_url(address, has_payment_id, payment_id, m_wallet.testnet(), req.address, false))
+    er.message = "";
+    if(!get_account_address_from_str_or_url(address, has_payment_id, payment_id, m_wallet->testnet(), req.address,
+      [&er](const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid)->std::string {
+        if (!dnssec_valid)
+        {
+          er.message = std::string("Invalid DNSSEC for ") + url;
+          return {};
+        }
+        if (addresses.empty())
+        {
+          er.message = std::string("No Superior address found at ") + url;
+          return {};
+        }
+        return addresses[0];
+      }))
     {
       er.code = WALLET_RPC_ERROR_CODE_WRONG_ADDRESS;
-      er.message = "";
       return false;
     }
 
-    res.good = m_wallet.verify(req.data, address, req.signature);
+    res.good = m_wallet->verify(req.data, address, req.signature);
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_stop_wallet(const wallet_rpc::COMMAND_RPC_STOP_WALLET::request& req, wallet_rpc::COMMAND_RPC_STOP_WALLET::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -970,7 +1110,7 @@ namespace tools
 
     try
     {
-      m_wallet.store();
+      m_wallet->store();
       m_stop.store(true, std::memory_order_relaxed);
     }
     catch (const std::exception& e)
@@ -984,7 +1124,8 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_set_tx_notes(const wallet_rpc::COMMAND_RPC_SET_TX_NOTES::request& req, wallet_rpc::COMMAND_RPC_SET_TX_NOTES::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -1018,7 +1159,7 @@ namespace tools
     std::list<std::string>::const_iterator in = req.notes.begin();
     while (il != txids.end())
     {
-      m_wallet.set_tx_note(*il++, *in++);
+      m_wallet->set_tx_note(*il++, *in++);
     }
 
     return true;
@@ -1027,6 +1168,7 @@ namespace tools
   bool wallet_rpc_server::on_get_tx_notes(const wallet_rpc::COMMAND_RPC_GET_TX_NOTES::request& req, wallet_rpc::COMMAND_RPC_GET_TX_NOTES::response& res, epee::json_rpc::error& er)
   {
     res.notes.clear();
+    if (!m_wallet) return not_open(er);
 
     std::list<crypto::hash> txids;
     std::list<std::string>::const_iterator i = req.txids.begin();
@@ -1047,14 +1189,15 @@ namespace tools
     std::list<crypto::hash>::const_iterator il = txids.begin();
     while (il != txids.end())
     {
-      res.notes.push_back(m_wallet.get_tx_note(*il++));
+      res.notes.push_back(m_wallet->get_tx_note(*il++));
     }
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_get_transfers(const wallet_rpc::COMMAND_RPC_GET_TRANSFERS::request& req, wallet_rpc::COMMAND_RPC_GET_TRANSFERS::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -1071,7 +1214,7 @@ namespace tools
     if (req.in)
     {
       std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
-      m_wallet.get_payments(payments, min_height, max_height);
+      m_wallet->get_payments(payments, min_height, max_height);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         res.in.push_back(wallet_rpc::transfer_entry());
         fill_transfer_entry(res.in.back(), i->second.m_tx_hash, i->first, i->second);
@@ -1081,7 +1224,7 @@ namespace tools
     if (req.out)
     {
       std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>> payments;
-      m_wallet.get_payments_out(payments, min_height, max_height);
+      m_wallet->get_payments_out(payments, min_height, max_height);
       for (std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         res.out.push_back(wallet_rpc::transfer_entry());
         fill_transfer_entry(res.out.back(), i->first, i->second);
@@ -1090,7 +1233,7 @@ namespace tools
 
     if (req.pending || req.failed) {
       std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>> upayments;
-      m_wallet.get_unconfirmed_payments_out(upayments);
+      m_wallet->get_unconfirmed_payments_out(upayments);
       for (std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>>::const_iterator i = upayments.begin(); i != upayments.end(); ++i) {
         const tools::wallet2::unconfirmed_transfer_details &pd = i->second;
         bool is_failed = pd.m_state == tools::wallet2::unconfirmed_transfer_details::failed;
@@ -1104,10 +1247,10 @@ namespace tools
 
     if (req.pool)
     {
-      m_wallet.update_pool_state();
+      m_wallet->update_pool_state();
 
       std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
-      m_wallet.get_unconfirmed_payments(payments);
+      m_wallet->get_unconfirmed_payments(payments);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         res.pool.push_back(wallet_rpc::transfer_entry());
         fill_transfer_entry(res.pool.back(), i->first, i->second);
@@ -1119,7 +1262,8 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_get_transfer_by_txid(const wallet_rpc::COMMAND_RPC_GET_TRANSFER_BY_TXID::request& req, wallet_rpc::COMMAND_RPC_GET_TRANSFER_BY_TXID::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -1147,7 +1291,7 @@ namespace tools
     }
 
     std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
-    m_wallet.get_payments(payments, 0);
+    m_wallet->get_payments(payments, 0);
     for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
       if (i->second.m_tx_hash == txid)
       {
@@ -1157,7 +1301,7 @@ namespace tools
     }
 
     std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>> payments_out;
-    m_wallet.get_payments_out(payments_out, 0);
+    m_wallet->get_payments_out(payments_out, 0);
     for (std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>>::const_iterator i = payments_out.begin(); i != payments_out.end(); ++i) {
       if (i->first == txid)
       {
@@ -1167,7 +1311,7 @@ namespace tools
     }
 
     std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>> upayments;
-    m_wallet.get_unconfirmed_payments_out(upayments);
+    m_wallet->get_unconfirmed_payments_out(upayments);
     for (std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>>::const_iterator i = upayments.begin(); i != upayments.end(); ++i) {
       if (i->first == txid)
       {
@@ -1176,10 +1320,10 @@ namespace tools
       }
     }
 
-    m_wallet.update_pool_state();
+    m_wallet->update_pool_state();
 
     std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> pool_payments;
-    m_wallet.get_unconfirmed_payments(pool_payments);
+    m_wallet->get_unconfirmed_payments(pool_payments);
     for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = pool_payments.begin(); i != pool_payments.end(); ++i) {
       if (i->second.m_tx_hash == txid)
       {
@@ -1195,9 +1339,10 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_export_key_images(const wallet_rpc::COMMAND_RPC_EXPORT_KEY_IMAGES::request& req, wallet_rpc::COMMAND_RPC_EXPORT_KEY_IMAGES::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     try
     {
-      std::vector<std::pair<crypto::key_image, crypto::signature>> ski = m_wallet.export_key_images();
+      std::vector<std::pair<crypto::key_image, crypto::signature>> ski = m_wallet->export_key_images();
       res.signed_key_images.resize(ski.size());
       for (size_t n = 0; n < ski.size(); ++n)
       {
@@ -1218,13 +1363,19 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_import_key_images(const wallet_rpc::COMMAND_RPC_IMPORT_KEY_IMAGES::request& req, wallet_rpc::COMMAND_RPC_IMPORT_KEY_IMAGES::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
       return false;
     }
-
+    if (!m_trusted_daemon)
+    {
+      er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+      er.message = "This command requires a trusted daemon.";
+      return false;
+    }
     try
     {
       std::vector<std::pair<crypto::key_image, crypto::signature>> ski;
@@ -1250,7 +1401,7 @@ namespace tools
         ski[n].second = *reinterpret_cast<const crypto::signature*>(bd.data());
       }
       uint64_t spent = 0, unspent = 0;
-      uint64_t height = m_wallet.import_key_images(ski, spent, unspent);
+      uint64_t height = m_wallet->import_key_images(ski, spent, unspent);
       res.spent = spent;
       res.unspent = unspent;
       res.height = height;
@@ -1269,7 +1420,7 @@ namespace tools
   bool wallet_rpc_server::on_make_uri(const wallet_rpc::COMMAND_RPC_MAKE_URI::request& req, wallet_rpc::COMMAND_RPC_MAKE_URI::response& res, epee::json_rpc::error& er)
   {
     std::string error;
-    std::string uri = m_wallet.make_uri(req.address, req.payment_id, req.amount, req.tx_description, req.recipient_name, error);
+    std::string uri = m_wallet->make_uri(req.address, req.payment_id, req.amount, req.tx_description, req.recipient_name, error);
     if (uri.empty())
     {
       er.code = WALLET_RPC_ERROR_CODE_WRONG_URI;
@@ -1283,8 +1434,9 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_parse_uri(const wallet_rpc::COMMAND_RPC_PARSE_URI::request& req, wallet_rpc::COMMAND_RPC_PARSE_URI::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     std::string error;
-    if (!m_wallet.parse_uri(req.uri, res.uri.address, res.uri.payment_id, res.uri.amount, res.uri.tx_description, res.uri.recipient_name, res.unknown_parameters, error))
+    if (!m_wallet->parse_uri(req.uri, res.uri.address, res.uri.payment_id, res.uri.amount, res.uri.tx_description, res.uri.recipient_name, res.unknown_parameters, error))
     {
       er.code = WALLET_RPC_ERROR_CODE_WRONG_URI;
       er.message = "Error parsing URI: " + error;
@@ -1295,12 +1447,13 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_get_address_book(const wallet_rpc::COMMAND_RPC_GET_ADDRESS_BOOK_ENTRY::request& req, wallet_rpc::COMMAND_RPC_GET_ADDRESS_BOOK_ENTRY::response& res, epee::json_rpc::error& er)
   {
-    const auto ab = m_wallet.get_address_book();
+    if (!m_wallet) return not_open(er);
+    const auto ab = m_wallet->get_address_book();
     if (req.entries.empty())
     {
       uint64_t idx = 0;
       for (const auto &entry: ab)
-        res.entries.push_back(wallet_rpc::COMMAND_RPC_GET_ADDRESS_BOOK_ENTRY::entry{idx++, get_account_address_as_str(m_wallet.testnet(), entry.m_address), epee::string_tools::pod_to_hex(entry.m_payment_id), entry.m_description});
+        res.entries.push_back(wallet_rpc::COMMAND_RPC_GET_ADDRESS_BOOK_ENTRY::entry{idx++, get_account_address_as_str(m_wallet->testnet(), entry.m_address), epee::string_tools::pod_to_hex(entry.m_payment_id), entry.m_description});
     }
     else
     {
@@ -1313,7 +1466,7 @@ namespace tools
           return false;
         }
         const auto &entry = ab[idx];
-        res.entries.push_back(wallet_rpc::COMMAND_RPC_GET_ADDRESS_BOOK_ENTRY::entry{idx, get_account_address_as_str(m_wallet.testnet(), entry.m_address), epee::string_tools::pod_to_hex(entry.m_payment_id), entry.m_description});
+        res.entries.push_back(wallet_rpc::COMMAND_RPC_GET_ADDRESS_BOOK_ENTRY::entry{idx, get_account_address_as_str(m_wallet->testnet(), entry.m_address), epee::string_tools::pod_to_hex(entry.m_payment_id), entry.m_description});
       }
     }
     return true;
@@ -1321,7 +1474,8 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_add_address_book(const wallet_rpc::COMMAND_RPC_ADD_ADDRESS_BOOK_ENTRY::request& req, wallet_rpc::COMMAND_RPC_ADD_ADDRESS_BOOK_ENTRY::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -1332,10 +1486,25 @@ namespace tools
     bool has_payment_id;
     crypto::hash8 payment_id8;
     crypto::hash payment_id = cryptonote::null_hash;
-    if(!get_account_address_from_str_or_url(address, has_payment_id, payment_id8, m_wallet.testnet(), req.address, false))
+    er.message = "";
+    if(!get_account_address_from_str_or_url(address, has_payment_id, payment_id8, m_wallet->testnet(), req.address,
+      [&er](const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid)->std::string {
+        if (!dnssec_valid)
+        {
+          er.message = std::string("Invalid DNSSEC for ") + url;
+          return {};
+        }
+        if (addresses.empty())
+        {
+          er.message = std::string("No Superior address found at ") + url;
+          return {};
+        }
+        return addresses[0];
+      }))
     {
       er.code = WALLET_RPC_ERROR_CODE_WRONG_ADDRESS;
-      er.message = std::string("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: ") + req.address;
+      if (er.message.empty())
+        er.message = std::string("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: ") + req.address;
       return false;
     }
     if (has_payment_id)
@@ -1370,33 +1539,34 @@ namespace tools
         }
       }
     }
-    if (!m_wallet.add_address_book_row(address, payment_id, req.description))
+    if (!m_wallet->add_address_book_row(address, payment_id, req.description))
     {
       er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
       er.message = "Failed to add address book entry";
       return false;
     }
-    res.index = m_wallet.get_address_book().size();
+    res.index = m_wallet->get_address_book().size();
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_delete_address_book(const wallet_rpc::COMMAND_RPC_DELETE_ADDRESS_BOOK_ENTRY::request& req, wallet_rpc::COMMAND_RPC_DELETE_ADDRESS_BOOK_ENTRY::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
       return false;
     }
 
-    const auto ab = m_wallet.get_address_book();
+    const auto ab = m_wallet->get_address_book();
     if (req.index >= ab.size())
     {
       er.code = WALLET_RPC_ERROR_CODE_WRONG_INDEX;
       er.message = "Index out of range: " + std::to_string(req.index);
       return false;
     }
-    if (!m_wallet.delete_address_book_row(req.index))
+    if (!m_wallet->delete_address_book_row(req.index))
     {
       er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
       er.message = "Failed to delete address book entry";
@@ -1407,7 +1577,8 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_rescan_spent(const wallet_rpc::COMMAND_RPC_RESCAN_SPENT::request& req, wallet_rpc::COMMAND_RPC_RESCAN_SPENT::response& res, epee::json_rpc::error& er)
   {
-    if (m_wallet.restricted())
+    if (!m_wallet) return not_open(er);
+    if (m_wallet->restricted())
     {
       er.code = WALLET_RPC_ERROR_CODE_DENIED;
       er.message = "Command unavailable in restricted mode.";
@@ -1415,7 +1586,7 @@ namespace tools
     }
     try
     {
-      m_wallet.rescan_spent();
+      m_wallet->rescan_spent();
       return true;
     }
     catch (const std::exception &e)
@@ -1429,6 +1600,7 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_start_mining(const wallet_rpc::COMMAND_RPC_START_MINING::request& req, wallet_rpc::COMMAND_RPC_START_MINING::response& res, epee::json_rpc::error& er)
   {
+    if (!m_wallet) return not_open(er);
     if (!m_trusted_daemon)
     {
       er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
@@ -1445,7 +1617,7 @@ namespace tools
     }
 
     cryptonote::COMMAND_RPC_START_MINING::request daemon_req = AUTO_VAL_INIT(daemon_req); 
-    daemon_req.miner_address = m_wallet.get_account().get_public_address_str(m_wallet.testnet());
+    daemon_req.miner_address = m_wallet->get_account().get_public_address_str(m_wallet->testnet());
     daemon_req.threads_count        = req.threads_count;
     daemon_req.do_background_mining = req.do_background_mining;
     daemon_req.ignore_battery       = req.ignore_battery;
@@ -1475,6 +1647,152 @@ namespace tools
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
+  bool wallet_rpc_server::on_get_languages(const wallet_rpc::COMMAND_RPC_GET_LANGUAGES::request& req, wallet_rpc::COMMAND_RPC_GET_LANGUAGES::response& res, epee::json_rpc::error& er)
+  {
+    crypto::ElectrumWords::get_language_list(res.languages);
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool wallet_rpc_server::on_create_wallet(const wallet_rpc::COMMAND_RPC_CREATE_WALLET::request& req, wallet_rpc::COMMAND_RPC_CREATE_WALLET::response& res, epee::json_rpc::error& er)
+  {
+    if (m_wallet_dir.empty())
+    {
+      er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+      er.message = "No wallet dir configured";
+      return false;
+    }
+
+    namespace po = boost::program_options;
+    po::variables_map vm2;
+    const char *ptr = strchr(req.filename.c_str(), '/');
+#ifdef _WIN32
+    if (!ptr)
+      ptr = strchr(req.filename.c_str(), '\\');
+    if (!ptr)
+      ptr = strchr(req.filename.c_str(), ':');
+#endif
+    if (ptr)
+    {
+      er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+      er.message = "Invalid filename";
+      return false;
+    }
+    std::string wallet_file = m_wallet_dir + "/" + req.filename;
+    {
+      std::vector<std::string> languages;
+      crypto::ElectrumWords::get_language_list(languages);
+      std::vector<std::string>::iterator it;
+      std::string wallet_file;
+      char *ptr;
+
+      it = std::find(languages.begin(), languages.end(), req.language);
+      if (it == languages.end())
+      {
+        er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+        er.message = "Unknown language";
+        return false;
+      }
+    }
+    {
+      po::options_description desc("dummy");
+      const command_line::arg_descriptor<std::string, true> arg_password = {"password", "password"};
+      const char *argv[4];
+      int argc = 3;
+      argv[0] = "wallet-rpc";
+      argv[1] = "--password";
+      argv[2] = req.password.c_str();
+      argv[3] = NULL;
+      vm2 = *m_vm;
+      command_line::add_arg(desc, arg_password);
+      po::store(po::parse_command_line(argc, argv, desc), vm2);
+    }
+    std::unique_ptr<tools::wallet2> wal = tools::wallet2::make_new(vm2).first;
+    if (!wal)
+    {
+      er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+      er.message = "Failed to create wallet";
+      return false;
+    }
+    wal->set_seed_language(req.language);
+    cryptonote::COMMAND_RPC_GET_HEIGHT::request hreq;
+    cryptonote::COMMAND_RPC_GET_HEIGHT::response hres;
+    hres.height = 0;
+    bool r = net_utils::invoke_http_json("/getheight", hreq, hres, m_http_client);
+    wal->set_refresh_from_block_height(hres.height);
+    crypto::secret_key dummy_key;
+    try {
+      wal->generate(wallet_file, req.password, dummy_key, false, false);
+    }
+    catch (const std::exception& e)
+    {
+      er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+      er.message = "Failed to generate wallet";
+      return false;
+    }
+    if (m_wallet)
+      delete m_wallet;
+    m_wallet = wal.release();
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool wallet_rpc_server::on_open_wallet(const wallet_rpc::COMMAND_RPC_OPEN_WALLET::request& req, wallet_rpc::COMMAND_RPC_OPEN_WALLET::response& res, epee::json_rpc::error& er)
+  {
+    if (m_wallet_dir.empty())
+    {
+      er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+      er.message = "No wallet dir configured";
+      return false;
+    }
+
+    namespace po = boost::program_options;
+    po::variables_map vm2;
+    const char *ptr = strchr(req.filename.c_str(), '/');
+#ifdef _WIN32
+    if (!ptr)
+      ptr = strchr(req.filename.c_str(), '\\');
+    if (!ptr)
+      ptr = strchr(req.filename.c_str(), ':');
+#endif
+    if (ptr)
+    {
+      er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+      er.message = "Invalid filename";
+      return false;
+    }
+    std::string wallet_file = m_wallet_dir + "/" + req.filename;
+    {
+      po::options_description desc("dummy");
+      const command_line::arg_descriptor<std::string, true> arg_password = {"password", "password"};
+      const char *argv[4];
+      int argc = 3;
+      argv[0] = "wallet-rpc";
+      argv[1] = "--password";
+      argv[2] = req.password.c_str();
+      argv[3] = NULL;
+      vm2 = *m_vm;
+      command_line::add_arg(desc, arg_password);
+      po::store(po::parse_command_line(argc, argv, desc), vm2);
+    }
+    std::unique_ptr<tools::wallet2> wal;
+    try {
+      wal = tools::wallet2::make_from_file(vm2, wallet_file).first;
+    }
+    catch (const std::exception& e)
+    {
+      wal = nullptr;
+    }
+    if (!wal)
+    {
+      er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+      er.message = "Failed to open wallet";
+      return false;
+    }
+    if (m_wallet)
+      delete m_wallet;
+    m_wallet = wal.release();
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
 }
 
 int main(int argc, char** argv) {
@@ -1491,6 +1809,7 @@ int main(int argc, char** argv) {
   cryptonote::rpc_args::init_options(desc_params);
   command_line::add_arg(desc_params, arg_wallet_file);
   command_line::add_arg(desc_params, arg_from_json);
+  command_line::add_arg(desc_params, arg_wallet_dir);
 
 
   const auto vm = wallet_args::main(
@@ -1511,6 +1830,7 @@ int main(int argc, char** argv) {
   {
     const auto wallet_file = command_line::get_arg(*vm, arg_wallet_file);
     const auto from_json = command_line::get_arg(*vm, arg_from_json);
+    const auto wallet_dir = command_line::get_arg(*vm, arg_wallet_dir);
 
     if(!wallet_file.empty() && !from_json.empty())
     {
@@ -1518,9 +1838,15 @@ int main(int argc, char** argv) {
       return 1;
     }
 
+    if (!wallet_dir.empty())
+    {
+      wal = NULL;
+      goto just_dir;
+    }
+
     if (wallet_file.empty() && from_json.empty())
     {
-      LOG_ERROR(tools::wallet_rpc_server::tr("Must specify --wallet-file or --generate-from-json"));
+      LOG_ERROR(tools::wallet_rpc_server::tr("Must specify --wallet-file or --generate-from-json or --wallet-dir"));
       return 1;
     }
 
@@ -1561,8 +1887,10 @@ int main(int argc, char** argv) {
     LOG_ERROR(tools::wallet_rpc_server::tr("Wallet initialization failed: ") << e.what());
     return 1;
   }
-  tools::wallet_rpc_server wrpc(*wal);
-  bool r = wrpc.init(*vm);
+just_dir:
+  tools::wallet_rpc_server wrpc;
+  if (wal) wrpc.set_wallet(wal.release());
+  bool r = wrpc.init(&(vm.get()));
   CHECK_AND_ASSERT_MES(r, 1, tools::wallet_rpc_server::tr("Failed to initialize wallet rpc server"));
   tools::signal_handler::install([&wrpc, &wal](int) {
     wrpc.send_stop_signal();
@@ -1573,7 +1901,7 @@ int main(int argc, char** argv) {
   try
   {
     LOG_PRINT_L0(tools::wallet_rpc_server::tr("Storing wallet..."));
-    wal->store();
+    wrpc.stop();
     LOG_PRINT_L0(tools::wallet_rpc_server::tr("Stored ok"));
   }
   catch (const std::exception& e)
