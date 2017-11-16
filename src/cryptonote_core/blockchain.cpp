@@ -4142,7 +4142,7 @@ void Blockchain::cancel()
 }
 
 #if defined(PER_BLOCK_CHECKPOINT)
-static const char expected_block_hashes_hash[] = "d3ca80d50661684cde0e715d46d7c19704d2e216b21ed088af9fd4ef37ed4d65";
+static const char expected_block_hashes_hash[] = "b3d510ef04275ca8e698e5b3cbb0ece3949ef9252f0cdc839e9ee347409a2209";
 void Blockchain::load_compiled_in_block_hashes()
 {
   if (m_fast_sync && get_blocks_dat_start(m_testnet) != nullptr && get_blocks_dat_size(m_testnet) > 0)
@@ -4168,6 +4168,7 @@ void Blockchain::load_compiled_in_block_hashes()
       const crypto::hash expected_hash = *reinterpret_cast<const crypto::hash*>(expected_hash_data.data());
       if (hash != expected_hash)
       {
+        MERROR("precomputed blocks hash: " << hash << ", expected " << expected_block_hashes_hash); //remove later
         MERROR("Block hash data does not match expected hash");
         return;
       }
