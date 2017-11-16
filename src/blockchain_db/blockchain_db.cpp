@@ -341,7 +341,7 @@ void BlockchainDB::fixup()
 
   if (get_block_hash_from_height(0) == mainnet_genesis_hash)
   {
-    
+
   }
   batch_stop();
 }

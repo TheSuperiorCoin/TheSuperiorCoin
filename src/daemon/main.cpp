@@ -129,7 +129,7 @@ int main(int argc, char const * argv[])
     // Superior Version
     if (command_line::get_arg(vm, command_line::arg_version))
     {
-      std::cout << "Superior '" << SUPERIOR_RELEASE_NAME << "' (v" << SUPERIORr_VERSION_FULL << ")" << ENDL;
+      std::cout << "Superior '" << SUPERIOR_RELEASE_NAME << "' (v" << SUPERIOR_VERSION_FULL << ")" << ENDL;
       return 0;
     }
 

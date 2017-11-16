@@ -20,7 +20,7 @@ This loads the existing blockchain and exports it to `$SUPERIOR_DATA_DIR/export/
 
 `$ superior-blockchain-import`
 
-This imports blocks from `$SUPERIORr_DATA_DIR/export/blockchain.raw` (exported using the
+This imports blocks from `$SUPERIOR_DATA_DIR/export/blockchain.raw` (exported using the
 `superior-blockchain-export` tool as described above) into the current database.
 
 Defaults: `--batch on`, `--batch size 20000`, `--verify on`
