@@ -28,8 +28,8 @@
 // Parts of this file are originally copyright (c) 2014-2017 The Monero Project
 #include "perf_timer.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "perf"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "perf"
 
 namespace tools
 {

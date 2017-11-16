@@ -171,7 +171,7 @@ namespace
   {
     crypto::key_image key_image;
     // a random key image plucked from the blockchain
-    if (!epee::string_tools::hex_to_pod("3e2587db6b7dd7bfa2f5839bc613b1e1fb2d08fa65005bc9420cadaa21380b00", key_image))
+    if (!epee::string_tools::hex_to_pod("6b9f5d1be7c950dc6e4e258c6ef75509412ba9ecaaf90e6886140151d1365b5e", key_image))
       throw std::runtime_error("invalid key image wasn't found");
     return key_image;
   }

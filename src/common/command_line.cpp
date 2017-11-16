@@ -134,7 +134,12 @@ namespace command_line
   };
   const command_line::arg_descriptor<std::string> arg_check_updates = {
     "check-updates"
-  , "Check for new versions of Superior: [disabled|notify|download|update]"
+  , "Check for new versions of superior: [disabled|notify|download|update]"
   , "notify"
+  };
+  const arg_descriptor<bool> arg_fluffy_blocks  = {
+    "fluffy-blocks"
+  , "Relay blocks as fluffy blocks where possible (automatic on testnet)"
+  , false
   };
 }

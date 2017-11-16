@@ -74,9 +74,9 @@ set(daemon_private_headers
   ../p2p/p2p_protocol_defs.h
   ../p2p/stdafx.h)
 
-Superior_private_headers(daemon
+superior_private_headers(daemon
   ${daemon_private_headers})
-Superior_add_executable(daemon
+superior_add_executable(daemon
   ${daemon_sources}
   ${daemon_headers}
   ${daemon_private_headers}

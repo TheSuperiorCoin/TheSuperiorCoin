@@ -26,8 +26,8 @@
 
 #pragma once 
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "net.http"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "net.http"
 
 namespace epee
 {

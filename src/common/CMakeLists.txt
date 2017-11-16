@@ -70,9 +70,9 @@ set(common_private_headers
   thread_group.h
   updates.h)
 
-Superior_private_headers(common
+superior_private_headers(common
   ${common_private_headers})
-Superior_add_library(common
+superior_add_library(common
   ${common_sources}
   ${common_headers}
   ${common_private_headers})
@@ -91,5 +91,5 @@ target_link_libraries(common
     ${OPENSSL_LIBRARIES}
     ${EXTRA_LIBRARIES})
 
-#Superior_install_headers(common
+#superior_install_headers(common
 #  ${common_headers})

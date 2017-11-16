@@ -34,8 +34,8 @@
 #include "crypto/hash.h"
 #include "wallet_rpc_server_error_codes.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "wallet.rpc"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "wallet.rpc"
 
 namespace tools
 {

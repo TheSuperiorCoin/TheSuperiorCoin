@@ -27,8 +27,8 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "net"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "net"
 
 namespace epee
 {

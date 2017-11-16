@@ -47,8 +47,8 @@
 #include "common/perf_timer.h"
 #include "crypto/hash.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "txpool"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "txpool"
 
 DISABLE_VS_WARNINGS(4244 4345 4503) //'boost::foreach_detail_::or_' : decorated name length exceeded, name was truncated
 
@@ -93,7 +93,7 @@ namespace cryptonote
       LockedTXN(Blockchain &b): m_blockchain(b), m_batch(false) {
         m_batch = m_blockchain.get_db().batch_start();
       }
-      ~LockedTXN() { if (m_batch) { m_blockchain.get_db().batch_stop(); } }
+      ~LockedTXN() { try { if (m_batch) { m_blockchain.get_db().batch_stop(); } } catch (const std::exception &e) { MWARNING("LockedTXN dtor filtering exception: " << e.what()); } }
     private:
       Blockchain &m_blockchain;
       bool m_batch;
@@ -860,6 +860,9 @@ namespace cryptonote
     std::unordered_set<crypto::key_image> k_images;
 
     LOG_PRINT_L2("Filling block template, median size " << median_size << ", " << m_txs_by_fee_and_receive_time.size() << " txes in the pool");
+
+    LockedTXN lock(m_blockchain);
+
     auto sorted_it = m_txs_by_fee_and_receive_time.begin();
     while (sorted_it != m_txs_by_fee_and_receive_time.end())
     {

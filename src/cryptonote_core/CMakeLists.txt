@@ -47,9 +47,9 @@ else()
   set(Blocks "")
 endif()
 
-Superior_private_headers(cryptonote_core
+superior_private_headers(cryptonote_core
   ${crypto_private_headers})
-Superior_add_library(cryptonote_core
+superior_add_library(cryptonote_core
   ${cryptonote_core_sources}
   ${cryptonote_core_headers}
   ${cryptonote_core_private_headers})

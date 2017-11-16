@@ -34,8 +34,8 @@
 #include "blockchain_db/db_types.h"
 #include "version.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "bcutil"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "bcutil"
 
 namespace po = boost::program_options;
 using namespace epee;
@@ -103,12 +103,12 @@ int main(int argc, char* argv[])
 
   if (command_line::get_arg(vm, command_line::arg_help))
   {
-    std::cout << "Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")" << ENDL << ENDL;
+    std::cout << "Superior '" << SUPERIOR_RELEASE_NAME << "' (v" << SUPERIOR_VERSION_FULL << ")" << ENDL << ENDL;
     std::cout << desc_options << std::endl;
     return 1;
   }
 
-  mlog_configure(mlog_get_default_log_path("Superior-blockchain-export.log"), true);
+  mlog_configure(mlog_get_default_log_path("superior-blockchain-export.log"), true);
   if (!vm["log-level"].defaulted())
     mlog_set_log(command_line::get_arg(vm, arg_log_level).c_str());
   else

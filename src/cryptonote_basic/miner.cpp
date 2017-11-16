@@ -53,8 +53,8 @@
   #include <TargetConditionals.h>
 #endif
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "miner"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "miner"
 
 using namespace epee;
 

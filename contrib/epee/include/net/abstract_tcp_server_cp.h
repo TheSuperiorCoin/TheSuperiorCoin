@@ -42,8 +42,8 @@
 #include "net_utils_base.h"
 #include "pragma_comp_defs.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "net"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "net"
 
 #define LEVIN_DEFAULT_DATA_BUFF_SIZE       2000  
 

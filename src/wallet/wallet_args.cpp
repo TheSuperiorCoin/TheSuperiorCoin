@@ -40,8 +40,8 @@
 #include <crtdbg.h>
 #endif
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "wallet.wallet2"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "wallet.wallet2"
 
 // workaround for a suspected bug in pthread/kernel on MacOS X
 #ifdef __APPLE__
@@ -104,7 +104,7 @@ namespace wallet_args
     command_line::add_arg(desc_params, arg_max_concurrency);
     command_line::add_arg(desc_params, arg_config_file);
 
-    i18n_set_language("translations", "Superior", lang);
+    i18n_set_language("translations", "superior", lang);
 
     po::options_description desc_all;
     desc_all.add(desc_general).add(desc_params);
@@ -149,8 +149,8 @@ namespace wallet_args
 
     if (command_line::get_arg(vm, command_line::arg_help))
     {
-      tools::msg_writer() << "Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")" << ENDL;
-      tools::msg_writer() << wallet_args::tr("This is the command line Superior wallet. It needs to connect to a Superior\n"
+      tools::msg_writer() << "Superior '" << SUPERIOR_RELEASE_NAME << "' (v" << SUPERIOR_VERSION_FULL << ")" << ENDL;
+      tools::msg_writer() << wallet_args::tr("This is the command line superior wallet. It needs to connect to a superior\n"
 												"daemon to work correctly.") << ENDL;
       tools::msg_writer() << wallet_args::tr("Usage:") << ENDL << "  " << usage;
       tools::msg_writer() << desc_all;
@@ -158,19 +158,19 @@ namespace wallet_args
     }
     else if (command_line::get_arg(vm, command_line::arg_version))
     {
-      tools::msg_writer() << "Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")";
+      tools::msg_writer() << "Superior '" << SUPERIOR_RELEASE_NAME << "' (v" << SUPERIOR_VERSION_FULL << ")";
       return boost::none;
     }
 
     if(command_line::has_arg(vm, arg_max_concurrency))
       tools::set_max_concurrency(command_line::get_arg(vm, arg_max_concurrency));
 
-    tools::scoped_message_writer(epee::console_color_white, true) << "Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")";
+    tools::scoped_message_writer(epee::console_color_white, true) << "Superior '" << SUPERIOR_RELEASE_NAME << "' (v" << SUPERIOR_VERSION_FULL << ")";
 
     if (!vm["log-level"].defaulted())
       MINFO("Setting log level = " << command_line::get_arg(vm, arg_log_level));
     else
-      MINFO("Setting log levels = " << getenv("Superior_LOGS"));
+      MINFO("Setting log levels = " << getenv("SUPERIOR_LOGS"));
     MINFO(wallet_args::tr("Logging to: ") << log_path);
     tools::scoped_message_writer(epee::console_color_white, true) << boost::format(wallet_args::tr("Logging to %s")) % log_path;
 

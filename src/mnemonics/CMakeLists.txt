@@ -48,9 +48,9 @@ set(mnemonics_private_headers
   spanish.h
   esperanto.h)
 
-Superior_private_headers(mnemonics
+superior_private_headers(mnemonics
   ${mnemonics_private_headers})
-Superior_add_library(mnemonics
+superior_add_library(mnemonics
   ${mnemonics_sources}
   ${mnemonics_headers}
   ${mnemonics_private_headers})

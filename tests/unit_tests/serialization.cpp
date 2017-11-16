@@ -909,7 +909,7 @@ TEST(Serialization, portability_outputs)
 #define UNSIGNED_TX_PREFIX "Superior unsigned tx set\003"
 TEST(Serialization, portability_unsigned_tx)
 {
-  const string filename = epee::string_tools::get_current_module_folder() + "/../../../../tests/data/unsigned_Superior_tx";
+  const string filename = epee::string_tools::get_current_module_folder() + "/../../../../tests/data/unsigned_superior_tx";
   std::string s;
   const bool testnet = true;
   bool r = epee::file_io_utils::load_file_to_string(filename, s);
@@ -1057,7 +1057,7 @@ TEST(Serialization, portability_unsigned_tx)
 #define SIGNED_TX_PREFIX "Superior signed tx set\003"
 TEST(Serialization, portability_signed_tx)
 {
-  const string filename = epee::string_tools::get_current_module_folder() + "/../../../../tests/data/signed_Superior_tx";
+  const string filename = epee::string_tools::get_current_module_folder() + "/../../../../tests/data/signed_superior_tx";
   const bool testnet = true;
   std::string s;
   bool r = epee::file_io_utils::load_file_to_string(filename, s);

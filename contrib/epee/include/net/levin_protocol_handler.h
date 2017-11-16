@@ -32,8 +32,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include "levin_base.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "net"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "net"
 
 namespace epee
 {

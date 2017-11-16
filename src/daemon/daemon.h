@@ -29,8 +29,8 @@
 #pragma once
 #include <boost/program_options.hpp>
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "daemon"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "daemon"
 
 namespace daemonize {
 

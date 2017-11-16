@@ -48,7 +48,7 @@ set(blockchain_import_private_headers
   bootstrap_serialization.h
   )
 
-Superior_private_headers(blockchain_import
+superior_private_headers(blockchain_import
 	  ${blockchain_import_private_headers})
 
 set(blockchain_export_sources
@@ -63,7 +63,7 @@ set(blockchain_export_private_headers
   bootstrap_serialization.h
   )
 
-Superior_private_headers(blockchain_export
+superior_private_headers(blockchain_export
 	  ${blockchain_export_private_headers})
 
 
@@ -95,7 +95,7 @@ set_property(TARGET blockchain_import
 	PROPERTY
 	OUTPUT_NAME "superior-blockchain-import")
 
-Superior_add_executable(blockchain_export
+superior_add_executable(blockchain_export
   ${blockchain_export_sources}
   ${blockchain_export_private_headers})
 

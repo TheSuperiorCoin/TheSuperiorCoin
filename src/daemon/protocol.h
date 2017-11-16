@@ -30,8 +30,8 @@
 
 #pragma once
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "daemon"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "daemon"
 
 #include "common/scoped_message_writer.h"
 

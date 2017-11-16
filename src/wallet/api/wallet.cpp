@@ -45,8 +45,8 @@
 using namespace std;
 using namespace cryptonote;
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "WalletAPI"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "WalletAPI"
 
 namespace Superior {
 
@@ -1386,13 +1386,6 @@ bool WalletImpl::doInit(const string &daemon_address, uint64_t upper_transaction
 {
     if (!m_wallet->init(daemon_address, m_daemon_login, upper_transaction_size_limit))
        return false;
-
-    // in case new wallet, this will force fast-refresh (pulling hashes instead of blocks)
-    // If daemon isn't synced a calculated block height will be used instead
-    if (isNewWallet() && daemonSynced()) {
-        LOG_PRINT_L2(__FUNCTION__ << ":New Wallet - fast refresh until " << daemonBlockChainHeight());
-        m_wallet->set_refresh_from_block_height(daemonBlockChainHeight());
-    }
 
     if (m_rebuildWalletCache)
       LOG_PRINT_L2(__FUNCTION__ << ": Rebuilding wallet cache, fast refresh until block " << m_wallet->get_refresh_from_block_height());

@@ -34,9 +34,9 @@ set(simplewallet_headers)
 set(simplewallet_private_headers
   simplewallet.h)
 
-Superior_private_headers(simplewallet
+superior_private_headers(simplewallet
   ${simplewallet_private_headers})
-Superior_add_executable(simplewallet
+superior_add_executable(simplewallet
   ${simplewallet_sources}
   ${simplewallet_headers}
   ${simplewallet_private_headers})
@@ -45,7 +45,7 @@ target_link_libraries(simplewallet
     wallet
     rpc
     cryptonote_core
-    crypto
+    cncrypto
     common
     mnemonics
     p2p

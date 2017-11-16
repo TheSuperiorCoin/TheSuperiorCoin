@@ -1,6 +1,6 @@
 /**
 @file
-@author rfree (current maintainer in monero.cc project)
+@author rfree
 @brief interface for throttling of connection (count and rate-limit speed etc) 
 @details <PRE>
 
@@ -9,7 +9,7 @@ Throttling work by:
 2) depending on that information we sleep before sending out data (or send smaller portions of data)
 3) depending on the information we can also sleep before sending requests or ask for smaller sets of data to download
 
-</PRE> 
+</PRE>
 
 @image html images/net/rate1-down-1k.png
 @image html images/net/rate1-down-full.png
@@ -53,6 +53,7 @@ Throttling work by:
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// part or all of this file may contain code from Copyright (c) 2014-2017, Monero Project
 
 #include "network_throttle-detail.hpp"
 

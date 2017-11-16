@@ -26,7 +26,7 @@ RUN cp build/release/bin/* /usr/local/bin/ \
   && apt-get -qq --auto-remove purge $buildDeps
 
 # Contains the blockchain
-VOLUME /root/.bitSuperior
+VOLUME /root/.bitsuperior
 
 # Generate your wallet via accessing the container and run:
 # cd /wallet

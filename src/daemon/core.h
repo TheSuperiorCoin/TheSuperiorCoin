@@ -33,8 +33,8 @@
 #include "misc_log_ex.h"
 #include "daemon/command_line_args.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "daemon"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "daemon"
 
 namespace daemonize
 {

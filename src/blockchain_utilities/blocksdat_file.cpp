@@ -28,8 +28,8 @@
 // Parts of this file are originally copyright (c) 2014-2017 The Monero Project
 #include "blocksdat_file.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "bcutil"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "bcutil"
 
 namespace po = boost::program_options;
 

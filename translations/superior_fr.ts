@@ -566,8 +566,8 @@
         <translation>0, 1, 2, 3 ou 4</translation>
     </message>
     <message>
-        <source>Superior, millinero, micronero, nanop, piconero</source>
-        <translation type="obsolete">Superior, millinero, micronero, nanonero, piconero</translation>
+        <source>superior, millisup, microsup, nanosup, picosup</source>
+        <translation type="obsolete">superior, millisup, microsup, nanosup, picosup</translation>
     </message>
     <message>
         <location filename="../src/simplewallet/simplewallet.cpp" line="807"/>
@@ -1516,8 +1516,8 @@ Attention : Certaines clés d&apos;entrées étant dépensées sont issues de <
     </message>
     <message>
         <location filename="../src/simplewallet/simplewallet.cpp" line="806"/>
-        <source>Superior, millinero, micronero, nanonero, piconero</source>
-        <translation>Superior, millinero, micronero, nanonero, piconero</translation>
+        <source>superior, millisup, microsup, nanosup, picosup</source>
+        <translation>superior, millisup, microsup, nanosup, picosup</translation>
     </message>
     <message>
         <location filename="../src/simplewallet/simplewallet.cpp" line="851"/>

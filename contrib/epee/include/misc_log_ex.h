@@ -51,7 +51,7 @@
 
 #include "easylogging++.h"
 
-#define Superior_DEFAULT_LOG_CATEGORY "default"
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "default"
 
 #define MCFATAL(cat,x) CLOG(FATAL,cat) << x
 #define MCERROR(cat,x) CLOG(ERROR,cat) << x
@@ -70,20 +70,20 @@
 #define MCLOG_MAGENTA(level,cat,x) MCLOG_COLOR(level,cat,"35",x)
 #define MCLOG_CYAN(level,cat,x) MCLOG_COLOR(level,cat,"36",x)
 
-#define MLOG_RED(level,x) MCLOG_RED(level,Superior_DEFAULT_LOG_CATEGORY,x)
-#define MLOG_GREEN(level,x) MCLOG_GREEN(level,Superior_DEFAULT_LOG_CATEGORY,x)
-#define MLOG_YELLOW(level,x) MCLOG_YELLOW(level,Superior_DEFAULT_LOG_CATEGORY,x)
-#define MLOG_BLUE(level,x) MCLOG_BLUE(level,Superior_DEFAULT_LOG_CATEGORY,x)
-#define MLOG_MAGENTA(level,x) MCLOG_MAGENTA(level,Superior_DEFAULT_LOG_CATEGORY,x)
-#define MLOG_CYAN(level,x) MCLOG_CYAN(level,Superior_DEFAULT_LOG_CATEGORY,x)
+#define MLOG_RED(level,x) MCLOG_RED(level,SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MLOG_GREEN(level,x) MCLOG_GREEN(level,SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MLOG_YELLOW(level,x) MCLOG_YELLOW(level,SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MLOG_BLUE(level,x) MCLOG_BLUE(level,SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MLOG_MAGENTA(level,x) MCLOG_MAGENTA(level,SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MLOG_CYAN(level,x) MCLOG_CYAN(level,SUPERIOR_DEFAULT_LOG_CATEGORY,x)
 
-#define MFATAL(x) MCFATAL(Superior_DEFAULT_LOG_CATEGORY,x)
-#define MERROR(x) MCERROR(Superior_DEFAULT_LOG_CATEGORY,x)
-#define MWARNING(x) MCWARNING(Superior_DEFAULT_LOG_CATEGORY,x)
-#define MINFO(x) MCINFO(Superior_DEFAULT_LOG_CATEGORY,x)
-#define MDEBUG(x) MCDEBUG(Superior_DEFAULT_LOG_CATEGORY,x)
-#define MTRACE(x) MCTRACE(Superior_DEFAULT_LOG_CATEGORY,x)
-#define MLOG(level,x) MCLOG(level,Superior_DEFAULT_LOG_CATEGORY,x)
+#define MFATAL(x) MCFATAL(SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MERROR(x) MCERROR(SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MWARNING(x) MCWARNING(SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MINFO(x) MCINFO(SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MDEBUG(x) MCDEBUG(SUPERIOR_DEFAULT_LOG_CATEGORY,x)
+#define MTRACE(x) MCTRACE(SUPERIORr_DEFAULT_LOG_CATEGORY,x)
+#define MLOG(level,x) MCLOG(level,SUPERIOR_DEFAULT_LOG_CATEGORY,x)
 
 #define MGINFO(x) MCINFO("global",x)
 #define MGINFO_RED(x) MCLOG_RED(el::Level::Info, "global",x)

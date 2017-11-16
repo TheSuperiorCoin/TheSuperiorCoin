@@ -1,5 +1,5 @@
 /// @file
-/// @author rfree (current maintainer in monero.cc project)
+/// @author rfree .
 /// @brief implementaion for throttling of connection (count and rate-limit speed etc)
 
 // Copyright (c) 2014-2017, The Superior Project
@@ -76,8 +76,8 @@
 // TODO:
 #include "network_throttle-detail.hpp"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "net.throttle"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "net.throttle"
 
 // ################################################################################################
 // ################################################################################################

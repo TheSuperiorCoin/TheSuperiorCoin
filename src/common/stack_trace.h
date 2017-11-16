@@ -27,8 +27,8 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Parts of this file are originally copyright (c) 2014-2017 The Monero Project
 
-#ifndef Superior_EXCEPTION_H
-#define Superior_EXCEPTION_H
+#ifndef SUPERIOR_EXCEPTION_H
+#define SUPERIOR_EXCEPTION_H
 
 #include <string>
 

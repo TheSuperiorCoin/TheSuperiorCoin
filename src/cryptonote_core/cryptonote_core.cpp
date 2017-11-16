@@ -50,8 +50,8 @@ using namespace epee;
 #include "blockchain_db/blockchain_db.h"
 #include "ringct/rctSigs.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "cn"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "cn"
 
 DISABLE_VS_WARNINGS(4355)
 
@@ -164,6 +164,7 @@ namespace cryptonote
     command_line::add_arg(desc, command_line::arg_show_time_stats);
     command_line::add_arg(desc, command_line::arg_block_sync_size);
     command_line::add_arg(desc, command_line::arg_check_updates);
+    command_line::add_arg(desc, command_line::arg_fluffy_blocks);
 
     // we now also need some of net_node's options (p2p bind arg, for separate data dir)
     command_line::add_arg(desc, nodetool::arg_testnet_p2p_bind_port, false);
@@ -199,6 +200,7 @@ namespace cryptonote
 
     set_enforce_dns_checkpoints(command_line::get_arg(vm, command_line::arg_dns_checkpoints));
     test_drop_download_height(command_line::get_arg(vm, command_line::arg_test_drop_download_height));
+    m_fluffy_blocks_enabled = m_testnet || get_arg(vm, command_line::arg_fluffy_blocks);
 
     if (command_line::get_arg(vm, command_line::arg_test_drop_download) == true)
       test_drop_download();
@@ -585,6 +587,8 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------
   bool core::handle_incoming_txs(const std::list<blobdata>& tx_blobs, std::vector<tx_verification_context>& tvc, bool keeped_by_block, bool relayed, bool do_not_relay)
   {
+    TRY_ENTRY();
+
     struct result { bool res; cryptonote::transaction tx; crypto::hash hash; crypto::hash prefix_hash; bool in_txpool; bool in_blockchain; };
     std::vector<result> results(tx_blobs.size());
 
@@ -593,7 +597,15 @@ namespace cryptonote
       std::list<blobdata>::const_iterator it = tx_blobs.begin();
       for (size_t i = 0; i < tx_blobs.size(); i++, ++it) {
         region.run([&, i, it] {
+          try
+          {
           results[i].res = handle_incoming_tx_pre(*it, tvc[i], results[i].tx, results[i].hash, results[i].prefix_hash, keeped_by_block, relayed, do_not_relay);
+          }
+          catch (const std::exception &e)
+          {
+            MERROR_VER("Exception in handle_incoming_tx_pre: " << e.what());
+            results[i].res = false;
+          }
         });
       }
     });
@@ -613,7 +625,15 @@ namespace cryptonote
         else
         {
           region.run([&, i, it] {
+            try
+            {
             results[i].res = handle_incoming_tx_post(*it, tvc[i], results[i].tx, results[i].hash, results[i].prefix_hash, keeped_by_block, relayed, do_not_relay);
+            }
+            catch (const std::exception &e)
+            {
+              MERROR_VER("Exception in handle_incoming_tx_post: " << e.what());
+              results[i].res = false;
+            }
           });
         }
       }
@@ -638,6 +658,8 @@ namespace cryptonote
         MDEBUG("tx added: " << results[i].hash);
     }
     return ok;
+
+    CATCH_ENTRY_L0("core::handle_incoming_txs()", false);
   }
   //-----------------------------------------------------------------------------------------------
   bool core::handle_incoming_tx(const blobdata& tx_blob, tx_verification_context& tvc, bool keeped_by_block, bool relayed, bool do_not_relay)
@@ -874,6 +896,9 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------
   bool core::add_new_tx(transaction& tx, const crypto::hash& tx_hash, const crypto::hash& tx_prefix_hash, size_t blob_size, tx_verification_context& tvc, bool keeped_by_block, bool relayed, bool do_not_relay)
   {
+    if (keeped_by_block)
+      get_blockchain_storage().on_new_tx_from_block(tx);
+
     if(m_mempool.have_tx(tx_hash))
     {
       LOG_PRINT_L2("tx " << tx_hash << "already have transaction in tx_pool");
@@ -1001,7 +1026,15 @@ namespace cryptonote
     block_verification_context bvc = boost::value_initialized<block_verification_context>();
     m_miner.pause();
     std::list<block_complete_entry> blocks;
+    try
+    {
     blocks.push_back(get_block_complete_entry(b, m_mempool));
+    }
+    catch (const std::exception &e)
+    {
+      m_miner.resume();
+      return false;
+    }
     prepare_handle_incoming_blocks(blocks);
     m_blockchain_storage.add_new_block(b, bvc);
     cleanup_handle_incoming_blocks(true);
@@ -1064,17 +1097,20 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------
   bool core::cleanup_handle_incoming_blocks(bool force_sync)
   {
+    bool success = false;
     try {
-      m_blockchain_storage.cleanup_handle_incoming_blocks(force_sync);
+      success = m_blockchain_storage.cleanup_handle_incoming_blocks(force_sync);
     }
     catch (...) {}
     m_incoming_tx_lock.unlock();
-    return true;
+    return success;
   }
 
   //-----------------------------------------------------------------------------------------------
   bool core::handle_incoming_block(const blobdata& block_blob, block_verification_context& bvc, bool update_miner_blocktemplate)
   {
+    TRY_ENTRY();
+
     // load json & DNS checkpoints every 10min/hour respectively,
     // and verify them with respect to what blocks we already have
     CHECK_AND_ASSERT_MES(update_checkpoints(), false, "One or more checkpoints loaded from json or dns conflicted with existing checkpoints.");
@@ -1098,6 +1134,8 @@ namespace cryptonote
     if(update_miner_blocktemplate && bvc.m_added_to_main_chain)
        update_miner_block_template();
     return true;
+
+    CATCH_ENTRY_L0("core::handle_incoming_block()", false);
   }
   //-----------------------------------------------------------------------------------------------
   // Used by the RPC server to check the size of an incoming
@@ -1263,12 +1301,13 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------
   bool core::check_updates()
   {
-    static const char software[] = "Superior";
-    static const char subdir[] = "cli"; // because it can never be simple
+    static const char software[] = "superior";
 #ifdef BUILD_TAG
     static const char buildtag[] = BOOST_PP_STRINGIZE(BUILD_TAG);
+    static const char subdir[] = "cli"; // because it can never be simple
 #else
     static const char buildtag[] = "source";
+    static const char subdir[] = "source"; // because it can never be simple
 #endif
 
     if (check_updates_level == UPDATES_DISABLED)
@@ -1279,7 +1318,7 @@ namespace cryptonote
     if (!tools::check_updates(software, buildtag, version, hash))
       return false;
 
-    if (tools::vercmp(version.c_str(), Superior_VERSION) <= 0)
+    if (tools::vercmp(version.c_str(), SUPERIOR_VERSION) <= 0)
       return true;
 
     std::string url = tools::get_update_url(software, subdir, buildtag, version, true);

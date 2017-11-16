@@ -41,14 +41,14 @@
 #include "daemon/rpc.h"
 #include "daemon/command_server.h"
 #include "version.h"
-#include "../../contrib/epee/include/syncobj.h"
+#include "syncobj.h"
 
 using namespace epee;
 
 #include <functional>
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "daemon"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "daemon"
 
 namespace daemonize {
 

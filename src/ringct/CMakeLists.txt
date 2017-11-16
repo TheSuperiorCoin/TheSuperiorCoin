@@ -39,9 +39,9 @@ set(ringct_private_headers
   rctSigs.h
   rctTypes.h)
 
-Superior_private_headers(ringct
+superior_private_headers(ringct
   ${crypto_private_headers})
-Superior_add_library(ringct
+superior_add_library(ringct
   ${ringct_sources}
   ${ringct_headers}
   ${ringct_private_headers})

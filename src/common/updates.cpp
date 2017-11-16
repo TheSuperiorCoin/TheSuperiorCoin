@@ -31,8 +31,8 @@
 #include "dns_utils.h"
 #include "updates.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "updates"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "updates"
 
 namespace tools
 {

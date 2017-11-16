@@ -30,8 +30,8 @@
 #include "version.h"
 #include "daemon/command_server.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "daemon"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "daemon"
 
 namespace daemonize {
 
@@ -300,7 +300,7 @@ bool t_command_server::help(const std::vector<std::string>& args)
 std::string t_command_server::get_commands_str()
 {
   std::stringstream ss;
-  ss << "Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")" << std::endl;
+  ss << "Superior '" << SUPERIOR_RELEASE_NAME << "' (v" << SUPERIOR_VERSION_FULL << ")" << std::endl;
   ss << "Commands: " << std::endl;
   std::string usage = m_command_lookup.get_usage();
   boost::replace_all(usage, "\n", "\n  ");

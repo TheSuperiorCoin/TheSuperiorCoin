@@ -39,8 +39,8 @@
 using namespace epee;
 namespace bf = boost::filesystem;
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "net.dns"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "net.dns"
 
 static boost::mutex instance_lock;
 

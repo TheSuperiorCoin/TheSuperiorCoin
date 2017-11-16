@@ -38,9 +38,9 @@ set(rpc_private_headers
   core_rpc_server_commands_defs.h
   core_rpc_server_error_codes.h)
 
-Superior_private_headers(rpc
+superior_private_headers(rpc
   ${rpc_private_headers})
-Superior_add_library(rpc
+superior_add_library(rpc
   ${rpc_sources}
   ${rpc_headers}
   ${rpc_private_headers})

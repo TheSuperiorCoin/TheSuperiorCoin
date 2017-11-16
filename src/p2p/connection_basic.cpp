@@ -1,5 +1,5 @@
 /// @file
-/// @author rfree (current maintainer in monero.cc project)
+/// @author rfree .
 /// @brief base for connection, contains e.g. the ratelimit hooks
 
 // Copyright (c) 2014-2017, The Superior Project
@@ -80,8 +80,8 @@
 #include "network_throttle-detail.hpp"
 #include "cryptonote_core/cryptonote_core.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "net.p2p"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "net.p2p"
 
 // ################################################################################################
 // local (TU local) headers

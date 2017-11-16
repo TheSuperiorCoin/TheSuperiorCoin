@@ -42,9 +42,9 @@ namespace cryptonote
     /**
      * @brief checks if a hash fits the given difficulty
      *
-     * The hash passes if (hash * difficulty) < 2^192.
+     * The hash passes if (hash * difficulty) < 2^256.
      * Phrased differently, if (hash * difficulty) fits without overflow into
-     * the least significant 192 bits of the 256 bit multiplication result.
+     * the least significant 256 bits of the 320 bit multiplication result.
      *
      * @param hash the hash to check
      * @param difficulty the difficulty to check against
@@ -52,5 +52,6 @@ namespace cryptonote
      * @return true if valid, else false
      */
     bool check_hash(const crypto::hash &hash, difficulty_type difficulty);
+    difficulty_type next_difficulty_v2(std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds);
     difficulty_type next_difficulty(std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds);
 }

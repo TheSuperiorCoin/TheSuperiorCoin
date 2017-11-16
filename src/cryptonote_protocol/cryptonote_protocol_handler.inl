@@ -1,5 +1,5 @@
 /// @file
-/// @author rfree (current maintainer/user in monero.cc project - most of code is from CryptoNote)
+/// @author rfree ( - most of code is from CryptoNote)
 /// @brief This is the orginal cryptonote protocol network-events handler, modified by us
 
 // Copyright (c) 2014-2017, The Superior Project
@@ -43,8 +43,8 @@
 #include "profile_tools.h"
 #include "p2p/network_throttle-detail.hpp"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "net.cn"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "net.cn"
 
 #define MLOG_P2P_MESSAGE(x) MCINFO("net.p2p.msg", context << x)
 
@@ -364,7 +364,12 @@ namespace cryptonote
 
     block_verification_context bvc = boost::value_initialized<block_verification_context>();
     m_core.handle_incoming_block(arg.b.block, bvc); // got block from handle_notify_new_block
-    m_core.cleanup_handle_incoming_blocks(true);
+    if (!m_core.cleanup_handle_incoming_blocks(true))
+    {
+      LOG_PRINT_CCONTEXT_L0("Failure in cleanup_handle_incoming_blocks");
+      m_core.resume_mine();
+      return 1;
+    }
     m_core.resume_mine();
     if(bvc.m_verifivation_failed)
     {
@@ -475,7 +480,7 @@ namespace cryptonote
           }
           
           // hijacking m_requested objects in connection context to patch up
-          // a possible DOS vector pointed out by @momero-moo where peers keep
+          // a possible DOS vector pointed out by @monero-moo where peers keep
           // sending (0...n-1) transactions.
           // If requested objects is not empty, then we must have asked for 
           // some missing transacionts, make sure that they're all there.
@@ -519,7 +524,7 @@ namespace cryptonote
             // future todo: 
             // tx should only not be added to pool if verification failed, but
             // maybe in the future could not be added for other reasons 
-            // according to momero-moo so keep track of these separately ..
+            // according to monero-moo so keep track of these separately ..
             //
           }
         }
@@ -623,7 +628,12 @@ namespace cryptonote
           
         block_verification_context bvc = boost::value_initialized<block_verification_context>();
         m_core.handle_incoming_block(arg.b.block, bvc); // got block from handle_notify_new_block
-        m_core.cleanup_handle_incoming_blocks(true);
+        if (!m_core.cleanup_handle_incoming_blocks(true))
+        {
+          LOG_PRINT_CCONTEXT_L0("Failure in cleanup_handle_incoming_blocks");
+          m_core.resume_mine();
+          return 1;
+        }
         m_core.resume_mine();
         
         if( bvc.m_verifivation_failed )
@@ -930,6 +940,7 @@ namespace cryptonote
     {
       const uint64_t subchain_height = start_height + arg.blocks.size();
       LOG_DEBUG_CC(context, "These are old blocks, ignoring: blocks " << start_height << " - " << (subchain_height-1) << ", blockchain height " << m_core.get_current_blockchain_height());
+      m_block_queue.remove_spans(context.m_connection_id, start_height);
       goto skip;
     }
 
@@ -1055,7 +1066,11 @@ skip:
                 }))
                   LOG_ERROR_CCONTEXT("span connection id not found");
 
-                m_core.cleanup_handle_incoming_blocks();
+                if (!m_core.cleanup_handle_incoming_blocks())
+                {
+                  LOG_PRINT_CCONTEXT_L0("Failure in cleanup_handle_incoming_blocks");
+                  return 1;
+                }
                 // in case the peer had dropped beforehand, remove the span anyway so other threads can wake up and get it
                 m_block_queue.remove_spans(span_connection_id, start_height);
                 return 1;
@@ -1080,7 +1095,12 @@ skip:
               }))
                 LOG_ERROR_CCONTEXT("span connection id not found");
 
-              m_core.cleanup_handle_incoming_blocks();
+              if (!m_core.cleanup_handle_incoming_blocks())
+              {
+                LOG_PRINT_CCONTEXT_L0("Failure in cleanup_handle_incoming_blocks");
+                return 1;
+              }
+
               // in case the peer had dropped beforehand, remove the span anyway so other threads can wake up and get it
               m_block_queue.remove_spans(span_connection_id, start_height);
               return 1;
@@ -1094,7 +1114,12 @@ skip:
               }))
                 LOG_ERROR_CCONTEXT("span connection id not found");
 
-              m_core.cleanup_handle_incoming_blocks();
+              if (!m_core.cleanup_handle_incoming_blocks())
+              {
+                LOG_PRINT_CCONTEXT_L0("Failure in cleanup_handle_incoming_blocks");
+                return 1;
+              }
+
               // in case the peer had dropped beforehand, remove the span anyway so other threads can wake up and get it
               m_block_queue.remove_spans(span_connection_id, start_height);
               return 1;
@@ -1107,7 +1132,11 @@ skip:
 
           MCINFO("sync-info", "Block process time (" << blocks.size() << " blocks, " << num_txs << " txs): " << block_process_time_full + transactions_process_time_full << " (" << transactions_process_time_full << "/" << block_process_time_full << ") ms");
 
-          m_core.cleanup_handle_incoming_blocks();
+          if (!m_core.cleanup_handle_incoming_blocks())
+          {
+            LOG_PRINT_CCONTEXT_L0("Failure in cleanup_handle_incoming_blocks");
+            return 1;
+          }
 
           m_block_queue.remove_spans(span_connection_id, start_height);
 
@@ -1593,7 +1622,7 @@ skip:
     {
       if (peer_id && exclude_context.m_connection_id != context.m_connection_id)
       {
-        if(m_core.get_testnet() && (support_flags & P2P_SUPPORT_FLAG_FLUFFY_BLOCKS))
+        if(m_core.fluffy_blocks_enabled() && (support_flags & P2P_SUPPORT_FLAG_FLUFFY_BLOCKS))
         {
           LOG_DEBUG_CC(context, "PEER SUPPORTS FLUFFY BLOCKS - RELAYING THIN/COMPACT WHATEVER BLOCK");
           fluffyConnections.push_back(context.m_connection_id);

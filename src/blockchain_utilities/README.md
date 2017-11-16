@@ -1,7 +1,7 @@
 # Superior Blockchain Utilities
 
 Copyright (c) 2014-2017, The Superior Project
-
+Part of this may contain code from The Monero Project
 ## Introduction
 
 The blockchain utilities allow one to import and export the blockchain.
@@ -12,16 +12,16 @@ See also each utility's "--help" option.
 
 ### Export an existing blockchain database
 
-`$ Superior-blockchain-export`
+`$ superior-blockchain-export`
 
-This loads the existing blockchain and exports it to `$Superior_DATA_DIR/export/blockchain.raw`
+This loads the existing blockchain and exports it to `$SUPERIOR_DATA_DIR/export/blockchain.raw`
 
 ### Import the exported file
 
-`$ Superior-blockchain-import`
+`$ superior-blockchain-import`
 
-This imports blocks from `$Superior_DATA_DIR/export/blockchain.raw` (exported using the
-`Superior-blockchain-export` tool as described above) into the current database.
+This imports blocks from `$SUPERIORr_DATA_DIR/export/blockchain.raw` (exported using the
+`superior-blockchain-export` tool as described above) into the current database.
 
 Defaults: `--batch on`, `--batch size 20000`, `--verify on`
 
@@ -30,14 +30,14 @@ Batch size refers to number of blocks and can be adjusted for performance based 
 Verification should only be turned off if importing from a trusted blockchain.
 
 If you encounter an error like "resizing not supported in batch mode", you can just re-run
-the `Superior-blockchain-import` command again, and it will restart from where it left off.
+the `superior-blockchain-import` command again, and it will restart from where it left off.
 
 ```bash
 ## use default settings to import blockchain.raw into database
-$ Superior-blockchain-import
+$ superior-blockchain-import
 
 ## fast import with large batch size, database mode "fastest", verification off
-$ Superior-blockchain-import --batch-size 20000 --database lmdb#fastest --verify off
+$ superior-blockchain-import --batch-size 20000 --database lmdb#fastest --verify off
 
 ```
 
@@ -80,9 +80,9 @@ LMDB flags (more than one may be specified):
 ## Examples:
 
 ```
-$ Superior-blockchain-import --database lmdb#fastest
+$ superior-blockchain-import --database lmdb#fastest
 
-$ Superior-blockchain-import --database lmdb#nosync
+$ superior-blockchain-import --database lmdb#nosync
 
-$ Superior-blockchain-import --database lmdb#nosync,nometasync
+$ superior-blockchain-import --database lmdb#nosync,nometasync
 ```

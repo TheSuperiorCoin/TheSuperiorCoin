@@ -59,9 +59,9 @@ set(cryptonote_basic_private_headers
   tx_extra.h
   verification_context.h)
 
-Superior_private_headers(cryptonote_basic
+superior_private_headers(cryptonote_basic
   ${crypto_private_headers})
-Superior_add_library(cryptonote_basic
+superior_add_library(cryptonote_basic
   ${cryptonote_basic_sources}
   ${cryptonote_basic_headers}
   ${cryptonote_basic_private_headers})

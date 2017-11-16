@@ -33,7 +33,7 @@ endif()
 
 cmake_minimum_required(VERSION 2.8.7)
 
-project(Superior)
+project(superior)
 
 function (die msg)
   if (NOT WIN32)
@@ -237,7 +237,7 @@ if(STATIC)
 endif()
 
 # Set default blockchain storage location:
-# memory was the default in Cryptonote before Superior implimented LMDB, it still works but is unneccessary.
+# memory was the default in Cryptonote before Monero implimented LMDB, it still works but is unneccessary.
 # set(DATABASE memory)
 set(DATABASE lmdb)
 

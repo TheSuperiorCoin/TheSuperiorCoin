@@ -38,11 +38,11 @@ case $1 in
         cat <<'EOM'
 graph_title difficulty
 graph_vlabel difficulty
-graph_category Superior
+graph_category superior
 difficulty.label difficulty
 EOM
         exit 0;;
 esac
 
 printf "difficulty.value "
-# rewrite using curl or similar: /home/user/bitSuperior/build/release/src/connectivity_tool --ip=127.0.0.1 --rpc_port=8081 --timeout=1000 --rpc_get_daemon_info | grep difficulty | cut -d ' ' -f2
+# rewrite using curl or similar: /home/user/bitsuperior/build/release/src/connectivity_tool --ip=127.0.0.1 --rpc_port=8081 --timeout=1000 --rpc_get_daemon_info | grep difficulty | cut -d ' ' -f2

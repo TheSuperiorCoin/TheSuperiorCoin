@@ -67,7 +67,7 @@ const char * WALLET_PASS = "password";
 const char * WALLET_PASS2 = "password22";
 const char * WALLET_LANG = "English";
 
-std::string WALLETS_ROOT_DIR = "/var/Superior/testnet_pvt";
+std::string WALLETS_ROOT_DIR = "/var/superior/testnet_pvt";
 std::string TESTNET_WALLET1_NAME;
 std::string TESTNET_WALLET2_NAME;
 std::string TESTNET_WALLET3_NAME;
@@ -80,9 +80,9 @@ const char * TESTNET_WALLET_PASS = "";
 std::string CURRENT_SRC_WALLET;
 std::string CURRENT_DST_WALLET;
 
-const uint64_t AMOUNT_10sup =  10000000000000L;
-const uint64_t AMOUNT_5sup  =  5000000000000L;
-const uint64_t AMOUNT_1sup  =  1000000000000L;
+const uint64_t AMOUNT_10SUP =  1000000000L;
+const uint64_t AMOUNT_5SUP  =  500000000L;
+const uint64_t AMOUNT_1SUP  =  100000000L;
 
 const std::string PAYMENT_ID_EMPTY = "";
 
@@ -551,12 +551,12 @@ TEST_F(WalletTest1, WalletRefresh)
 
 TEST_F(WalletTest1, WalletConvertsToString)
 {
-    std::string strAmount = Superior::Wallet::displayAmount(AMOUNT_5sup);
-    ASSERT_TRUE(AMOUNT_5sup == Superior::Wallet::amountFromString(strAmount));
+    std::string strAmount = Superior::Wallet::displayAmount(AMOUNT_5SUP);
+    ASSERT_TRUE(AMOUNT_5SUP == Superior::Wallet::amountFromString(strAmount));
 
-    ASSERT_TRUE(AMOUNT_5sup == Superior::Wallet::amountFromDouble(5.0));
-    ASSERT_TRUE(AMOUNT_10sup == Superior::Wallet::amountFromDouble(10.0));
-    ASSERT_TRUE(AMOUNT_1sup == Superior::Wallet::amountFromDouble(1.0));
+    ASSERT_TRUE(AMOUNT_5SUP == Superior::Wallet::amountFromDouble(5.0));
+    ASSERT_TRUE(AMOUNT_10SUP == Superior::Wallet::amountFromDouble(10.0));
+    ASSERT_TRUE(AMOUNT_1SUP == Superior::Wallet::amountFromDouble(1.0));
 
 }
 
@@ -578,14 +578,14 @@ TEST_F(WalletTest1, WalletTransaction)
 
     Superior::PendingTransaction * transaction = wallet1->createTransaction(recepient_address,
                                                                              PAYMENT_ID_EMPTY,
-                                                                             AMOUNT_10sup,
+                                                                             AMOUNT_10SUP,
                                                                              MIXIN_COUNT,
                                                                              Superior::PendingTransaction::Priority_Medium);
     ASSERT_TRUE(transaction->status() == Superior::PendingTransaction::Status_Ok);
     wallet1->refresh();
 
     ASSERT_TRUE(wallet1->balance() == balance);
-    ASSERT_TRUE(transaction->amount() == AMOUNT_10sup);
+    ASSERT_TRUE(transaction->amount() == AMOUNT_10SUP);
     ASSERT_TRUE(transaction->commit());
     ASSERT_FALSE(wallet1->balance() == balance);
     ASSERT_TRUE(wmgr->closeWallet(wallet1));
@@ -618,7 +618,7 @@ TEST_F(WalletTest1, WalletTransactionWithMixin)
     for (auto mixin : mixins) {
         std::cerr << "Transaction mixin count: " << mixin << std::endl;
         Superior::PendingTransaction * transaction = wallet1->createTransaction(
-                    recepient_address, payment_id, AMOUNT_5sup, mixin);
+                    recepient_address, payment_id, AMOUNT_5SUP, mixin);
 
         std::cerr << "Transaction status: " << transaction->status() << std::endl;
         std::cerr << "Transaction fee: " << Superior::Wallet::displayAmount(transaction->fee()) << std::endl;
@@ -659,7 +659,7 @@ TEST_F(WalletTest1, WalletTransactionWithPriority)
     for (auto it = priorities.begin(); it != priorities.end(); ++it) {
         std::cerr << "Transaction priority: " << *it << std::endl;
         Superior::PendingTransaction * transaction = wallet1->createTransaction(
-                    recepient_address, payment_id, AMOUNT_5sup, mixin, *it);
+                    recepient_address, payment_id, AMOUNT_5SUP, mixin, *it);
         std::cerr << "Transaction status: " << transaction->status() << std::endl;
         std::cerr << "Transaction fee: " << Superior::Wallet::displayAmount(transaction->fee()) << std::endl;
         std::cerr << "Transaction error: " << transaction->errorString() << std::endl;
@@ -715,7 +715,7 @@ TEST_F(WalletTest1, WalletTransactionAndHistory)
 
     Superior::PendingTransaction * tx = wallet_src->createTransaction(wallet4_addr,
                                                                        PAYMENT_ID_EMPTY,
-                                                                       AMOUNT_10sup * 5, 1);
+                                                                       AMOUNT_10SUP * 5, 1);
 
     ASSERT_TRUE(tx->status() == Superior::PendingTransaction::Status_Ok);
     ASSERT_TRUE(tx->commit());
@@ -757,7 +757,7 @@ TEST_F(WalletTest1, WalletTransactionWithPaymentId)
 
     Superior::PendingTransaction * tx = wallet_src->createTransaction(wallet4_addr,
                                                                        payment_id,
-                                                                       AMOUNT_1sup, 1);
+                                                                       AMOUNT_1SUP, 1);
 
     ASSERT_TRUE(tx->status() == Superior::PendingTransaction::Status_Ok);
     ASSERT_TRUE(tx->commit());
@@ -924,7 +924,7 @@ TEST_F(WalletTest2, WalletCallbackSent)
     std::cout << "** Balance: " << wallet_src->displayAmount(wallet_src->balance()) <<  std::endl;
     Superior::Wallet * wallet_dst = wmgr->openWallet(CURRENT_DST_WALLET, TESTNET_WALLET_PASS, true);
 
-    uint64_t amount = AMOUNT_1sup * 5;
+    uint64_t amount = AMOUNT_1SUP * 5;
     std::cout << "** Sending " << Superior::Wallet::displayAmount(amount) << " to " << wallet_dst->address();
 
 
@@ -967,7 +967,7 @@ TEST_F(WalletTest2, WalletCallbackReceived)
     std::cout << "** Balance dst1: " << wallet_dst->displayAmount(wallet_dst->balance()) <<  std::endl;
     std::unique_ptr<MyWalletListener> wallet_dst_listener (new MyWalletListener(wallet_dst));
 
-    uint64_t amount = AMOUNT_1sup * 5;
+    uint64_t amount = AMOUNT_1SUP * 5;
     std::cout << "** Sending " << Superior::Wallet::displayAmount(amount) << " to " << wallet_dst->address();
     Superior::PendingTransaction * tx = wallet_src->createTransaction(wallet_dst->address(),
                                                                        PAYMENT_ID_EMPTY,

@@ -1,7 +1,7 @@
 # The Superior Coin
 
 - Copyright (c) 2017-2020, The SuperiorCoin Project
-- Copyright (c) 2014-2017 Part of this may Include Source Code from MONERO Project
+- Copyright (c) 2014-2017 Part of this may Include Source Code from Monero Project
 - Copyright (c) 2012-1013 Part of this may Include Source Code from The Cryptonote developers 
 
 ## Development Resources
@@ -86,7 +86,28 @@ There are also a mining pool that kindly donates a portion of their fees, [a lis
 
 See [LICENSE](LICENSE).
 
-## Installing Superior Coin from a Package
+# Contributing
+
+If you want to help out, see [CONTRIBUTING](CONTRIBUTING.md) for a set of guidelines.
+
+## Vulnerability Response Process
+
+See [Vulnerability Response Process](VULNERABILITY_RESPONSE_PROCESS.md).
+
+## Monero software updates and consensus protocol changes (hard fork schedule)
+
+Monero uses a fixed-schedule hard fork mechanism to implement new features. This means that users of Monero (end users and service providers) need to run current versions and update their software on a regular schedule. Here is the current schedule, versions, and compatibility.
+Dates are provided in the format YYYY-MM-DD. 
+
+
+| Fork Date              | Consensus version | Minimum Superior Version | Recommended Superior Version | Details            |  
+| ----------------- | ----------------- | ---------------------- | -------------------------- | ------------------ |
+| 2016-09-21        | v3-Premine        | v0.9.4                 | v0.10.0                    | Splits coinbase into denominations  |
+| 2017-01-07        | v4                | v0.10.1                | v0.10.2.1                  | Allow normal and RingCT transactions |
+| 2017-04-15        | v5-skipped        | v0.10.3.0              | v0.10.3.1                  | Adjusted minimum blocksize and fee algorithm      |
+| 2017-11-21        | v6                | v0.11.1                | v0.11.1                    | Allow only RingCT transactions      |
+
+## Installing Monero from a Package
 
 Packages are available for
 
@@ -218,14 +239,14 @@ Tested on a Raspberry Pi 2 with a clean install of minimal Debian Jessie from ht
 
 * Change to the root of the source code directory and build:
 
-        cd Superior
+        cd TheSuperiorCoin
         make release
 
 * Wait ~4 hours
 
 * The resulting executables can be found in `build/release/bin`
 
-* Add `PATH="$PATH:$HOME/superior/build/release/bin"` to `.profile`
+* Add `PATH="$PATH:$HOME/TheSuperiorCoin/build/release/bin"` to `.profile`
 
 * Run Superior with `superiord --detach`
 
@@ -301,6 +322,15 @@ You will have to add the serialization, date_time, and regex modules to Boost wh
 
 To build: `env CC=egcc CXX=eg++ CPP=ecpp DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/path/to/the/boost/you/built make release-static-64`
 
+### On Linux for Android (using docker):
+
+        # Build image (select android64.Dockerfile for aarch64)
+        cd utils/build_scripts/ && docker build -f android32.Dockerfile -t superior-android .
+        # Create container
+        docker create -it --name superior-android superior-android bash
+        # Get binaries
+        docker cp superior-android:/opt/android/TheSuperiorCoin/build/release/bin .
+
 ### Building Portable Statically Linked Binaries
 
 By default, in either dynamically or statically linked builds, binaries target the specific host processor on which the build happens and are not portable to other processors. Portable binaries can be built using the following targets:
@@ -370,10 +400,6 @@ While superiord and superior-wallet-cli do not use readline directly, most of th
 `rlwrap bin/superior-wallet-cli --wallet-file /path/to/wallet`
 
 Note: rlwrap will save things like your seed and private keys, if you supply them on prompt. You may want to not use rlwrap when you use simplewallet to restore from seed, etc.
-
-# Contributing
-
-If you want to help out, see CONTRIBUTING for a set of guidelines.
 
 # Debugging
 

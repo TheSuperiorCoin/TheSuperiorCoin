@@ -47,8 +47,8 @@
 #include "common/password.h"
 #include "crypto/crypto.h"  // for definition of crypto::secret_key
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "wallet.simplewallet"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "wallet.simplewallet"
 
 /*!
  * \namespace cryptonote
@@ -121,6 +121,7 @@ namespace cryptonote
     bool set_min_output_value(const std::vector<std::string> &args = std::vector<std::string>());
     bool set_merge_destinations(const std::vector<std::string> &args = std::vector<std::string>());
     bool set_confirm_backlog(const std::vector<std::string> &args = std::vector<std::string>());
+    bool set_refresh_from_block_height(const std::vector<std::string> &args = std::vector<std::string>());
     bool help(const std::vector<std::string> &args = std::vector<std::string>());
     bool start_mining(const std::vector<std::string> &args);
     bool stop_mining(const std::vector<std::string> &args);
@@ -175,6 +176,7 @@ namespace cryptonote
     bool show_transfer(const std::vector<std::string> &args);
     bool change_password(const std::vector<std::string>& args);
     bool payment_id(const std::vector<std::string> &args);
+    bool print_fee_info(const std::vector<std::string> &args);
 
     uint64_t get_daemon_blockchain_height(std::string& err);
     bool try_connect_to_daemon(bool silent = false, uint32_t* version = nullptr);

@@ -39,8 +39,8 @@
 #include "profile_tools.h"
 #include "ringct/rctOps.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "blockchain.db.lmdb"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "blockchain.db.lmdb"
 
 
 #if defined(__i386) || defined(__x86_64)
@@ -2420,7 +2420,7 @@ bool BlockchainLMDB::for_blocks_range(const uint64_t& h1, const uint64_t& h2, st
   MDB_cursor_op op;
   if (h1)
   {
-    MDB_val_set(k, h1);
+    k = MDB_val{sizeof(h1), (void*)&h1};
 	op = MDB_SET;
   } else
   {
@@ -2604,6 +2604,16 @@ void BlockchainLMDB::batch_commit()
   memset(&m_wcursors, 0, sizeof(m_wcursors));
 }
 
+void BlockchainLMDB::cleanup_batch()
+{
+  // for destruction of batch transaction
+  m_write_txn = nullptr;
+  delete m_write_batch_txn;
+  m_write_batch_txn = nullptr;
+  m_batch_active = false;
+  memset(&m_wcursors, 0, sizeof(m_wcursors));
+}
+
 void BlockchainLMDB::batch_stop()
 {
   LOG_PRINT_L3("BlockchainLMDB::" << __func__);
@@ -2618,15 +2628,18 @@ void BlockchainLMDB::batch_stop()
   check_open();
   LOG_PRINT_L3("batch transaction: committing...");
   TIME_MEASURE_START(time1);
+  try
+  {
   m_write_txn->commit();
   TIME_MEASURE_FINISH(time1);
   time_commit1 += time1;
-  // for destruction of batch transaction
-  m_write_txn = nullptr;
-  delete m_write_batch_txn;
-  m_write_batch_txn = nullptr;
-  m_batch_active = false;
-  memset(&m_wcursors, 0, sizeof(m_wcursors));
+    cleanup_batch();
+  }
+  catch (const std::exception &e)
+  {
+    cleanup_batch();
+    throw;
+  }
   LOG_PRINT_L3("batch transaction: end");
 }
 
@@ -3152,7 +3165,7 @@ void BlockchainLMDB::fixup()
     ptr = (char *)k.mv_data; \
     ptr[sizeof(name)-2] = 's'
 
-#define LOGIF(y)    if (ELPP->vRegistry()->allowed(y, Superior_DEFAULT_LOG_CATEGORY))
+#define LOGIF(y)    if (ELPP->vRegistry()->allowed(y, SUPERIOR_DEFAULT_LOG_CATEGORY))
 
 void BlockchainLMDB::migrate_0_1()
 {

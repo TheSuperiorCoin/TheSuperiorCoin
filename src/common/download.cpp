@@ -36,8 +36,8 @@
 #include "net/http_client.h"
 #include "download.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "net.dl"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "net.dl"
 
 namespace tools
 {

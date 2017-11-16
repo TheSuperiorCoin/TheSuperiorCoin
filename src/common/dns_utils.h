@@ -30,7 +30,7 @@
 
 #include <vector>
 #include <string>
-#include "cryptonote_basic/cryptonote_basic.h"
+#include <functional>
 
 namespace tools
 {
@@ -109,7 +109,7 @@ public:
    * @brief Gets a DNS address from OpenAlias format
    *
    * If the address looks good, but contains one @ symbol, replace that with a .
-   * e.g. donate@superior-coin.com becomes donate.superior-coin.com
+   * e.g. donate@superior-coin.com
    *
    * @param oa_addr  OpenAlias address
    *

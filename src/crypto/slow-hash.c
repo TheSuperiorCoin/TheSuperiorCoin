@@ -195,7 +195,7 @@ STATIC INLINE int force_software_aes(void)
   if (use != -1)
     return use;
 
-  const char *env = getenv("Superior_USE_SOFTWARE_AES");
+  const char *env = getenv("SUPERIOR_USE_SOFTWARE_AES");
   if (!env) {
     use = 0;
   }
@@ -486,7 +486,7 @@ void slow_hash_free_state(void)
 }
 
 /**
- * @brief the hash function implementing CryptoNight, used for the Superior proof-of-work
+ * @brief the hash function implementing CryptoNight, used for the Monero proof-of-work
  *
  * Computes the hash of <data> (which consists of <length> bytes), returning the
  * hash in <hash>.  The CryptoNight hash operates by first using Keccak 1600,
@@ -509,7 +509,7 @@ void slow_hash_free_state(void)
  * AES support on x86 CPUs.
  *
  * A diagram of the inner loop of this function can be found at
- * http://www.cs.cmu.edu/~dga/crypto/sup/cryptonight.png
+ * http://www.cs.cmu.edu/~dga/crypto/xmr/cryptonight.png
  *
  * @param data the data to hash
  * @param length the length in bytes of the data

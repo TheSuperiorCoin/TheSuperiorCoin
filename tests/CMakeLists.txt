@@ -74,8 +74,8 @@ file(COPY
   data/wallet_9svHk1.keys
   data/wallet_9svHk1
   data/outputs
-  data/unsigned_Superior_tx
-  data/signed_Superior_tx
+  data/unsigned_superior_tx
+  data/signed_superior_tx
   DESTINATION data)
 
 add_subdirectory(core_tests)

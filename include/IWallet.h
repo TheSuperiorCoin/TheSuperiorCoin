@@ -1,4 +1,5 @@
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2017-2020, The Superior Project
+// Parts of this code Contain Code from The Monero Project
 // 
 // All rights reserved.
 // 

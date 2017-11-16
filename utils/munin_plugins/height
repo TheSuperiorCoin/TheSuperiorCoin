@@ -37,7 +37,7 @@ case $1 in
         cat <<'EOM'
 graph_title Height
 graph_vlabel height
-graph_category Superior
+graph_category superior
 height.label height
 height.type COUNTER
 EOM
@@ -45,4 +45,4 @@ EOM
 esac
 
 printf "height.value "
-# rewrite using curl or similar: /home/user/bitSuperior/build/release/src/connectivity_tool --ip=127.0.0.1 --rpc_port=8081 --timeout=1000 --rpc_get_daemon_info | grep height | cut -d ' ' -f2
+# rewrite using curl or similar: /home/user/bitsuperior/build/release/src/connectivity_tool --ip=127.0.0.1 --rpc_port=8081 --timeout=1000 --rpc_get_daemon_info | grep height | cut -d ' ' -f2

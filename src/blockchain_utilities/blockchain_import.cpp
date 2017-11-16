@@ -42,8 +42,8 @@
 #include "blockchain_db/db_types.h"
 #include "cryptonote_core/cryptonote_core.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "bcutil"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "bcutil"
 
 namespace
 {
@@ -208,7 +208,8 @@ int check_flush(cryptonote::core &core, std::list<block_complete_entry> &blocks,
     }
 
   } // each download block
-  core.cleanup_handle_incoming_blocks();
+  if (!core.cleanup_handle_incoming_blocks())
+    return 1;
 
   blocks.clear();
   return 0;
@@ -316,9 +317,9 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
       MWARNING("WARNING: chunk_size " << chunk_size << " > BUFFER_SIZE " << BUFFER_SIZE);
       throw std::runtime_error("Aborting: chunk size exceeds buffer size");
     }
-    if (chunk_size > 100000)
+    if (chunk_size > CHUNK_SIZE_WARNING_THRESHOLD)
     {
-      MINFO("NOTE: chunk_size " << chunk_size << " > 100000");
+      MINFO("NOTE: chunk_size " << chunk_size << " > " << CHUNK_SIZE_WARNING_THRESHOLD);
     }
     else if (chunk_size == 0) {
       MFATAL("ERROR: chunk_size == 0");
@@ -326,9 +327,19 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
     }
     import_file.read(buffer_block, chunk_size);
     if (! import_file) {
+      if (import_file.eof())
+      {
+        std::cout << refresh_string;
+        MINFO("End of file reached - file was truncated");
+        quit = 1;
+        break;
+      }
+      else
+      {
       MFATAL("ERROR: unexpected end of file: bytes read before error: "
           << import_file.gcount() << " of chunk_size " << chunk_size);
       return 2;
+    }
     }
     bytes_read += chunk_size;
     MDEBUG("Total bytes read: " << bytes_read);
@@ -394,7 +405,10 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
           blocks.push_back({block, txs});
           int ret = check_flush(core, blocks, false);
           if (ret)
+          {
+            quit = 2; // make sure we don't commit partial block data
             break;
+        }
         }
         else
         {
@@ -590,7 +604,7 @@ int main(int argc, char* argv[])
 
   if (command_line::get_arg(vm, command_line::arg_help))
   {
-    std::cout << "Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL << ")" << ENDL << ENDL;
+    std::cout << "Superior '" << SUPERIOR_RELEASE_NAME << "' (v" << SUPERIOR_VERSION_FULL << ")" << ENDL << ENDL;
     std::cout << desc_options << std::endl;
     return 1;
   }
@@ -623,7 +637,7 @@ int main(int argc, char* argv[])
   m_config_folder = command_line::get_arg(vm, data_dir_arg);
   db_arg_str = command_line::get_arg(vm, arg_database);
 
-  mlog_configure(mlog_get_default_log_path("Superior-blockchain-import.log"), true);
+  mlog_configure(mlog_get_default_log_path("superior-blockchain-import.log"), true);
   if (!vm["log-level"].defaulted())
     mlog_set_log(command_line::get_arg(vm, arg_log_level).c_str());
   else
@@ -682,18 +696,12 @@ int main(int argc, char* argv[])
   MINFO("bootstrap file path: " << import_file_path);
   MINFO("database path:       " << m_config_folder);
 
+  cryptonote::cryptonote_protocol_stub pr; //TODO: stub only for this kind of test, make real validation of relayed objects
+  cryptonote::core core(&pr);
+
   try
   {
 
-  // fake_core needed for verification to work when enabled.
-  //
-  // NOTE: don't need fake_core method of doing things when we're going to call
-  // BlockchainDB add_block() directly and have available the 3 block
-  // properties to do so. Both ways work, but fake core isn't necessary in that
-  // circumstance.
-
-  cryptonote::cryptonote_protocol_stub pr; //TODO: stub only for this kind of test, make real validation of relayed objects
-  cryptonote::core core(&pr);
   core.disable_dns_checkpoints(true);
   if (!core.init(vm, NULL))
   {
@@ -721,23 +729,19 @@ int main(int argc, char* argv[])
 
   import_from_file(core, import_file_path, block_stop);
 
-  }
-  catch (const DB_ERROR& e)
-  {
-    std::cout << std::string("Error loading blockchain db: ") + e.what() + " -- shutting down now" << ENDL;
-    return 1;
-  }
-
-  // destructors called at exit:
-  //
   // ensure db closed
   //   - transactions properly checked and handled
   //   - disk sync if needed
   //
-  // fake_core object's destructor is called when it goes out of scope. For an
-  // LMDB fake_core, it calls Blockchain::deinit() on its object, which in turn
-  // calls delete on its BlockchainDB derived class' object, which closes its
-  // files.
+  core.deinit();
+  }
+  catch (const DB_ERROR& e)
+  {
+    std::cout << std::string("Error loading blockchain db: ") + e.what() + " -- shutting down now" << ENDL;
+    core.deinit();
+    return 1;
+  }
+
   return 0;
 
   CATCH_ENTRY("Import error", 1);

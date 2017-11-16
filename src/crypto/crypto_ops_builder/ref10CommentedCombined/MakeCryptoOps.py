@@ -168,36 +168,36 @@ if a == "m":
     print(fe_comments)
     fe = glob.glob("fe*.c")
     for g in fe:
-        os.system("cp "+g+" "+g.replace("fe", "fe.Superior."))
-    qhasmToC("fe_pow22523.c", "pow22523.h", "fe.Superior._pow22523.c")
-    qhasmToC("fe_invert.c", "pow225521.h", "fe.Superior._invert.c")
-    os.system("rm fe.Superior._isnonzero.c") #since it's modified, it's in supSpecificOld
-    os.system("cat fe.Superior.*.c | grep -v '^#include' > fe.Superior.c")
+        os.system("cp "+g+" "+g.replace("fe", "fe.superior."))
+    qhasmToC("fe_pow22523.c", "pow22523.h", "fe.superior._pow22523.c")
+    qhasmToC("fe_invert.c", "pow225521.h", "fe.superior._invert.c")
+    os.system("rm fe.superior._isnonzero.c") #since it's modified, it's in supSpecificOld
+    os.system("cat fe.superior.*.c | grep -v '^#include' > fe.superior.c")
 
     #sc things
     print("\nmaking sc.c")
     print(sc_comments)
     #so you don't get multiple "loads"
-    os.system("tail -n +24 sc_reduce.c > sc.Superior._reduce.c") #also good on linux
-    os.system("tail -n +24 sc_muladd.c > sc.Superior._muladd.c")
-    os.system("tail -n +31 sc_sub.sup.c > sc.Superior._sub.sup.c") #careful with the tails if you change these files!
-    os.system("cat sc.Superior.*.c | grep -v '^#include' > sc.Superior.c")
+    os.system("tail -n +24 sc_reduce.c > sc.superior._reduce.c") #also good on linux
+    os.system("tail -n +24 sc_muladd.c > sc.superior._muladd.c")
+    os.system("tail -n +31 sc_sub.sup.c > sc.superior._sub.sup.c") #careful with the tails if you change these files!
+    os.system("cat sc.superior.*.c | grep -v '^#include' > sc.superior.c")
 
     #ge stuff
     print("making ge.c")
     ge = glob.glob("ge*.c")
     for g in ge:
-        os.system("cp "+g+" "+g.replace("ge", "ge.Superior."))
+        os.system("cp "+g+" "+g.replace("ge", "ge.superior."))
     print(ge_comments)
     #need to substitute the below lines for their .h files in the appropriate places
-    qhasmToC("ge_add.c", "ge_add.h", "ge.Superior._add.c")
-    qhasmToC("ge_madd.c", "ge_madd.h", "ge.Superior._madd.c")
-    qhasmToC("ge_sub.c", "ge_sub.h", "ge.Superior._sub.c")
-    qhasmToC("ge_msub.c", "ge_msub.h", "ge.Superior._msub.c")
-    qhasmToC("ge_p2_dbl.c", "ge_p2_dbl.h", "ge.Superior._p2_dbl.c")
-    qhasmToC("ge_frombytes.c", "d.h", "ge.Superior._frombytes.c")
-    qhasmToC("ge.Superior._frombytes.c", "sqrtm1.h", "ge.Superior._frombytes.c")
-    qhasmToC("ge_p3_to_cached.c", "d2.h", "ge.Superior._p3_to_cached.c")
+    qhasmToC("ge_add.c", "ge_add.h", "ge.superior._add.c")
+    qhasmToC("ge_madd.c", "ge_madd.h", "ge.superior._madd.c")
+    qhasmToC("ge_sub.c", "ge_sub.h", "ge.superior._sub.c")
+    qhasmToC("ge_msub.c", "ge_msub.h", "ge.superior._msub.c")
+    qhasmToC("ge_p2_dbl.c", "ge_p2_dbl.h", "ge.superior._p2_dbl.c")
+    qhasmToC("ge_frombytes.c", "d.h", "ge.superior._frombytes.c")
+    qhasmToC("ge.Superior._frombytes.c", "sqrtm1.h", "ge.superior._frombytes.c")
+    qhasmToC("ge_p3_to_cached.c", "d2.h", "ge.superior._p3_to_cached.c")
 
 
 
@@ -205,11 +205,11 @@ if a == "m":
     #note, base2.h is a large file!
     #also in ge_scalarmult_base ge_precomp base needs base.h included
 
-    qhasmToC("ge_double_scalarmult.c", "base2.h", "ge.Superior._double_scalarmult.c")
-    qhasmToC("ge_scalarmult_base.c", "base.h", "ge.Superior._scalarmult_base.c")
-    #qhasmToC("ge.Superior._scalarmult_base.c", "base.h", "ge.Superior._scalarmult_base.c")
-    os.system("sed -i 's/ cmov/ ge_precomp_cmov/g' ge.Superior._scalarmult_base.c")
-    os.system("cat ge.Superior.*.c | grep -v '^#include' > ge.Superior.c")
+    qhasmToC("ge_double_scalarmult.c", "base2.h", "ge.superior._double_scalarmult.c")
+    qhasmToC("ge_scalarmult_base.c", "base.h", "ge.superior._scalarmult_base.c")
+    #qhasmToC("ge.superior._scalarmult_base.c", "base.h", "ge.superior._scalarmult_base.c")
+    os.system("sed -i 's/ cmov/ ge_precomp_cmov/g' ge.superior._scalarmult_base.c")
+    os.system("cat ge.superior.*.c | grep -v '^#include' > ge.superior.c")
 
 
     print("making crypto-ops.c")
@@ -217,30 +217,30 @@ if a == "m":
     #sqrtm1 things
 
     #comments
-    with open("fe.Superior.comments", "w") as text_file:
+    with open("fe.superior.comments", "w") as text_file:
             text_file.write(fe_comments)
-    with open("ge.Superior.comments", "w") as text_file:
+    with open("ge.superior.comments", "w") as text_file:
             text_file.write(ge_comments)
-    with open("sc.Superior.comments", "w") as text_file:
+    with open("sc.superior.comments", "w") as text_file:
             text_file.write(sc_comments)
-    with open("sup.Superior.comments", "w") as text_file:
+    with open("sup.superior.comments", "w") as text_file:
             text_file.write(sup_comments)
-    with open("sup.Superior.predeclarations", "w") as text_file:
+    with open("sup.superior.predeclarations", "w") as text_file:
             text_file.write(predeclarations)
 
 
     #license
-    with open("Superior.license", "w") as text_file:
+    with open("superior.license", "w") as text_file:
             text_file.write(license)
 
     #crypto-ops.c includes
-    with open("crypto-ops.Superior.includes", "w") as text_file:
+    with open("crypto-ops.superior.includes", "w") as text_file:
         text_file.write(crypto_ops_includes)
 
     #note you may have duplicates of load_3, load_4 and possibly some other functions ... 
-    os.system("cat Superior.license crypto-ops.Superior.includes sup.Superior.predeclarations fe.Superior.comments fe.Superior.c sc.Superior.comments sc.Superior.c ge.Superior.comments ge.Superior.c sup.Superior.comments supSpecificOld.c > crypto-ops.c")
+    os.system("cat superior.license crypto-ops.superior.includes sup.superior.predeclarations fe.superior.comments fe.superior.c sc.superior.comments sc.superior.c ge.superior.comments ge.superior.c sup.superior.comments supSpecificOld.c > crypto-ops.c")
 
-    #Superior specific header files
+    #superior specific header files
     #print("making crypto-ops-tmp.h")
     #os.system("cat fe.h ge.h sc.h |grep -v crypto_sign_ed25519 |grep -v fe.h > crypto-ops-tmp.h")
     #we'll just use the old header crypto-ops.h
@@ -252,10 +252,10 @@ if a == "m":
     os.system("sed -i 's/crypto_uint64/uint64_t/g' crypto-ops.c")
 
     #cleaning up 
-    os.system("rm *Superior*")
+    os.system("rm *superior*")
 
-    #Superior specific c files
+    #superior specific c files
 if a == "c":
     #turn the directory back into ref10
-    os.system("rm *Superior*")
+    os.system("rm *superior*")
     os.system("rm crypto-ops.c")

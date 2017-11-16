@@ -44,8 +44,8 @@ using namespace epee;
 #include "rpc/rpc_args.h"
 #include "core_rpc_server_error_codes.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "daemon.rpc"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "daemon.rpc"
 
 #define MAX_RESTRICTED_FAKE_OUTS_COUNT 40
 #define MAX_RESTRICTED_GLOBAL_FAKE_OUTS_COUNT 500
@@ -205,14 +205,17 @@ namespace cryptonote
       }
       size_t txidx = 0;
       ntxes += bd.second.size();
-      for(const auto& t: bd.second)
+      for (std::list<cryptonote::blobdata>::iterator i = bd.second.begin(); i != bd.second.end(); ++i)
       {
+        unpruned_size += i->size();
         if (req.prune)
-          res.blocks.back().txs.push_back(get_pruned_tx_blob(t));
+          res.blocks.back().txs.push_back(get_pruned_tx_blob(std::move(*i)));
         else
-          res.blocks.back().txs.push_back(t);
+          res.blocks.back().txs.push_back(std::move(*i));
+        i->clear();
+        i->shrink_to_fit();
         pruned_size += res.blocks.back().txs.back().size();
-        unpruned_size += t.size();
+
         res.output_indices.back().indices.push_back(COMMAND_RPC_GET_BLOCKS_FAST::tx_output_indices());
         bool r = m_core.get_tx_outputs_gindexs(b.tx_hashes[txidx++], res.output_indices.back().indices.back().indices);
         if (!r)
@@ -1554,11 +1557,13 @@ namespace cryptonote
   //------------------------------------------------------------------------------------------------------------------------------
   bool core_rpc_server::on_update(const COMMAND_RPC_UPDATE::request& req, COMMAND_RPC_UPDATE::response& res)
   {
-    static const char software[] = "Superior";
+    static const char software[] = "superior";
 #ifdef BUILD_TAG
     static const char buildtag[] = BOOST_PP_STRINGIZE(BUILD_TAG);
+    static const char subdir[] = "cli";
 #else
     static const char buildtag[] = "source";
+    static const char subdir[] = "source";
 #endif
 
     if (req.command != "check" && req.command != "download" && req.command != "update")
@@ -1573,7 +1578,7 @@ namespace cryptonote
       res.status = "Error checking for updates";
       return true;
     }
-    if (tools::vercmp(version.c_str(), Superior_VERSION) <= 0)
+    if (tools::vercmp(version.c_str(), SUPERIOR_VERSION) <= 0)
     {
       res.update = false;
       res.status = CORE_RPC_STATUS_OK;
@@ -1581,8 +1586,8 @@ namespace cryptonote
     }
     res.update = true;
     res.version = version;
-    res.user_uri = tools::get_update_url(software, "cli", buildtag, version, true);
-    res.auto_uri = tools::get_update_url(software, "cli", buildtag, version, false);
+    res.user_uri = tools::get_update_url(software, subdir, buildtag, version, true);
+    res.auto_uri = tools::get_update_url(software, subdir, buildtag, version, false);
     res.hash = hash;
     if (req.command == "check")
     {

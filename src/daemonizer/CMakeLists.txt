@@ -54,9 +54,9 @@ else()
   )
 endif()
 
-Superior_private_headers(daemonizer
+superior_private_headers(daemonizer
   ${daemonizer_private_headers})
-Superior_add_library(daemonizer
+superior_add_library(daemonizer
   ${daemonizer_sources}
   ${daemonizer_headers}
   ${daemonizer_private_headers})

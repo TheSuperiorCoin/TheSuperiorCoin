@@ -32,8 +32,8 @@
 #include <stdio.h>
 #include "misc_log_ex.h"
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "perf"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "perf"
 
 namespace tools
 {

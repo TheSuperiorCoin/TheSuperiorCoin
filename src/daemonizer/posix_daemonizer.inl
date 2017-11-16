@@ -100,7 +100,7 @@ namespace daemonizer
     }
     else
     {
-      //LOG_PRINT_L0("Superior '" << Superior_RELEASE_NAME << "' (v" << Superior_VERSION_FULL);
+      //LOG_PRINT_L0("Superior '" << SUPERIOR_RELEASE_NAME << "' (v" << SUPERIOR_VERSION_FULL);
       return executor.run_interactive(vm);
     }
   }

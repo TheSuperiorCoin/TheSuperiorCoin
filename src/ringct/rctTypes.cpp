@@ -32,8 +32,8 @@
 using namespace crypto;
 using namespace std;
 
-#undef Superior_DEFAULT_LOG_CATEGORY
-#define Superior_DEFAULT_LOG_CATEGORY "ringct"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "ringct"
 
 namespace rct {
 
