@@ -386,7 +386,7 @@ namespace Language
         "caimán",
         "caja",
         "cajón",
-        "cali",
+        "cal7",
         "calamar",
         "calcio",
         "caldo",
