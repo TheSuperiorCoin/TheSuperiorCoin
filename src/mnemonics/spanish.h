@@ -1168,7 +1168,7 @@ namespace Language
         "mañana",
         "mapa",
         "máquina",
-        "mare",
+        "mariscos",
         "marco",
         "marea",
         "marfil",
