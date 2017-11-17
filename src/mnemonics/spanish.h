@@ -1173,7 +1173,7 @@ namespace Language
         "marea",
         "marfil",
         "margen",
-        "marido",
+        "marder",
         "mármol",
         "marrón",
         "martes",
