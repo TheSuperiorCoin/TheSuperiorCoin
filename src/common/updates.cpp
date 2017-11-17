@@ -45,10 +45,10 @@ namespace tools
 
     // All four SuperiorPulse domains have DNSSEC on and valid
     static const std::vector<std::string> dns_urls = {
-       // "superior-coin.com", disabled for TEST
-       // "the-superior-coin.com",
-       // "superiorcoinpool.com",
-       // "superior-coin.info"
+        "superior-coin.com",
+        "the-superior-coin.com",
+        "superiorcoinpool.com",
+        "superior-coin.info"
     };
 
     if (!tools::dns_utils::load_txt_records_from_dns(records, dns_urls))

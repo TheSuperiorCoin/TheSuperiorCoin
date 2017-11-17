@@ -129,7 +129,7 @@
 
 #define ALLOW_DEBUG_COMMANDS
 
-#define CRYPTONOTE_NAME                         "suptest"
+#define CRYPTONOTE_NAME                         "SuperiorCoin"
 #define CRYPTONOTE_POOLDATA_FILENAME            "poolstate.bin"
 #define CRYPTONOTE_BLOCKCHAINDATA_FILENAME      "data.mdb"
 #define CRYPTONOTE_BLOCKCHAINDATA_LOCK_FILENAME "lock.mdb"
@@ -155,7 +155,7 @@ namespace config
 
   uint64_t const CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = 26;
   uint64_t const CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = 27;
-  uint16_t const P2P_DEFAULT_PORT = 17459;
+  uint16_t const P2P_DEFAULT_PORT = 17139;
   uint16_t const RPC_DEFAULT_PORT = 16035;
   boost::uuids::uuid const NETWORK_ID = { {
       0xd7, 0xd7, 0xd7, 0x31, 0x6, 0x19, 0xd7, 0xd7, 0xd7, 0x31, 0x6, 0x19, 0x2b, 0xe3, 0xe, 0xe

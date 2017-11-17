@@ -409,22 +409,21 @@ namespace nodetool
     std::set<std::string> full_addrs;
     if (testnet)
     {
-         // full_addrs.insert("52.170.46.130:17369");
-         // full_addrs.insert("52.168.91.103:17369");
-         // full_addrs.insert("52.168.12.187:17369");
-         // full_addrs.insert("179.49.115.2:17369");
-         // full_addrs.insert("13.82.181.134:17369");
+          full_addrs.insert("52.170.46.130:17369");
+          full_addrs.insert("52.168.91.103:17369");
+          full_addrs.insert("52.168.12.187:17369");
+          full_addrs.insert("179.49.115.2:17369");
+          full_addrs.insert("13.82.181.134:17369");
     }
     else
     {
-      // full_addrs.insert("52.170.46.130:17369");
-      // full_addrs.insert("52.168.91.103:17369");
-      // full_addrs.insert("52.168.12.187:17369");
-      // full_addrs.insert("179.49.115.2:17369");
-      // full_addrs.insert("13.82.181.134:17369");
-      full_addrs.insert("127.0.0.1:17459");
-      full_addrs.insert("13.84.151.101:17459");
-      full_addrs.insert("202.137.120.29:17459");
+       full_addrs.insert("52.170.46.130:17369");
+       full_addrs.insert("52.168.91.103:17369");
+       full_addrs.insert("52.168.12.187:17369");
+       full_addrs.insert("179.49.115.2:17369");
+       full_addrs.insert("13.82.181.134:17369");
+       full_addrs.insert("13.84.151.101:17369");
+       full_addrs.insert("202.137.120.29:17369");
     }
     return full_addrs;
   }
@@ -507,8 +506,7 @@ namespace nodetool
         if (result.size())
         {
           for (const auto& addr_string : result)
-           // full_addrs.insert(addr_string + ":17139");
-           full_addrs.insert(addr_string + ":17459");
+           full_addrs.insert(addr_string + ":17139");
         }
         ++i;
       }

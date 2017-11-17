@@ -102,8 +102,8 @@ static const struct {
   // version 5 starts from block Skipped
   // { 5, 31744, 0, 1505865600 },
 
-  // version 6 starts from block 38100 -TESTNET, which is on or around the 13th of Nov, 2017. Fork time finalised on Undifined.
-  { 6, 31744, 0, 1503046577 },
+  // version 6 starts from block 101000 -TESTNET-was done from-31744-33906, which is on or around the 24th of Nov, 2017. Fork time finalised on Undifined 95500+5500=101000.
+  { 6, 101000, 0, 1503046577 },
 };
 static const uint64_t mainnet_hard_fork_version_1_till = 3657;
 
@@ -122,7 +122,7 @@ static const struct {
   // versions 3-5 were passed in rapid succession from September 18th, 2016
   { 3, 800500, 0, 1472415034 },
   { 4, 801219, 0, 1472415035 },
-  { 5, 802660, 0, 1472415036 + 86400*180 }, // add 5 months on testnet to shut the update warning up since there's a large gap to v6
+  //{ 5, 802660, 0, 1472415036 + 86400*180 }, // add 5 months on testnet to shut the update warning up since there's a large gap to v6
 
   { 6, 971400, 0, 1501709789 },
 };
