@@ -211,13 +211,13 @@ namespace cryptonote
     std::vector<std::string> records;
 
     // All four SuperiorPulse domains have DNSSEC on and valid
-    static const std::vector<std::string> dns_urls = { //"superiorcoinpool.com"
+    static const std::vector<std::string> dns_urls = { "superiorcoinpool.com"
 						     , "superior-coin.com"
 						     , "superior-coin.info"
 						     , "the-superior-coin.com"
     };
 
-    static const std::vector<std::string> testnet_dns_urls = { //"superiorcoinpool.com"
+    static const std::vector<std::string> testnet_dns_urls = { "superiorcoinpool.com"
 							  , "superior-coin.com"
                               , "superior-coin.info"
                               , "the-superior-coin.com"
