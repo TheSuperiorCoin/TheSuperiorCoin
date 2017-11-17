@@ -268,7 +268,7 @@ namespace Language
         "aval",
         "avance",
         "avaro",
-        "aves",
+        "avece",
         "avellana",
         "avena",
         "avestruz",
