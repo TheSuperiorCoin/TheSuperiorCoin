@@ -66,7 +66,7 @@ Both Superior and Bitcoin donations can be made to Address's below.
 
 The Superior donation address is: `﻿5QaiHzo64sLDo42ky98uXtJ3zswCdpUrk1q5nSidtqovjjiC7FmxRt84Zu3HkpYQX1PLDU72aQMK6Cif4muRxwt3RyZXY6y` (viewkey: `not updated`)
 
-The Bitcoin donation address is: `1CuZRQKAs8d2c4A1WW4rGgXCyMkFHsezz2`
+The Bitcoin donation address is: `1Fj6b8tPqbHV5ac2hnxP9RfkgUAYfj9uWd`
 
 *Note: you can easily donate sup to the Superior donation address by using the `donate` command. Type `help` in the command-line wallet for details.*
 
@@ -94,30 +94,30 @@ If you want to help out, see [CONTRIBUTING](CONTRIBUTING.md) for a set of guidel
 
 See [Vulnerability Response Process](VULNERABILITY_RESPONSE_PROCESS.md).
 
-## Monero software updates and consensus protocol changes (hard fork schedule)
+## SuperiorCoin software updates and consensus protocol changes (hard fork schedule)
 
-Monero uses a fixed-schedule hard fork mechanism to implement new features. This means that users of Monero (end users and service providers) need to run current versions and update their software on a regular schedule. Here is the current schedule, versions, and compatibility.
+SuperiorCoin uses a fixed-schedule hard fork mechanism to implement new features. This means that users of Superiro (end users and service providers) need to run current versions and update their software on a regular schedule. Here is the current schedule, versions, and compatibility.
 Dates are provided in the format YYYY-MM-DD. 
 
 
 | Fork Date              | Consensus version | Minimum Superior Version | Recommended Superior Version | Details            |  
 | ----------------- | ----------------- | ---------------------- | -------------------------- | ------------------ |
-| 2016-09-21        | v3-Premine        | v0.9.4                 | v0.10.0                    | Splits coinbase into denominations  |
+| 2017-01-07        | v3-Premine        | v0.9.4                 | v0.10.0                    | Splits coinbase into denominations  |
 | 2017-01-07        | v4                | v0.10.1                | v0.10.2.1                  | Allow normal and RingCT transactions |
-| 2017-04-15        | v5-skipped        | v0.10.3.0              | v0.10.3.1                  | Adjusted minimum blocksize and fee algorithm      |
-| 2017-11-21        | v6                | v0.11.1                | v0.11.1                    | Allow only RingCT transactions      |
+| 0000-00-00        | v5-skipped        | v0.10.3.0              | v0.10.3.1                  | Adjusted minimum blocksize and fee algorithm      |
+| 2017-11-24        | v6                | v0.11.1                | v0.11.1                    | Allow only RingCT transactions      |
 
-## Installing Monero from a Package
+## Installing SuperiorCoin from a Package
 
 Packages are available for
 
-* Arch Linux (via [AUR](https://aur.archlinux.org/)):
-  - Stable release: [`Superior`](https://aur.archlinux.org/packages/Superior)
-  - Bleeding edge: [`bitSuperior-git`](https://aur.archlinux.org/packages/bitSuperior-git)
-
+* Arch Linux 
+  - Stable release: 
+  - Bleeding edge: 
+  
 * OS X via [Homebrew](http://brew.sh)
 
-        brew tap sammy007/cryptonight
+       
         brew install Superior --build-from-source
 
 * Docker
@@ -125,10 +125,10 @@ Packages are available for
         docker build -t Superior .
      
         # either run in foreground
-        docker run -it -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 18080:18080 Superior
+        docker run -it -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 17139:17139 Superior
 
         # or in background
-        docker run -it -d -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 18080:18080 Superior
+        docker run -it -d -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 17139:17139 Superior
 
 Packaging for your favorite distribution would be a welcome contribution!
 
@@ -286,7 +286,7 @@ application.
         pacman -S mingw-w64-i686-toolchain make mingw-w64-i686-cmake mingw-w64-i686-boost
 
 * Open the MingW shell via `MinGW-w64-Win64 Shell` shortcut on 64-bit Windows
-  or `MinGW-w64-Win64 Shell` shortcut on 32-bit Windows. Note that if you are
+  or `MinGW-w32-Win32 Shell` shortcut on 32-bit Windows. Note that if you are
   running 64-bit Windows, you will have both 64-bit and 32-bit MinGW shells.
 
 **Building**
