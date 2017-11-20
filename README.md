@@ -125,10 +125,10 @@ Packages are available for
         docker build -t Superior .
      
         # either run in foreground
-        docker run -it -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 17139:17139 Superior
+        docker run -it -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 17369:17369 Superior
 
         # or in background
-        docker run -it -d -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 17139:17139 Superior
+        docker run -it -d -v /Superior/chain:/root/.bitSuperior -v /Superior/wallet:/wallet -p 17369:17369 Superior
 
 Packaging for your favorite distribution would be a welcome contribution!
 
