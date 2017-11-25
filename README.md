@@ -8,7 +8,7 @@
 
 - Nathan Senn
 - Michael Senn
-- Web: [superior-coin.com](https://superior-coin.com)
+- Web: [superior-coin.com](http://superior-coin.com)
 - BCT: [BitCoinTalk](https://bitcointalk.org/index.php?topic=2088169.0)
 - Mail: [admin@Superior-coin.com](mailto:admin@Superior-coin.com)
 - Github: [https://github.com/TheSuperiorCoin/TheSuperiorCoin](https://github.com/TheSuperiorCoin/TheSuperiorCoin)
