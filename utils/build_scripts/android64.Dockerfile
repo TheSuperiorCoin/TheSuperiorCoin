@@ -81,7 +81,7 @@ RUN git clone https://github.com/zeromq/zeromq4-1.git \
 
 RUN ln -s /opt/android/openssl/libcrypto.a /opt/android/openssl/libssl.a ${TOOLCHAIN_DIR}/aarch64-linux-android/lib
 
-RUN git clone https://github.com/monero-project/monero.git \
+RUN git clone https://github.com/superior-project/monero.git \
     && cd monero \
     && mkdir -p build/release \
     && cd build/release \

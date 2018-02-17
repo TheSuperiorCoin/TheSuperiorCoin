@@ -54,9 +54,9 @@ else()
   )
 endif()
 
-monero_private_headers(daemonizer
+superior_private_headers(daemonizer
   ${daemonizer_private_headers})
-monero_add_library(daemonizer
+superior_add_library(daemonizer
   ${daemonizer_sources}
   ${daemonizer_headers}
   ${daemonizer_private_headers})

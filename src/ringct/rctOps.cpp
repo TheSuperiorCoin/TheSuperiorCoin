@@ -34,8 +34,8 @@
 using namespace crypto;
 using namespace std;
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "ringct"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "ringct"
 
 #define CHECK_AND_ASSERT_THROW_MES_L1(expr, message) {if(!(expr)) {MWARNING(message); throw std::runtime_error(message);}}
 
@@ -107,13 +107,13 @@ namespace rct {
     }
 
     //generates C =aG + bH from b, a is given..
-    void genC(key & C, const key & a, xmr_amount amount) {
+    void genC(key & C, const key & a, sup_amount amount) {
         key bH = scalarmultH(d2h(amount));
         addKeys1(C, a, bH);
     }
 
     //generates a <secret , public> / Pedersen commitment to the amount
-    tuple<ctkey, ctkey> ctskpkGen(xmr_amount amount) {
+    tuple<ctkey, ctkey> ctskpkGen(sup_amount amount) {
         ctkey sk, pk;
         skpkGen(sk.dest, pk.dest);
         skpkGen(sk.mask, pk.mask);
@@ -133,7 +133,7 @@ namespace rct {
         return make_tuple(sk, pk);
     }
     
-    key zeroCommit(xmr_amount amount) {
+    key zeroCommit(sup_amount amount) {
         key mask = identity();
         mask = scalarmultBase(mask);
         key am = d2h(amount);
@@ -142,7 +142,7 @@ namespace rct {
         return mask;
     }
 
-    key commit(xmr_amount amount, const key &mask) {
+    key commit(sup_amount amount, const key &mask) {
         key c = scalarmultBase(mask);
         key am = d2h(amount);
         key bH = scalarmultH(am);
@@ -151,7 +151,7 @@ namespace rct {
     }
 
     //generates a random uint long long (for testing)
-    xmr_amount randXmrAmount(xmr_amount upperlimit) {
+    sup_amount randXmrAmount(sup_amount upperlimit) {
         return h2d(skGen()) % (upperlimit);
     }
 

@@ -195,7 +195,7 @@ STATIC INLINE int force_software_aes(void)
   if (use != -1)
     return use;
 
-  const char *env = getenv("MONERO_USE_SOFTWARE_AES");
+  const char *env = getenv("SUPERIOR_USE_SOFTWARE_AES");
   if (!env) {
     use = 0;
   }
@@ -509,7 +509,7 @@ void slow_hash_free_state(void)
  * AES support on x86 CPUs.
  *
  * A diagram of the inner loop of this function can be found at
- * http://www.cs.cmu.edu/~dga/crypto/xmr/cryptonight.png
+ * http://www.cs.cmu.edu/~dga/crypto/sup/cryptonight.png
  *
  * @param data the data to hash
  * @param length the length in bytes of the data

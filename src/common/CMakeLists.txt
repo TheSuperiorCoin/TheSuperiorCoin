@@ -69,9 +69,9 @@ set(common_private_headers
   threadpool.h
   updates.h)
 
-monero_private_headers(common
+superior_private_headers(common
   ${common_private_headers})
-monero_add_library(common
+superior_add_library(common
   ${common_sources}
   ${common_headers}
   ${common_private_headers}
@@ -91,5 +91,5 @@ target_link_libraries(common
     ${OPENSSL_LIBRARIES}
     ${EXTRA_LIBRARIES})
 
-#monero_install_headers(common
+#superior_install_headers(common
 #  ${common_headers})

@@ -32,7 +32,7 @@
 #include "wallet/api/wallet2_api.h"
 #include <string>
 
-namespace Monero {
+namespace Superior {
 
 class WalletManagerImpl : public WalletManager
 {
@@ -89,4 +89,4 @@ private:
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitsuperior = Superior;

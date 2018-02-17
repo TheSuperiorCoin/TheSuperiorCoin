@@ -9,10 +9,10 @@ WorkingDirectory=~
 RuntimeDirectory=monero
 
 Type=forking
-PIDFile=/run/monero/monerod.pid
+PIDFile=/run/monero/superiord.pid
 
-ExecStart=/usr/bin/monerod --config-file /etc/monerod.conf \
-    --detach --pidfile /run/monero/monerod.pid
+ExecStart=/usr/bin/superiord --config-file /etc/superiord.conf \
+    --detach --pidfile /run/monero/superiord.pid
 
 Restart=always
 PrivateTmp=true

@@ -35,7 +35,7 @@
 
 using namespace std;
 
-namespace Monero {
+namespace Superior {
 namespace Utils {
 
 bool isAddressLocal(const std::string &address)
@@ -58,4 +58,4 @@ void onStartup()
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitsuperior = Superior;

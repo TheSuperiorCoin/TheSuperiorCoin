@@ -96,17 +96,17 @@ namespace rct {
     void skpkGen(key &sk, key &pk);
     std::tuple<key, key> skpkGen();
     //generates a <secret , public> / Pedersen commitment to the amount
-    std::tuple<ctkey, ctkey> ctskpkGen(xmr_amount amount);
+    std::tuple<ctkey, ctkey> ctskpkGen(sup_amount amount);
     //generates C =aG + bH from b, a is random
-    void genC(key & C, const key & a, xmr_amount amount);
+    void genC(key & C, const key & a, sup_amount amount);
     //this one is mainly for testing, can take arbitrary amounts..
     std::tuple<ctkey, ctkey> ctskpkGen(const key &bH);
     // make a pedersen commitment with given key
-    key commit(xmr_amount amount, const key &mask);
+    key commit(sup_amount amount, const key &mask);
     // make a pedersen commitment with zero key
-    key zeroCommit(xmr_amount amount);
+    key zeroCommit(sup_amount amount);
     //generates a random uint long long
-    xmr_amount randXmrAmount(xmr_amount upperlimit);
+    sup_amount randXmrAmount(sup_amount upperlimit);
 
     //Scalar multiplications of curve points        
 

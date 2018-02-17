@@ -42,7 +42,7 @@
 
 using namespace std;
 
-namespace Monero {
+namespace Superior {
 
 UnsignedTransaction::~UnsignedTransaction() {}
 
@@ -317,5 +317,5 @@ uint64_t UnsignedTransactionImpl::minMixinCount() const
 
 } // namespace
 
-namespace Bitmonero = Monero;
+namespace Bitsuperior = Superior;
 

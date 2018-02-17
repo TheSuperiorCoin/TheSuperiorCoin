@@ -35,7 +35,7 @@
 #include <vector>
 
 
-namespace Monero {
+namespace Superior {
 
 class WalletImpl;
 class PendingTransactionImpl : public PendingTransaction
@@ -67,4 +67,4 @@ private:
 
 }
 
-namespace Bitmonero = Monero;
+namespace Bitsuperior = Superior;

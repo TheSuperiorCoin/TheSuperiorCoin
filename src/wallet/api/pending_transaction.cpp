@@ -42,7 +42,7 @@
 
 using namespace std;
 
-namespace Monero {
+namespace Superior {
 
 PendingTransaction::~PendingTransaction() {}
 
@@ -190,5 +190,5 @@ std::vector<std::set<uint32_t>> PendingTransactionImpl::subaddrIndices() const
 
 }
 
-namespace Bitmonero = Monero;
+namespace Bitsuperior = Superior;
 

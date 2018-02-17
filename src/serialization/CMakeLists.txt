@@ -34,9 +34,9 @@ set(serialization_headers)
 set(serialization_private_headers
   json_object.h)
 
-monero_private_headers(serialization
+superior_private_headers(serialization
   ${serialization_private_headers})
-monero_add_library(serialization
+superior_add_library(serialization
   ${serialization_sources}
   ${serialization_headers}
   ${serialization_private_headers})

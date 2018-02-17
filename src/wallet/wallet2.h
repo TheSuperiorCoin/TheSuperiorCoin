@@ -59,8 +59,8 @@
 #include "common/password.h"
 #include "node_rpc_proxy.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "wallet.wallet2"
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "wallet.wallet2"
 
 class Serialization_portability_wallet_Test;
 
@@ -558,7 +558,7 @@ namespace tools
     cryptonote::account_base& get_account(){return m_account;}
     const cryptonote::account_base& get_account()const{return m_account;}
 
-    void set_refresh_from_block_height(uint64_t height) {m_refresh_from_block_height = height;}
+    void set_refresh_from_block_height(uint64_t height) {m_refresh_from_block_height = 0;}
     uint64_t get_refresh_from_block_height() const {return m_refresh_from_block_height;}
 
     void explicit_refresh_from_block_height(bool expl) {m_explicit_refresh_from_block_height = expl;}

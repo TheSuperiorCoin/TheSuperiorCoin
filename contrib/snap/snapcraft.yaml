@@ -1,31 +1,31 @@
-name: monero
+name: Superior
 version: 0.11.1.0-1
-summary: "Monero: the secure, private, untraceable cryptocurrency https://getmonero.org"
+summary: "Superior: a secure, private, untraceable cryptocurrency https://superior-coin.com"
 description: |
-    Monero is a private, secure, untraceable, decentralised digital currency.
+    SuperiorCoin is a private, secure, untraceable, decentralised digital currency.
     You are your bank, you control your funds, and nobody can trace your transfers
     unless you allow them to do so.
 grade: devel
 confinement: strict
 
 apps:
-    monerod:
+    superiord:
         daemon: forking
         command: |
-          monerod-wrapper --detach --data-dir ${SNAP_COMMON} --config-file ${SNAP_USER_DATA}/etc/monerod.conf
+          superiord-wrapper --detach --data-dir ${SNAP_COMMON} --config-file ${SNAP_USER_DATA}/etc/superiord.conf
         plugs:
             - network
             - network-bind
-    monero-wallet-rpc:
+    superior-wallet-rpc:
         command: |
-          monero-wallet-rpc --log-file ${SNAP_USER_DATA}
+          superior-wallet-rpc --log-file ${SNAP_USER_DATA}
         plugs:
             - home
             - network
             - network-bind
-    monero-wallet-cli:
+    superior-wallet-cli:
         command: |
-          monero-wallet-cli --log-file ${SNAP_USER_DATA}
+          superior-wallet-cli --log-file ${SNAP_USER_DATA}
         plugs:
             - home
             - network
@@ -72,8 +72,8 @@ parts:
         plugin: dump
         source: .
         organize:
-            contrib/snap/monerod.conf: etc/monerod.conf
-            contrib/snap/monerod-wrapper: bin/monerod-wrapper
+            contrib/snap/superiord.conf: etc/superiord.conf
+            contrib/snap/superiord-wrapper: bin/superiord-wrapper
         prime:
             - etc
             - bin

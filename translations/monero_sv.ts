@@ -1408,7 +1408,7 @@ Varning: Några ingångsnycklar som spenderas kommer från </translation>
     <message>
         <location filename="../src/simplewallet/simplewallet.cpp" line="723"/>
         <source>Available options: seed language - set wallet seed language; always-confirm-transfers &lt;1|0> - whether to confirm unsplit txes; print-ring-members &lt;1|0> - whether to print detailed information about ring members during confirmation; store-tx-info &lt;1|0> - whether to store outgoing tx info (destination address, payment ID, tx secret key) for future reference; default-mixin &lt;n> - set default mixin (default is 4); auto-refresh &lt;1|0> - whether to automatically sync new blocks from the daemon; refresh-type &lt;full|optimize-coinbase|no-coinbase|default> - set wallet refresh behaviour; priority [0|1|2|3|4] - default/unimportant/normal/elevated/priority fee; confirm-missing-payment-id &lt;1|0>; ask-password &lt;1|0>; unit &lt;monero|millinero|micronero|nanonero|piconero> - set default monero (sub-)unit; min-outputs-count [n] - try to keep at least that many outputs of value at least min-outputs-value; min-outputs-value [n] - try to keep at least min-outputs-count outputs of at least that value; merge-destinations &lt;1|0> - whether to merge multiple payments to the same destination address</source>
-        <translation>Tillgängliga alternativ: seed language - ange språk för plånbokens frö; always-confirm-transfers &lt;1|0> - huruvida ej delade transaktioner ska bekräftas; print-ring-members &lt;1|0> - huruvida detaljerad information om ringmedlemmar ska skrivas ut vid bekräftelse; store-tx-info &lt;1|0> - huruvida info om utgående transaktioner ska sparas (måladress, betalnings-ID, hemlig transaktionsnyckel) för framtida referens; default-mixin &lt;n> - ange standardvärde för mixin (standard är 4); auto-refresh &lt;1|0> - huruvida nya block från daemonen ska synkas automatiskt; refresh-type &lt;full|optimize-coinbase|no-coinbase|default> - ange uppdateringsbeteende för plånbok; priority [0|1|2|3|4] - standard/oviktigt/normal/förhöjd/prioritetsavgift; confirm-missing-payment-id &lt;1|0>; ask-password &lt;1|0>; unit &lt;monero|millinero|micronero|nanonero|piconero> - ange standardvärde för monero-(under-)enhet; min-outputs-count [n] - försök behålla åtminstone så många utgångar med ett värde på åtminstone min-outputs-value; min-outputs-value [n] - försök behålla åtminstone min-outputs-count utgångar av åtminstone detta värde; merge-destinations &lt;1|0> - huruvida flera betalningar till samma måladress ska slås samman</translation>
+        <translation>Tillgängliga alternativ: seed language - ange språk för plånbokens frö; always-confirm-transfers &lt;1|0> - huruvida ej delade transaktioner ska bekräftas; print-ring-members &lt;1|0> - huruvida detaljerad information om ringmedlemmar ska skrivas ut vid bekräftelse; store-tx-info &lt;1|0> - huruvida info om utgående transaktioner ska sparas (måladress, betalnings-ID, hemlig transaktionsnyckel) för framtida referens; default-mixin &lt;n> - ange standardvärde för mixin (standard är 4); auto-refresh &lt;1|0> - huruvida nya block från daemonen ska synkas automatiskt; refresh-type &lt;full|optimize-coinbase|no-coinbase|default> - ange uppdateringsbeteende för plånbok; priority [0|1|2|3|4] - standard/oviktigt/normal/förhöjd/prioritetsavgift; confirm-missing-payment-id &lt;1|0>; ask-password &lt;1|0>; unit &lt;monero|millinero|micronero|nanonero|piconero> - ange standardvärde för superior-(under-)enhet; min-outputs-count [n] - försök behålla åtminstone så många utgångar med ett värde på åtminstone min-outputs-value; min-outputs-value [n] - försök behålla åtminstone min-outputs-count utgångar av åtminstone detta värde; merge-destinations &lt;1|0> - huruvida flera betalningar till samma måladress ska slås samman</translation>
     </message>
     <message>
         <location filename="../src/simplewallet/simplewallet.cpp" line="724"/>
@@ -1639,14 +1639,14 @@ Varning: Några ingångsnycklar som spenderas kommer från </translation>
         <source>Your wallet has been generated!
 To start synchronizing with the daemon, use the &quot;refresh&quot; command.
 Use the &quot;help&quot; command to see the list of available commands.
-Always use the &quot;exit&quot; command when closing monero-wallet-cli to save 
+Always use the &quot;exit&quot; command when closing superior-wallet-cli to save
 your current session&apos;s state. Otherwise, you might need to synchronize 
 your wallet again (your wallet keys are NOT at risk in any case).
 </source>
         <translation>Din plånbok har skapats!
 För att starta synkronisering med daemonen, använd kommandot &quot;refresh&quot;.
 Använd kommandot &quot;help&quot; för att se en lista över tillgängliga kommandon.
-Använd alltid kommandot &quot;exit&quot; när du stänger monero-wallet-cli så att ditt aktuella sessionstillstånd sparas. Annars kan du bli tvungen att synkronisera
+Använd alltid kommandot &quot;exit&quot; när du stänger superior-wallet-cli så att ditt aktuella sessionstillstånd sparas. Annars kan du bli tvungen att synkronisera
 din plånbok igen (din plånboks nycklar är dock INTE hotade i vilket fall som helst).
 </translation>
     </message>
@@ -2493,8 +2493,8 @@ Utgångar per *: </translation>
     </message>
     <message>
         <location filename="../src/wallet/wallet2.cpp" line="110"/>
-        <source>Use daemon instance at port &lt;arg> instead of 18081</source>
-        <translation>Använd daemon-instansen på port &lt;arg> istället för 18081</translation>
+        <source>Use daemon instance at port &lt;arg> instead of 16035</source>
+        <translation>Använd daemon-instansen på port &lt;arg> istället för 16035</translation>
     </message>
     <message>
         <location filename="../src/wallet/wallet2.cpp" line="112"/>
