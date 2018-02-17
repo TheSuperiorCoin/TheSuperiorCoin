@@ -374,3 +374,4 @@ void BlockchainDB::fixup()
     }
     batch_stop();
   }
+}
