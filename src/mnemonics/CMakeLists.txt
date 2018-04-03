@@ -46,7 +46,8 @@ set(mnemonics_private_headers
   russian.h
   singleton.h
   spanish.h
-  esperanto.h)
+  esperanto.h
+  lojban.h)
 
 superior_private_headers(mnemonics
   ${mnemonics_private_headers})
@@ -56,6 +57,7 @@ superior_add_library(mnemonics
   ${mnemonics_private_headers})
 target_link_libraries(mnemonics
   PUBLIC
+    epee
     easylogging
     ${Boost_SYSTEM_LIBRARY}
   PRIVATE

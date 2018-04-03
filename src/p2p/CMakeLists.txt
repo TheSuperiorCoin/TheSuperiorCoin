@@ -39,13 +39,14 @@ superior_add_library(p2p ${P2P})
 target_link_libraries(p2p
   PUBLIC
     epee
+    version
+    cryptonote_core
     ${UPNP_LIBRARIES}
     ${Boost_CHRONO_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
+    ${Boost_SERIALIZATION_LIBRARY}
   PRIVATE
     ${EXTRA_LIBRARIES})
-add_dependencies(p2p
-  version)
