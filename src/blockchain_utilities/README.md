@@ -1,7 +1,7 @@
 # Superior Blockchain Utilities
 
 Copyright (c) 2014-2017, The Superior Project
-Part of this may contain code from The Monero Project
+Part of this may contain code from Copyright (c) 2014-2017 The Monero Project
 ## Introduction
 
 The blockchain utilities allow one to import and export the blockchain.
