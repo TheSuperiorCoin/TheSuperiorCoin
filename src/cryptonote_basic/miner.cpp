@@ -781,7 +781,7 @@ namespace cryptonote
 
       mach_msg_type_number_t count;
       kern_return_t status;
-      host_cpu_load_info_data_t stats;
+      host_cpu_load_info_data_t stats;      
       count = HOST_CPU_LOAD_INFO_COUNT;
       status = host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, (host_info_t)&stats, &count);
       if(status != KERN_SUCCESS)
@@ -791,7 +791,7 @@ namespace cryptonote
 
       idle_time = stats.cpu_ticks[CPU_STATE_IDLE];
       total_time = idle_time + stats.cpu_ticks[CPU_STATE_USER] + stats.cpu_ticks[CPU_STATE_SYSTEM];
-
+      
       return true;
 
     #elif defined(__FreeBSD__)
@@ -872,8 +872,8 @@ namespace cryptonote
         return boost::logic::tribool(power_status.ACLineStatus != 1);
     	}
 
-    #elif defined(__APPLE__)
-
+    #elif defined(__APPLE__) 
+      
       #if TARGET_OS_MAC && (!defined(MAC_OS_X_VERSION_MIN_REQUIRED) || MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
         return boost::logic::tribool(IOPSGetTimeRemainingEstimate() != kIOPSTimeRemainingUnlimited);
       #else
