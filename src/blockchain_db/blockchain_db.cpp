@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2014-2018, The X Project
 // 
 // All rights reserved.
 // 
@@ -28,6 +28,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
+#include "string_tools.h"
 #include "blockchain_db.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
 #include "profile_tools.h"
@@ -78,6 +79,23 @@ std::string blockchain_db_types(const std::string& sep)
   return ret;
 }
 
+std::string arg_db_type_description = "Specify database type, available: " + cryptonote::blockchain_db_types(", ");
+const command_line::arg_descriptor<std::string> arg_db_type = {
+  "db-type"
+, arg_db_type_description.c_str()
+, DEFAULT_DB_TYPE
+};
+const command_line::arg_descriptor<std::string> arg_db_sync_mode = {
+  "db-sync-mode"
+, "Specify sync option, using format [safe|fast|fastest]:[sync|async]:[nblocks_per_sync]." 
+, "fast:async:1000"
+};
+const command_line::arg_descriptor<bool> arg_db_salvage  = {
+  "db-salvage"
+, "Try to salvage a blockchain database if it seems corrupted"
+, false
+};
+
 BlockchainDB *new_db(const std::string& db_type)
 {
   if (db_type == "lmdb")
@@ -87,6 +105,13 @@ BlockchainDB *new_db(const std::string& db_type)
     return new BlockchainBDB();
 #endif
   return NULL;
+}
+
+void BlockchainDB::init_options(boost::program_options::options_description& desc)
+{
+  command_line::add_arg(desc, arg_db_type);
+  command_line::add_arg(desc, arg_db_sync_mode);
+  command_line::add_arg(desc, arg_db_salvage);
 }
 
 void BlockchainDB::pop_block()
@@ -170,6 +195,10 @@ uint64_t BlockchainDB::add_block( const block& blk
                                 , const std::vector<transaction>& txs
                                 )
 {
+  // sanity
+  if (blk.tx_hashes.size() != txs.size())
+    throw std::runtime_error("Inconsistent tx/hashes sizes");
+
   block_txn_start(false);
 
   TIME_MEASURE_START(time1);
@@ -184,7 +213,7 @@ uint64_t BlockchainDB::add_block( const block& blk
   time1 = epee::misc_utils::get_tick_count();
   add_transaction(blk_hash, blk.miner_tx);
   int tx_i = 0;
-  crypto::hash tx_hash = null_hash;
+  crypto::hash tx_hash = crypto::null_hash;
   for (const transaction& tx : txs)
   {
     tx_hash = blk.tx_hashes[tx_i];
@@ -254,7 +283,7 @@ block BlockchainDB::get_block_from_height(const uint64_t& height) const
   blobdata bd = get_block_blob_from_height(height);
   block b;
   if (!parse_and_validate_block_from_blob(bd, b))
-    throw new DB_ERROR("Failed to parse block from blob retrieved from the db");
+    throw DB_ERROR("Failed to parse block from blob retrieved from the db");
 
   return b;
 }
@@ -264,7 +293,7 @@ block BlockchainDB::get_block(const crypto::hash& h) const
   blobdata bd = get_block_blob(h);
   block b;
   if (!parse_and_validate_block_from_blob(bd, b))
-    throw new DB_ERROR("Failed to parse block from blob retrieved from the db");
+    throw DB_ERROR("Failed to parse block from blob retrieved from the db");
 
   return b;
 }
@@ -275,7 +304,7 @@ bool BlockchainDB::get_tx(const crypto::hash& h, cryptonote::transaction &tx) co
   if (!get_tx_blob(h, bd))
     return false;
   if (!parse_and_validate_tx_from_blob(bd, tx))
-    throw new DB_ERROR("Failed to parse transaction from blob retrieved from the db");
+    throw DB_ERROR("Failed to parse transaction from blob retrieved from the db");
 
   return true;
 }
@@ -284,7 +313,7 @@ transaction BlockchainDB::get_tx(const crypto::hash& h) const
 {
   transaction tx;
   if (!get_tx(h, tx))
-    throw new TX_DNE(std::string("tx with hash ").append(epee::string_tools::pod_to_hex(h)).append(" not found in db").c_str());
+    throw TX_DNE(std::string("tx with hash ").append(epee::string_tools::pod_to_hex(h)).append(" not found in db").c_str());
   return tx;
 }
 
