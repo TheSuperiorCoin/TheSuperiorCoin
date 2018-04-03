@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2017, The Superior Project
+# Copyright (c) 2014-2018, The Superior Project
 #
 # All rights reserved.
 #
@@ -28,6 +28,12 @@
 #  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
 #
 # Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+
+
+# warnings are cleared only for GCC on Linux
+if (NOT (MINGW OR APPLE OR FREEBSD OR OPENBSD OR DRAGONFLY))
+  add_compile_options("${WARNINGS_AS_ERRORS_FLAG}") # applies only to targets that follow
+endif()
 
 add_subdirectory(epee)
 

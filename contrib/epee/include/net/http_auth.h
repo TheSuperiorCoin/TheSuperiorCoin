@@ -35,7 +35,7 @@
 #include <functional>
 #include <string>
 #include <utility>
-
+#include "wipeable_string.h"
 #include "http_base.h"
 
 #undef SUPERIOR_DEFAULT_LOG_CATEGORY
@@ -50,12 +50,12 @@ namespace net_utils
     struct login
     {
       login() : username(), password() {}
-      login(std::string username_, std::string password_)
+      login(std::string username_, wipeable_string password_)
         : username(std::move(username_)), password(std::move(password_))
       {}
 
       std::string username;
-      std::string password;
+      wipeable_string password;
     };
 
     //! Implements RFC 2617 digest auth. Digests from RFC 7616 can be added.
@@ -73,8 +73,8 @@ namespace net_utils
         std::uint32_t counter;
       };
 
-      http_server_auth() : user() {}
-      http_server_auth(login credentials);
+      http_server_auth() : user(), rng() {}
+      http_server_auth(login credentials, std::function<void(size_t, uint8_t*)> r);
 
       //! \return Auth response, or `boost::none` iff `request` had valid auth.
       boost::optional<http_response_info> get_response(const http_request_info& request)
@@ -83,10 +83,13 @@ namespace net_utils
           return do_get_response(request);
         return boost::none;
       }
+
     private:
       boost::optional<http_response_info> do_get_response(const http_request_info& request);
 
       boost::optional<session> user;
+
+      std::function<void(size_t, uint8_t*)> rng;
     };
 
     //! Implements RFC 2617 digest auth. Digests from RFC 7616 can be added.
