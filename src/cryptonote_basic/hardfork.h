@@ -47,7 +47,7 @@ namespace cryptonote
     static const uint64_t DEFAULT_ORIGINAL_VERSION_TILL_HEIGHT = 0; // <= actual height
     static const time_t DEFAULT_FORKED_TIME = 31557600; // a year in seconds
     static const time_t DEFAULT_UPDATE_TIME = 31557600 / 2;
-    static const uint64_t DEFAULT_WINDOW_SIZE = 1; // supermajority window check length - a week
+    static const uint64_t DEFAULT_WINDOW_SIZE = 1; // For Voting Set Higher supermajority window check length - a week
     static const uint8_t DEFAULT_THRESHOLD_PERCENT = 80;
 
     /**
@@ -79,7 +79,6 @@ namespace cryptonote
      * returns true if no error, false otherwise
      *
      * @param version the major block version for the fork
-     * @param voting_version the minor block version for the fork, used for voting
      * @param height The height the hardfork takes effect
      * @param time Approximate time of the hardfork (seconds since epoch)
      */

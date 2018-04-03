@@ -196,7 +196,7 @@ if a == "m":
     qhasmToC("ge_msub.c", "ge_msub.h", "ge.superior._msub.c")
     qhasmToC("ge_p2_dbl.c", "ge_p2_dbl.h", "ge.superior._p2_dbl.c")
     qhasmToC("ge_frombytes.c", "d.h", "ge.superior._frombytes.c")
-    qhasmToC("ge.Superior._frombytes.c", "sqrtm1.h", "ge.superior._frombytes.c")
+    qhasmToC("ge.superior._frombytes.c", "sqrtm1.h", "ge.superior._frombytes.c")
     qhasmToC("ge_p3_to_cached.c", "d2.h", "ge.superior._p3_to_cached.c")
 
 
