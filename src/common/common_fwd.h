@@ -36,6 +36,5 @@ namespace tools
   struct login;
   class password_container;
   class t_http_connection;
-  class task_region;
-  class thread_group;
+  class threadpool;
 }
