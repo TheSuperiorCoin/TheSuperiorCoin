@@ -183,7 +183,7 @@ invokes cmake commands as needed.
 * Install the dependencies
 * Change to the root of the source code directory and build:
 
-        cd superior
+        cd TheSuperiorCoin
         make
 
     *Optional*: If your machine has several cores and enough memory, enable
@@ -196,7 +196,7 @@ invokes cmake commands as needed.
 
 * The resulting executables can be found in `build/release/bin`
 
-* Add `PATH="$PATH:$HOME/superior/build/release/bin"` to `.profile`
+* Add `PATH="$PATH:$HOME/TheSuperiorCoin/build/release/bin"` to `.profile`
 
 * Run SuperiorCoin with `superiord --detach`
 
@@ -236,7 +236,7 @@ Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (
 * Clone TheSuperiorCoin and checkout most recent release version:
 ```
         git clone https://github.com/TheSuperiorCoin/TheSuperiorCoin.git
-	cd superior
+	cd TheSuperiorCoin
 	git checkout tags/v0.12.0.0
 ```
 * Build:
@@ -247,7 +247,7 @@ Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (
 
 * The resulting executables can be found in `build/release/bin`
 
-* Add `PATH="$PATH:$HOME/superior/build/release/bin"` to `.profile`
+* Add `PATH="$PATH:$HOME/TheSuperiorCoin/build/release/bin"` to `.profile`
 
 * Run Superior with `superiord --detach`
 
@@ -266,7 +266,7 @@ If you are using the older Raspbian Jessie image, compiling Superior is a bit mo
 	sudo /etc/init.d/dphys-swapfile start  
 ```
 
-* Then, install the dependencies for Superior except `libunwind` and `libboost-all-dev`
+* Then, install the dependencies for TheSuperiorCoin except `libunwind` and `libboost-all-dev`
 
 * Install the latest version of boost (this may first require invoking `apt-get remove --purge libboost*` to remove a previous version if you're not using a clean install):
 ```
@@ -441,7 +441,7 @@ cmake ..
 doas make install
 ```
 
-Build superior: `env DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/usr/local make release-static`
+Build TheSuperiorCoin: `env DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/usr/local make release-static`
 
 ### On Solaris:
 
@@ -461,7 +461,7 @@ Then you can run make as usual.
         # Create container
         docker create -it --name superior-android superior-android bash
         # Get binaries
-        docker cp superior-android:/opt/android/superior/build/release/bin .
+        docker cp superior-android:/opt/android/TheSuperiorCoin/build/release/bin .
 
 ### Building Portable Statically Linked Binaries
 
@@ -509,7 +509,7 @@ See [README.i18n.md](README.i18n.md).
 
 ## Using Tor
 
-While SuperiorCoin isn't made to integrate with Tor, it can be used wrapped with torsocks, by
+While TheSuperiorCoin isn't made to integrate with Tor, it can be used wrapped with torsocks, by
 setting the following configuration parameters and environment variables:
 
 * `--p2p-bind-ip 127.0.0.1` on the command line or `p2p-bind-ip=127.0.0.1` in
