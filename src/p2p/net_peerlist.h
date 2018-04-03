@@ -154,7 +154,7 @@ namespace nodetool
       boost::multi_index::ordered_non_unique<boost::multi_index::tag<by_time>, boost::multi_index::member<anchor_peerlist_entry,int64_t,&anchor_peerlist_entry::first_seen> >
       >
     > anchor_peers_indexed;
-  public:
+  public:    
     
     template <class Archive, class List, class Element, class t_version_type>
     void serialize_peers(Archive &a, List &list, Element ple, const t_version_type ver)

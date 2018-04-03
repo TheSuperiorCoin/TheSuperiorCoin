@@ -1,6 +1,6 @@
 // Word list created by Superior contributor sammy007
 // 
-// Copyright (c) 2014-2018, The X Project
+// Copyright (c) 2014-2017, The Superior Project
 // 
 // All rights reserved.
 // 

@@ -55,7 +55,7 @@ namespace boost
       {
         case epee::net_utils::ipv4_network_address::ID:
 	  do_serialize(a, na, epee::net_utils::ipv4_network_address{0, 0});
-	  break;
+	  break; 
         default:
           throw std::runtime_error("Unsupported network address type");
       }

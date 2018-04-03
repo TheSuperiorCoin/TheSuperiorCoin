@@ -1,3 +1,4 @@
+// Copyright (c) 2014-2018, TheSuperiorCoin Project
 // Copyright (c) 2014-2015, The Monero Project
 //
 // All rights reserved.
