@@ -34,6 +34,11 @@ if (WIN32 OR STATIC)
   add_definitions(-DMINIUPNP_STATICLIB)
 endif ()
 
+# warnings are cleared only for GCC on Linux
+if (NOT (MINGW OR APPLE OR FREEBSD OR OPENBSD OR DRAGONFLY))
+  add_compile_options("${WARNINGS_AS_ERRORS_FLAG}") # applies only to targets that follow
+endif()
+
 function (superior_private_headers group)
   source_group("${group}\\Private"
     FILES
@@ -78,35 +83,45 @@ function (superior_add_executable name)
 endfunction ()
 
 function (superior_add_library name)
-  source_group("${name}"
-    FILES
-      ${ARGN})
+    superior_add_library_with_deps(NAME "${name}" SOURCES ${ARGN})
+endfunction()
+
+function (superior_add_library_with_deps)
+  cmake_parse_arguments(SUPERIOR_ADD_LIBRARY "" "NAME" "DEPENDS;SOURCES" ${ARGN})
+  source_group("${SUPERIOR_ADD_LIBRARY_NAME}" FILES ${SUPERIOR_ADD_LIBRARY_SOURCES})
 
   # Define a ("virtual") object library and an actual library that links those
   # objects together. The virtual libraries can be arbitrarily combined to link
   # any subset of objects into one library archive. This is used for releasing
   # libwallet, which combines multiple components.
-  set(objlib obj_${name})
-  add_library(${objlib} OBJECT ${ARGN})
-  add_library("${name}" $<TARGET_OBJECTS:${objlib}>)
-  set_property(TARGET "${name}"
-    PROPERTY
-      FOLDER "libs")
+  set(objlib obj_${SUPERIOR_ADD_LIBRARY_NAME})
+  add_library(${objlib} OBJECT ${SUPERIOR_ADD_LIBRARY_SOURCES})
+  add_library("${SUPERIOR_ADD_LIBRARY_NAME}" $<TARGET_OBJECTS:${objlib}>)
+  if (SUPERIOR_ADD_LIBRARY_DEPENDS)
+    add_dependencies(${objlib} ${SUPERIOR_ADD_LIBRARY_DEPENDS})
+  endif()
+  set_property(TARGET "${SUPERIOR_ADD_LIBRARY_NAME}" PROPERTY FOLDER "libs")
   target_compile_definitions(${objlib}
-    PRIVATE $<TARGET_PROPERTY:${name},INTERFACE_COMPILE_DEFINITIONS>)
+    PRIVATE $<TARGET_PROPERTY:${SUPERIOR_ADD_LIBRARY_NAME},INTERFACE_COMPILE_DEFINITIONS>)
 endfunction ()
+
+include(Version)
+superior_add_library(version SOURCES ${CMAKE_BINARY_DIR}/version.cpp DEPENDS genversion)
 
 add_subdirectory(common)
 add_subdirectory(crypto)
 add_subdirectory(ringct)
+add_subdirectory(checkpoints)
 add_subdirectory(cryptonote_basic)
 add_subdirectory(cryptonote_core)
+add_subdirectory(multisig)
 if(NOT IOS)
   add_subdirectory(blockchain_db)
 endif()
 add_subdirectory(mnemonics)
 if(NOT IOS)
   add_subdirectory(rpc)
+  add_subdirectory(serialization)
 endif()
 add_subdirectory(wallet)
 if(NOT IOS)
@@ -115,6 +130,7 @@ endif()
 add_subdirectory(cryptonote_protocol)
 if(NOT IOS)
   add_subdirectory(simplewallet)
+  add_subdirectory(gen_multisig)
   add_subdirectory(daemonizer)
   add_subdirectory(daemon)
   add_subdirectory(blockchain_utilities)
@@ -127,3 +143,5 @@ endif()
 if(PER_BLOCK_CHECKPOINT)
   add_subdirectory(blocks)
 endif()
+
+add_subdirectory(device)

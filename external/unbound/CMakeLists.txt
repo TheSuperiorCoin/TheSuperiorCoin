@@ -47,10 +47,17 @@ endif ()
 
 set(RETSIGTYPE void)
 
+if(CMAKE_SYSTEM_NAME MATCHES "(SunOS|Solaris)")
+add_definitions(-D_XOPEN_SOURCE=600)
+else()
 add_definitions(-D_GNU_SOURCE)
+endif()
+add_definitions(-std=c99)
+add_definitions(-fPIC)
 
 option(USE_ECDSA "Use ECDSA algorithms" ON)
 option(USE_SHA2 "Enable SHA2 support" ON)
+option(USE_SHA1 "Enable SHA1 support" ON)
 set(ENABLE_DNSTAP 0)
 set(HAVE_SSL 1)
 if (CMAKE_USE_PTHREADS_INIT AND NOT CMAKE_USE_WIN32_THREADS_INIT)
@@ -63,6 +70,15 @@ if (CMAKE_USE_WIN32_THREADS_INIT)
 else ()
   set(HAVE_WINDOWS_THREADS 0)
 endif ()
+
+# determine if we have libressl
+check_symbol_exists(LIBRESSL_VERSION_TEXT "openssl/opensslv.h" HAVE_LIBRESSL)
+# check if we have found HAVE_DECL_REALLOCARRAY already, so we can safely undefine and redefine it with value 1
+if (HAVE_LIBRESSL AND HAVE_DECL_REALLOCARRAY)
+  unset(HAVE_DECL_REALLOCARRAY CACHE)
+  add_definitions(-DHAVE_DECL_REALLOCARRAY=1)
+endif ()
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/config.h")
