@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The X Project
+// Copyright (c) 2014-2017, TheSuperiorCoin Project
 // 
 // All rights reserved.
 // 

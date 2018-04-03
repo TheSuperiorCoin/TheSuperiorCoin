@@ -2,7 +2,7 @@
 /// @author rfree (current maintainer in superior.cc project)
 /// @brief interface for throttling of connection (count and rate-limit speed etc)
 
-// Copyright (c) 2014-2018, The X Project
+// Copyright (c) 2014-2018, TheSuperiorCoin Project
 // 
 // All rights reserved.
 // 

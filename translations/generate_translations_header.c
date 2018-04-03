@@ -1,5 +1,5 @@
 // Copyright (c) 2013, Sergey Lyubka
-// Copyright (c) 2017-2018, The X Project
+// Copyright (c) 2017-2018, TheSuperiorCoin Project
 // All rights reserved.
 // Released under the MIT license.
 

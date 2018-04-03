@@ -26,7 +26,7 @@ Throttling work by:
 
 */
 
-// Copyright (c) 2014-2018, The X Project
+// Copyright (c) 2014-2018, TheSuperiorCoin Project
 // 
 // All rights reserved.
 // 
