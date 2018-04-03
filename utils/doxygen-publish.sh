@@ -3,7 +3,7 @@
 # maintainer (ask me any questions): rfree
 
 if [[ ! -r "Doxyfile" ]] ; then
-	echo "Error, can not read the Doxyfile - make sure to run this script from top of Superior project, where the Doxyfile file is located"
+	echo "Error, can not read the Doxyfile - make sure to run this script from top of superior project, where the Doxyfile file is located"
 	exit 1
 fi
 
