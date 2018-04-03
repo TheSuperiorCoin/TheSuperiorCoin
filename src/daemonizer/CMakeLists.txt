@@ -54,6 +54,10 @@ else()
   )
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_definitions(-DDEBUG_TMPDIR_LOG=1)
+endif()
+
 superior_private_headers(daemonizer
   ${daemonizer_private_headers})
 superior_add_library(daemonizer
