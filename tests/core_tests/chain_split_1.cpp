@@ -32,7 +32,7 @@
 
 
 #include "chaingen.h"
-#include "chaingen_tests_list.h"
+#include "chain_split_1.h"
 
 using namespace std;
 

@@ -113,11 +113,11 @@ namespace
   TEST_F(fee, double_at_full)
   {
     static const uint64_t block_rewards[] = {
-      20000000000000ull, // 20 Superior
+      20000000000000ull, // 20 superior
       13000000000000ull,
       1000000000000ull,
-      600000000000ull, // .6 Superior, minimum reward per block at 2min
-      300000000000ull, // .3 Superior, minimum reward per block at 1min
+      600000000000ull, // .6 superior, minimum reward per block at 2min
+      300000000000ull, // .3 superior, minimum reward per block at 1min
     };
     static const uint64_t median_block_sizes[] = {
       CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2,

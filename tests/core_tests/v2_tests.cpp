@@ -31,7 +31,7 @@
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include "chaingen.h"
-#include "chaingen_tests_list.h"
+#include "v2_tests.h"
 
 using namespace epee;
 using namespace crypto;
@@ -110,7 +110,7 @@ bool gen_v2_tx_validation_base::generate_with(std::vector<test_event_entry>& eve
   destinations.push_back(td);
 
   transaction tx;
-  bool r = construct_tx(miner_accounts[0].get_keys(), sources, destinations, std::vector<uint8_t>(), tx, 0);
+  bool r = construct_tx(miner_accounts[0].get_keys(), sources, destinations, boost::none, std::vector<uint8_t>(), tx, 0);
   CHECK_AND_ASSERT_MES(r, false, "failed to construct transaction");
   if (!valid)
     DO_CALLBACK(events, "mark_invalid_tx");

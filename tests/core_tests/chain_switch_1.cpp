@@ -31,7 +31,7 @@
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include "chaingen.h"
-#include "chaingen_tests_list.h"
+#include "chain_switch_1.h"
 
 using namespace epee;
 using namespace cryptonote;
@@ -154,7 +154,7 @@ bool gen_chain_switch_1::check_split_not_switched(cryptonote::core& c, size_t ev
 
   std::vector<size_t> tx_outs;
   uint64_t transfered;
-  lookup_acc_outs(m_recipient_account_4.get_keys(), tx_pool.front(), get_tx_pub_key_from_extra(tx_pool.front()), tx_outs, transfered);
+  lookup_acc_outs(m_recipient_account_4.get_keys(), tx_pool.front(), get_tx_pub_key_from_extra(tx_pool.front()), get_additional_tx_pub_keys_from_extra(tx_pool.front()), tx_outs, transfered);
   CHECK_EQ(MK_COINS(13), transfered);
 
   m_chain_1.swap(blocks);

@@ -40,7 +40,9 @@
 #include "ringct/rctTypes.h"
 #include "ringct/rctSigs.h"
 #include "ringct/rctOps.h"
+#include "device/device.hpp"
 
+using namespace std;
 using namespace crypto;
 using namespace rct;
 
@@ -57,7 +59,7 @@ TEST(ringct, Borromean)
         bits indi;
 
         for (j = 0 ; j < N ; j++) {
-            indi[j] = (int)randsupAmount(2);
+            indi[j] = (int)randSupAmount(2);
 
             xv[j] = skGen();
             if ( (int)indi[j] == 0 ) {
@@ -113,7 +115,7 @@ TEST(ringct, MG_sigs)
             sk[j] = xm[ind][j];
         }
         key message = identity();
-        mgSig IIccss = MLSAG_Gen(message, P, sk, ind, R);
+        mgSig IIccss = MLSAG_Gen(message, P, sk, NULL, NULL, ind, R, hw::get_device("default"));
         ASSERT_TRUE(MLSAG_Ver(message, P, IIccss, R));
 
         //#MG sig: false one
@@ -133,8 +135,8 @@ TEST(ringct, MG_sigs)
             }
             sk[j] = xx[ind][j];
         }
-        sk[2] = skGen();//asume we don't know one of the private keys..
-        IIccss = MLSAG_Gen(message, P, sk, ind, R);
+        sk[2] = skGen();//assume we don't know one of the private keys..
+        IIccss = MLSAG_Gen(message, P, sk, NULL, NULL, ind, R, hw::get_device("default"));
         ASSERT_FALSE(MLSAG_Ver(message, P, IIccss, R));
 }
 
@@ -173,13 +175,13 @@ TEST(ringct, range_proofs)
         destinations.push_back(Pk);
 
         //compute rct data with mixin 500
-        rctSig s = genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, 3);
+        rctSig s = genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, NULL, NULL, 3, hw::get_device("default"));
 
         //verify rct data
         ASSERT_TRUE(verRct(s));
 
         //decode received amount
-        ASSERT_TRUE(decodeRct(s, amount_keys[1], 1, mask));
+        decodeRct(s, amount_keys[1], 1, mask, hw::get_device("default"));
 
         // Ring CT with failing MG sig part should not verify!
         // Since sum of inputs != outputs
@@ -190,13 +192,13 @@ TEST(ringct, range_proofs)
 
 
         //compute rct data with mixin 500
-        s = genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, 3);
+        s = genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, NULL, NULL, 3, hw::get_device("default"));
 
         //verify rct data
         ASSERT_FALSE(verRct(s));
 
         //decode received amount
-        ASSERT_TRUE(decodeRct(s, amount_keys[1], 1, mask));
+        decodeRct(s, amount_keys[1], 1, mask, hw::get_device("default"));
 }
 
 TEST(ringct, range_proofs_with_fee)
@@ -237,13 +239,13 @@ TEST(ringct, range_proofs_with_fee)
         destinations.push_back(Pk);
 
         //compute rct data with mixin 500
-        rctSig s = genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, 3);
+        rctSig s = genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, NULL, NULL, 3, hw::get_device("default"));
 
         //verify rct data
         ASSERT_TRUE(verRct(s));
 
         //decode received amount
-        ASSERT_TRUE(decodeRct(s, amount_keys[1], 1, mask));
+        decodeRct(s, amount_keys[1], 1, mask, hw::get_device("default"));
 
         // Ring CT with failing MG sig part should not verify!
         // Since sum of inputs != outputs
@@ -254,13 +256,13 @@ TEST(ringct, range_proofs_with_fee)
 
 
         //compute rct data with mixin 500
-        s = genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, 3);
+        s = genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, NULL, NULL, 3, hw::get_device("default"));
 
         //verify rct data
         ASSERT_FALSE(verRct(s));
 
         //decode received amount
-        ASSERT_TRUE(decodeRct(s, amount_keys[1], 1, mask));
+        decodeRct(s, amount_keys[1], 1, mask, hw::get_device("default"));
 }
 
 TEST(ringct, simple)
@@ -312,13 +314,13 @@ TEST(ringct, simple)
         //compute sig with mixin 2
         sup_amount txnfee = 1;
 
-        rctSig s = genRctSimple(message, sc, pc, destinations,inamounts, outamounts, amount_keys, txnfee, 2);
+        rctSig s = genRctSimple(message, sc, pc, destinations,inamounts, outamounts, amount_keys, NULL, NULL, txnfee, 2, hw::get_device("default"));
 
         //verify ring ct signature
         ASSERT_TRUE(verRctSimple(s));
 
         //decode received amount corresponding to output pubkey index 1
-        ASSERT_TRUE(decodeRctSimple(s, amount_keys[1], 1, mask));
+        decodeRctSimple(s, amount_keys[1], 1, mask,  hw::get_device("default"));
 }
 
 static rct::rctSig make_sample_rct_sig(int n_inputs, const uint64_t input_amounts[], int n_outputs, const uint64_t output_amounts[], bool last_is_fee)
@@ -346,7 +348,7 @@ static rct::rctSig make_sample_rct_sig(int n_inputs, const uint64_t input_amount
         }
     }
 
-    return genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, 3);;
+    return genRct(rct::zero(), sc, pc, destinations, amounts, amount_keys, NULL, NULL, 3, hw::get_device("default"));
 }
 
 static rct::rctSig make_sample_simple_rct_sig(int n_inputs, const uint64_t input_amounts[], int n_outputs, const uint64_t output_amounts[], uint64_t fee)
@@ -372,7 +374,7 @@ static rct::rctSig make_sample_simple_rct_sig(int n_inputs, const uint64_t input
         destinations.push_back(Pk);
     }
 
-    return genRctSimple(rct::zero(), sc, pc, destinations, inamounts, outamounts, amount_keys, fee, 3);;
+    return genRctSimple(rct::zero(), sc, pc, destinations, inamounts, outamounts, amount_keys, NULL, NULL, fee, 3, hw::get_device("default"));
 }
 
 static bool range_proof_test(bool expected_valid,

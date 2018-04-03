@@ -36,20 +36,18 @@
 
 #include "include_base_utils.h"
 #include "version.h"
-
-using namespace epee;
-
 #include <iostream>
 #include <sstream>
-using namespace std;
 
 #include <boost/program_options.hpp>
 
 #include "common/command_line.h"
 #include "console_handler.h"
 #include "p2p/net_node.h"
+#include "p2p/net_node.inl"
 //#include "cryptonote_core/cryptonote_core.h"
 #include "cryptonote_protocol/cryptonote_protocol_handler.h"
+#include "cryptonote_protocol/cryptonote_protocol_handler.inl"
 #include "core_proxy.h"
 #include "version.h"
 
@@ -58,6 +56,8 @@ using namespace std;
 #endif
 
 namespace po = boost::program_options;
+using namespace std;
+using namespace epee;
 using namespace cryptonote;
 using namespace crypto;
 
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 
   TRY_ENTRY();
 
-
+  tools::on_startup();
   string_tools::set_module_name_and_folder(argv[0]);
 
   //set up logging options
@@ -82,8 +82,7 @@ int main(int argc, char* argv[])
 
 
   po::options_description desc("Allowed options");
-  // tools::get_default_data_dir() can't be called during static initialization
-  command_line::add_arg(desc, command_line::arg_data_dir, tools::get_default_data_dir());
+  command_line::add_arg(desc, cryptonote::arg_data_dir);
   nodetool::node_server<cryptonote::t_cryptonote_protocol_handler<tests::proxy_core> >::init_options(desc);
 
   po::variables_map vm;
@@ -231,10 +230,9 @@ bool tests::proxy_core::get_short_chain_history(std::list<crypto::hash>& ids) {
     return true;
 }
 
-bool tests::proxy_core::get_blockchain_top(uint64_t& height, crypto::hash& top_id) {
+void tests::proxy_core::get_blockchain_top(uint64_t& height, crypto::hash& top_id) {
     height = 0;
     top_id = get_block_hash(m_genesis);
-    return true;
 }
 
 bool tests::proxy_core::init(const boost::program_options::variables_map& /*vm*/) {
@@ -258,7 +256,7 @@ void tests::proxy_core::build_short_history(std::list<crypto::hash> &m_history, 
         m_history.push_front(cit->first);
 
         size_t n = 1 << m_history.size();
-        while (m_hash2blkidx.end() != cit && cryptonote::null_hash != cit->second.blk.prev_id && n > 0) {
+        while (m_hash2blkidx.end() != cit && crypto::null_hash != cit->second.blk.prev_id && n > 0) {
             n--;
             cit = m_hash2blkidx.find(cit->second.blk.prev_id);
         }
@@ -268,7 +266,7 @@ void tests::proxy_core::build_short_history(std::list<crypto::hash> &m_history, 
 bool tests::proxy_core::add_block(const crypto::hash &_id, const crypto::hash &_longhash, const cryptonote::block &_blk, const cryptonote::blobdata &_blob) {
     size_t height = 0;
 
-    if (cryptonote::null_hash != _blk.prev_id) {
+    if (crypto::null_hash != _blk.prev_id) {
         std::unordered_map<crypto::hash, tests::block_index>::const_iterator cit = m_hash2blkidx.find(_blk.prev_id);
         if (m_hash2blkidx.end() == cit) {
             cerr << "ERROR: can't find previous block with id \"" << _blk.prev_id << "\"" << endl;

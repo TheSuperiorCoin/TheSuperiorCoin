@@ -34,9 +34,11 @@
 #include <boost/program_options.hpp>
 
 #include "include_base_utils.h"
+#include "string_tools.h"
 using namespace epee;
 
 #include "common/command_line.h"
+#include "common/util.h"
 #include "transactions_flow_test.h"
 
 namespace po = boost::program_options;
@@ -61,6 +63,7 @@ namespace
 int main(int argc, char* argv[])
 {
   TRY_ENTRY();
+  tools::on_startup();
   string_tools::set_module_name_and_folder(argv[0]);
 
   //set up logging options

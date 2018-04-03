@@ -38,6 +38,7 @@
 
 #include "gtest/gtest.h"
 
+#include "string_tools.h"
 #include "blockchain_db/blockchain_db.h"
 #include "blockchain_db/lmdb/db_lmdb.h"
 #ifdef BERKELEY_DB

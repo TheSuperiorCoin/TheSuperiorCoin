@@ -32,7 +32,7 @@
 
 
 #include "chaingen.h"
-#include "chaingen_tests_list.h"
+#include "double_spend.h"
 
 using namespace epee;
 using namespace cryptonote;
