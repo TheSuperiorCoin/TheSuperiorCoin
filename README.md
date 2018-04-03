@@ -114,7 +114,7 @@ Packages are available for
 * Arch Linux 
   - Stable release: 
   - Bleeding edge: 
-  
+
 * OS X via [Homebrew](http://brew.sh) not ready yet
 
         brew tap mps01k/cryptonight
@@ -140,7 +140,7 @@ Packaging for your favorite distribution would be a welcome contribution!
 
 ### Dependencies
 
-The following table summarizes the tools and libraries required to build.  A
+The following table summarizes the tools and libraries required to build. A
 few of the libraries are also included in this repository (marked as
 "Vendored"). By default, the build uses the library installed on the system,
 and ignores the vendored sources. However, if no library is found installed on

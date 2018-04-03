@@ -1,4 +1,5 @@
-// Copyright (c) 2017, The Monero Project
+// Copyright (c) 2017-2018, TheSuperiorCoin Project
+// Parts may contain code Copyright (c) 2017, The Monero Project
 //
 // All rights reserved.
 //
