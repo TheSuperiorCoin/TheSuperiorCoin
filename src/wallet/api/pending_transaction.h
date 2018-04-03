@@ -28,7 +28,7 @@
 //
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
-#include "wallet/wallet2_api.h"
+#include "wallet/api/wallet2_api.h"
 #include "wallet/wallet2.h"
 
 #include <string>
@@ -51,6 +51,8 @@ public:
     uint64_t fee() const;
     std::vector<std::string> txid() const;
     uint64_t txCount() const;
+    std::vector<uint32_t> subaddrAccount() const;
+    std::vector<std::set<uint32_t>> subaddrIndices() const;
     // TODO: continue with interface;
 
 private:
@@ -65,4 +67,4 @@ private:
 
 }
 
-namespace BitSuperior = Superior;
+namespace Bitsuperior = Superior;

@@ -48,9 +48,14 @@ bool isAddressLocal(const std::string &address)
     }
 }
 
+void onStartup()
+{
+    tools::on_startup();
+}
+
 }
 
 
 } // namespace
 
-namespace BitSuperior = Superior;
+namespace Bitsuperior = Superior;
