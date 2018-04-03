@@ -1,4 +1,5 @@
-// Copyright (c) 2017, The Superior Project
+// Copyright (c) 2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2017, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -26,6 +27,7 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <boost/algorithm/string.hpp>
 #include "misc_log_ex.h"
 #include "util.h"
 #include "dns_utils.h"
@@ -100,7 +102,7 @@ namespace tools
   {
     const char *base = user ? "https://downloads.superior-coin.com/" : "http://updates.superior-coin.com/";
 #ifdef _WIN32
-    static const char extension[] = ".zip";
+    static const char *extension = strncmp(buildtag.c_str(), "install-", 8) ? ".zip" : ".exe";
 #else
     static const char extension[] = ".tar.bz2";
 #endif
