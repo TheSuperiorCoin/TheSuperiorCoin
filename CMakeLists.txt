@@ -898,3 +898,7 @@ option(INSTALL_VENDORED_LIBUNBOUND "Install libunbound binary built from source 
 
 
 CHECK_C_COMPILER_FLAG(-std=c11 HAVE_C11)
+
+##
+# This may contain code Copyright (c) 2014-2017, The Monero Project
+##
