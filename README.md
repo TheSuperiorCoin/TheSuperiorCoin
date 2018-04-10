@@ -1,7 +1,7 @@
 # The Superior Coin
 
 - Copyright (c) 2017-2020, The SuperiorCoin Project
-- Copyright (c) 2014-2017 Part of this may Include Source Code from Monero Project
+- This may contain code Copyright (c) 2014-2017, The Monero Project
 - Copyright (c) 2012-1013 Part of this may Include Source Code from The Cryptonote developers 
 
 ## Development Resources
