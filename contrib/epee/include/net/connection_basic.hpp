@@ -1,3 +1,4 @@
+// Copyright (c) 2014-2018, TheSuperiorCoin Project
 /// @file
 /// @author rfree (current maintainer in superior.cc project)
 /// @brief base for connection, contains e.g. the ratelimit hooks
@@ -8,7 +9,6 @@
 // ! (how ever if in some wonderful juristdictions that is not the case, then why not make another sub-class withat that members and licence it as epee part)
 // ! Working on above premise, IF this is valid in your juristdictions, then consider this code as released as:
 
-// Copyright (c) 2014-2018, TheSuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -35,7 +35,9 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+//
+// This may contain code Copyright (c) 2014-2017, The Monero Project
+//
 /* rfree: place for hanlers for the non-template base, can be used by connection<> template class in abstract_tcp_server2 file  */
 
 #ifndef INCLUDED_p2p_connection_basic_hpp
