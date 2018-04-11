@@ -25,7 +25,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 // This may contain code Copyright (c) 2014-2017, The Monero Project
-//
+// 
 
 #pragma once
 

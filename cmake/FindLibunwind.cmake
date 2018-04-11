@@ -11,7 +11,7 @@
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
-##
+#
 # This may contain code Copyright (c) 2014-2017, The Monero Project
 ##
 
