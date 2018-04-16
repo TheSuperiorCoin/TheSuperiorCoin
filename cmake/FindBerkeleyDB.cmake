@@ -1,3 +1,4 @@
+# Copyright (c) 2014-2018, TheSuperioriorCoin Project
 # - Try to find Berkeley DB
 # Once done this will define
 #
@@ -10,6 +11,9 @@
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
+#
+# This may contain code Copyright (c) 2014-2017, The Monero Project
+##
 
 find_path(BERKELEY_DB_INCLUDE_DIR db_cxx.h
   /usr/include/db4
