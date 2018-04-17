@@ -175,12 +175,18 @@ sudo apt-get install libzmq3-dev
 
 [^] On Debian/Ubuntu `libgtest-dev` only includes sources and headers. You may need to
 build the library binary manually. This can be done with the following command ```sudo apt-get install libgtest-dev && cd /usr/src/gtest && sudo cmake . && sudo make && sudo mv libg* /usr/lib/ ```
+
 ### Cloning the Repository
 
+Clone recursively to pull-in needed submodule(s):
+
     git clone --recursive https://github.com/TheSuperiorCoin/TheSuperiorCoin
+
+If you already have a repo cloned, initialize and update:
+
     cd TheSuperiorCoin 
     git submodule init && git submodule update
-
+    
 
 ### Build instructions
 
