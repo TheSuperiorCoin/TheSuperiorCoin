@@ -2,7 +2,7 @@
 /// @author rfree (current maintainer in superior.cc project)
 /// @brief base for connection, contains e.g. the ratelimit hooks
 
-// Copyright (c) 2014-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, The Superior Project
 // 
 // All rights reserved.
 // 

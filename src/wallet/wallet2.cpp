@@ -3094,12 +3094,9 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
    if (err.empty()) {
      if (target_height < height)
        height = target_height;
-   } else {
-     // if we couldn't talk to the daemon, check safety margin.
-     if (height > blocks_per_month)
-       height -= blocks_per_month;
      else
-       height = 0;
+     // if we couldn't talk to the daemon, check safety margin.
+       height = 191850;
    }
    uint64_t local_height = get_daemon_blockchain_height(err);
    if (err.empty() && local_height > height)

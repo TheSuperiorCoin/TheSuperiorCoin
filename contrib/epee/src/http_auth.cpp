@@ -1,3 +1,4 @@
+
 // Copyright (c) 2014-2018, TheSuperiorCoin Project
 //
 // All rights reserved.
@@ -27,7 +28,6 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // This may contain code Copyright (c) 2014-2017, The Monero Project
-//
 
 #include "net/http_auth.h"
 

@@ -170,9 +170,23 @@ library archives (`.a`).
 | Doxygen      | any           | NO       | `doxygen`          | `doxygen`    | `doxygen`         | YES      | Documentation  |
 | Graphviz     | any           | NO       | `graphviz`         | `graphviz`   | `graphviz`        | YES      | Documentation  |
 
+this is a new dependency you will need on linux
+sudo apt-get install libzmq3-dev 
 
-[^] On Debian/Ubuntu `libgtest-dev` only includes sources and headers. You must
+[^] On Debian/Ubuntu `libgtest-dev` only includes sources and headers. You may need to
 build the library binary manually. This can be done with the following command ```sudo apt-get install libgtest-dev && cd /usr/src/gtest && sudo cmake . && sudo make && sudo mv libg* /usr/lib/ ```
+
+### Cloning the Repository
+
+Clone recursively to pull-in needed submodule(s):
+
+    git clone --recursive https://github.com/TheSuperiorCoin/TheSuperiorCoin
+
+If you already have a repo cloned, initialize and update:
+
+    cd TheSuperiorCoin 
+    git submodule init && git submodule update
+    
 
 ### Build instructions
 
@@ -185,6 +199,7 @@ invokes cmake commands as needed.
 * Change to the root of the source code directory and build:
 
         cd TheSuperiorCoin
+        
         make
 
     *Optional*: If your machine has several cores and enough memory, enable
