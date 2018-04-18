@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, TheSuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -27,6 +27,8 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Parts of this file Copyright (c) 2009-2015 The Bitcoin Core developers
+// This may contain code Copyright (c) 2014-2017, The Monero Project
+//
 
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <string.h>
