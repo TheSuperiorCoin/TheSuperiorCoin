@@ -3094,9 +3094,13 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
    if (err.empty()) {
      if (target_height < height)
        height = target_height;
-     else
-     // if we couldn't talk to the daemon, check safety margin.
-       height = 191850;
+     } else {
+   // if we couldn't talk to the daemon, check safety margin.
+       if (height > blocks_per_month)
+          height -= blocks_per_month;
+       else
+          height = 0:
+
    }
    uint64_t local_height = get_daemon_blockchain_height(err);
    if (err.empty() && local_height > height)
@@ -9091,13 +9095,13 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
 uint64_t wallet2::get_approximate_blockchain_height() const
 {
   // time of v2 fork
-  const time_t fork_time = m_nettype == TESTNET ? 1448285909 : m_nettype == STAGENET ? (time_t)-1/*TODO*/ : 1458748658;
+  const time_t fork_time = m_nettype == TESTNET ? 1448285909 : m_nettype == STAGENET ? (time_t)-1/*TODO*/ : 1498902738;
   // v2 fork block
   const uint64_t fork_block = m_nettype == TESTNET ? 624634 : m_nettype == STAGENET ? (uint64_t)-1/*TODO*/ : 3657;
   // avg seconds per block
   const int seconds_per_block = DIFFICULTY_TARGET_V2;
   // Calculated blockchain height
-  uint64_t approx_blockchain_height = fork_block + (time(NULL) - fork_time)/seconds_per_block;
+  uint64_t approx_blockchain_height = fork_block + (time(NULL) - fork_time)/seconds_per_block - 25000;
   // testnet got some huge rollbacks, so the estimation is way off
   static const uint64_t approximate_testnet_rolled_back_blocks = 148540;
   if (m_nettype == TESTNET && approx_blockchain_height > approximate_testnet_rolled_back_blocks)
