@@ -3099,7 +3099,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
        if (height > blocks_per_month)
           height -= blocks_per_month;
        else
-          height = 0:
+          height = 0;
 
    }
    uint64_t local_height = get_daemon_blockchain_height(err);
