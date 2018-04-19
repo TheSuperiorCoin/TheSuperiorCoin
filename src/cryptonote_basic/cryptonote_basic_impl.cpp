@@ -165,10 +165,20 @@ namespace cryptonote {
           uint64_t l_time = b_timestamp - l_timestamp;
           uint64_t d_time = l_time * base_reward;
           base_reward = d_time/120;
-          reward = base_reward;
+          if(reward > 5000000000000){
+          reward = 5000000000000;
           }
           else{
           reward = base_reward;
+          }
+          }
+          else{
+          if(reward > 5000000000000){
+                    reward = 5000000000000;
+                    }
+                    else{
+                    reward = base_reward;
+                    }
           }
           return true;
         }

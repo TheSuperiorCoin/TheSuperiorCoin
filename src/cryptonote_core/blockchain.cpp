@@ -1085,6 +1085,11 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
    base_reward = d_time/120;
    }
 
+   if(base_reward > 5000000000000){
+        base_reward = 5000000000000;
+   }
+
+
   if(base_reward + fee < money_in_use)
   {
     MERROR_VER("coinbase transaction spend too much money (" << print_money(money_in_use) << "). Block reward is " << print_money(base_reward + fee) << "(" << print_money(base_reward) << "+" << print_money(fee) << ")");
