@@ -1035,6 +1035,20 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height)
 // This function validates the miner transaction reward
 bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_block_size, uint64_t fee, uint64_t& base_reward, uint64_t already_generated_coins, bool &partial_block_reward, uint8_t version)
 {
+    const int g_height = m_db->height();
+
+    if (g_height == 193175){
+        const std::string sblock = "871a4c96f3a6ea5fdd90b97d64f080725479b8d5e324bc2f6f90264322d3a770";
+        const crypto::hash vblock = get_block_hash(b);
+        if(sblock == epee::string_tools::pod_to_hex(vblock)){
+            MERROR_VER("good hash pass" << get_block_hash(b));
+            return true;
+        }
+        else {
+            MERROR_VER("bad hash failed" << get_block_hash(b));
+            return false;
+        }
+    }
   LOG_PRINT_L3("Blockchain::" << __func__);
   //validate reward
   uint64_t money_in_use = 0;
@@ -1053,8 +1067,8 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
 
   std::vector<size_t> last_blocks_sizes;
   get_last_n_blocks_sizes(last_blocks_sizes, CRYPTONOTE_REWARD_BLOCKS_WINDOW);
-  const int g_height = m_db->height();
-  int l_timestamp = 0;
+
+  uint64_t l_timestamp = 0;
     uint64_t index = g_height - 1;
     if(version > 6){
         l_timestamp = m_db->get_block_timestamp(index);
@@ -1080,14 +1094,20 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
     return false;
   }
    if(version > 6){
-   uint64_t l_time = b.timestamp - l_timestamp;
-   uint64_t d_time = l_time * base_reward;
-   base_reward = d_time/120;
+       if(b.timestamp > l_timestamp){
+           uint64_t l_time = b.timestamp - l_timestamp;
+           uint64_t d_time = l_time * base_reward;
+           base_reward = d_time/120;
+       }
+       else{
+           base_reward = 0;
+       }
+       if(base_reward > 5000000000000){
+               base_reward = 5000000000000;
+       }
    }
 
-   if(base_reward > 5000000000000){
-        base_reward = 5000000000000;
-   }
+
 
 
   if(base_reward + fee < money_in_use)
@@ -1113,6 +1133,12 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
     if(base_reward + fee != money_in_use)
       partial_block_reward = true;
     base_reward = money_in_use - fee;
+  }
+  //TODO: this check if blocks where mined with future timestamps
+  uint64_t current_time = static_cast<uint64_t>(time(NULL));
+  if(b.timestamp > current_time){
+    MERROR_VER("Block Timestamp is greater than current time " << b.timestamp << " < Block Timestamp " << current_time << " < Current Time");
+    return false;
   }
   return true;
 }

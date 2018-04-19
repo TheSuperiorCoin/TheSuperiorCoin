@@ -144,7 +144,7 @@ namespace cryptonote {
             const int target_minutes = target / 60;
             const int emission_speed_factor = EMISSION_SPEED_FACTOR_PER_MINUTE_ - (target_minutes-1);
 
-            const int b_timestamp = ts;
+            const uint64_t b_timestamp = ts;
 
         uint64_t base_reward = (MONEY_SUPPLY - already_generated_coins) >> emission_speed_factor;
         if (base_reward < FINAL_SUBSIDY_PER_MINUTE*target_minutes)
@@ -161,10 +161,14 @@ namespace cryptonote {
 
         if (current_block_size <= median_size) {
         if(version > 6){
-
+        if(b_timestamp > l_timestamp){
           uint64_t l_time = b_timestamp - l_timestamp;
           uint64_t d_time = l_time * base_reward;
           base_reward = d_time/120;
+          }
+          else{
+            base_reward = 0;
+          }
           if(base_reward > 5000000000000){
               base_reward = 5000000000000;
               reward = base_reward;
@@ -201,12 +205,17 @@ namespace cryptonote {
         assert(0 == reward_hi);
         assert(reward_lo < base_reward);
         if(version > 6){
-        uint64_t l_time = b_timestamp - l_timestamp;
-        uint64_t d_time = l_time * reward_lo;
-        uint64_t n_reward = d_time/120;
-        if(n_reward > 5000000000000){
-          n_reward = 5000000000000;
-          reward = n_reward;
+        if(b_timestamp > l_timestamp){
+            uint64_t l_time = b_timestamp - l_timestamp;
+            uint64_t d_time = l_time * reward_lo;
+            uint64_t n_reward = d_time/120;
+            reward = n_reward;
+        }
+        else{
+            reward = 0;
+        }
+        if(reward > 5000000000000){
+              reward = 5000000000000;
         }
 
         }
