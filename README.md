@@ -100,7 +100,7 @@ Dates are provided in the format YYYY-MM-DD.
 | 2017-01-07        | v4                | v0.10.1                | v0.10.2.1                  | Allow normal and RingCT transactions |
 | 0000-00-00        | v5-skipped        | v0.10.3.0              | v0.10.3.1                  | Adjusted minimum blocksize and fee algorithm      |
 | 2017-11-24        | v6                | v0.11.1                | v0.11.1                    | Allow only RingCT transactions      |
-| 2018-04-10        | v7                | v0.12.0                | v0.12.0                    | Change to ASIC Resistant and Block Reward      |
+| 2018-04-10        | v7                | v0.12.0                | v0.12.1                    | Change to ASIC Resistant and Block Reward      |
 
 X's indicate that these details have not been determined as of commit date.
 
@@ -253,7 +253,7 @@ Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (
 ```
         git clone https://github.com/TheSuperiorCoin/TheSuperiorCoin.git
 	cd TheSuperiorCoin
-	git checkout tags/v0.12.0.0
+	git checkout tags/v0.12.1
 ```
 * Build:
 ```
