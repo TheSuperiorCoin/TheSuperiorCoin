@@ -23,7 +23,7 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // This may contain code Copyright (c) 2014-2017, The Monero Project
 //
 
@@ -384,6 +384,41 @@ POP_WARNINGS
 		res = str.substr(0, pos);
 		return res;
 	}
+  //----------------------------------------------------------------------------
+#ifdef _WIN32
+  inline std::wstring utf8_to_utf16(const std::string& str)
+  {
+    if (str.empty())
+      return {};
+    int wstr_size = MultiByteToWideChar(CP_UTF8, 0, &str[0], str.size(), NULL, 0);
+    if (wstr_size == 0)
+    {
+      throw std::runtime_error(std::error_code(GetLastError(), std::system_category()).message());
+    }
+    std::wstring wstr(wstr_size, wchar_t{});
+    if (!MultiByteToWideChar(CP_UTF8, 0, &str[0], str.size(), &wstr[0], wstr_size))
+    {
+      throw std::runtime_error(std::error_code(GetLastError(), std::system_category()).message());
+    }
+    return wstr;
+  }
+  inline std::string utf16_to_utf8(const std::wstring& wstr)
+  {
+    if (wstr.empty())
+      return {};
+    int str_size = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], wstr.size(), NULL, 0, NULL, NULL);
+    if (str_size == 0)
+    {
+      throw std::runtime_error(std::error_code(GetLastError(), std::system_category()).message());
+    }
+    std::string str(str_size, char{});
+    if (!WideCharToMultiByte(CP_UTF8, 0, &wstr[0], wstr.size(), &str[0], str_size, NULL, NULL))
+    {
+      throw std::runtime_error(std::error_code(GetLastError(), std::system_category()).message());
+    }
+    return str;
+  }
+#endif
 }
 }
 #endif //_STRING_TOOLS_H_

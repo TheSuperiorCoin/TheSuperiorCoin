@@ -1,4 +1,3 @@
-# Copyright (c) 2014-2018, TheSuperioriorCoin Project
 # - Try to find Berkeley DB
 # Once done this will define
 #

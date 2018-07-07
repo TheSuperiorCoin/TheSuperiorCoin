@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2014-2018, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -704,6 +704,7 @@ namespace tools
     bool sign_multisig_tx(multisig_tx_set &exported_txs, std::vector<crypto::hash> &txids);
     bool sign_multisig_tx_to_file(multisig_tx_set &exported_txs, const std::string &filename, std::vector<crypto::hash> &txids);
     std::vector<pending_tx> create_unmixable_sweep_transactions(bool trusted_daemon);
+    void discard_unmixable_outputs(bool trusted_daemon);
     bool check_connection(uint32_t *version = NULL, uint32_t timeout = 200000);
     void get_transfers(wallet2::transfer_container& incoming_transfers) const;
     void get_payments(const crypto::hash& payment_id, std::list<wallet2::payment_details>& payments, uint64_t min_height = 0, const boost::optional<uint32_t>& subaddr_account = boost::none, const std::set<uint32_t>& subaddr_indices = {}) const;
@@ -874,6 +875,8 @@ namespace tools
     void key_reuse_mitigation2(bool value) { m_key_reuse_mitigation2 = value; }
     uint64_t segregation_height() const { return m_segregation_height; }
     void segregation_height(uint64_t height) { m_segregation_height = height; }
+    bool confirm_non_default_ring_size() const { return m_confirm_non_default_ring_size; }
+    void confirm_non_default_ring_size(bool always) { m_confirm_non_default_ring_size = always; }
 
     bool get_tx_key(const crypto::hash &txid, crypto::secret_key &tx_key, std::vector<crypto::secret_key> &additional_tx_keys) const;
     void check_tx_key(const crypto::hash &txid, const crypto::secret_key &tx_key, const std::vector<crypto::secret_key> &additional_tx_keys, const cryptonote::account_public_address &address, uint64_t &received, bool &in_pool, uint64_t &confirmations);
@@ -1194,6 +1197,7 @@ namespace tools
     // m_refresh_from_block_height was defaulted to zero.*/
     bool m_explicit_refresh_from_block_height;
     bool m_confirm_missing_payment_id;
+    bool m_confirm_non_default_ring_size;
     bool m_ask_password;
     uint32_t m_min_output_count;
     uint64_t m_min_output_value;

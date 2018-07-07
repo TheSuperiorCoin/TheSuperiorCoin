@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
       "blackball-db-dir", "Specify blackball database directory",
       get_default_db_path(),
       {{ &arg_testnet_on, &arg_stagenet_on }},
-      [](std::array<bool, 2> testnet_stagenet, bool defaulted, std::string val) {
+      [](std::array<bool, 2> testnet_stagenet, bool defaulted, std::string val)->std::string {
         if (testnet_stagenet[0])
           return (boost::filesystem::path(val) / "testnet").string();
         else if (testnet_stagenet[1])
@@ -253,7 +253,8 @@ int main(int argc, char* argv[])
     return 1;
   }
   std::vector<std::unique_ptr<Blockchain>> core_storage(inputs.size());
-  tx_memory_pool m_mempool(*(Blockchain*)NULL);
+  Blockchain *blockchain = NULL;
+  tx_memory_pool m_mempool(*blockchain);
   for (size_t n = 0; n < inputs.size(); ++n)
   {
     core_storage[n].reset(new Blockchain(m_mempool));

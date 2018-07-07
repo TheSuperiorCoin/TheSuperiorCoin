@@ -23,7 +23,7 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // This may contain code Copyright (c) 2014-2017, The Monero Project
 //
 
@@ -34,10 +34,11 @@
 #define __WINH_OBJ_H__
 
 #include <boost/chrono/duration.hpp>
+#include <boost/thread/condition_variable.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/v2/thread.hpp>
+#include <boost/thread/thread.hpp>
 
 namespace epee
 {

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2014-2018, The Superior Project
 //  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
 //
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers

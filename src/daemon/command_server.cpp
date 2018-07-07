@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2014-2018, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -279,6 +279,11 @@ t_command_server::t_command_server(
       "sync_info"
     , std::bind(&t_command_parser_executor::sync_info, &m_parser, p::_1)
     , "Print information about the blockchain sync state."
+    );
+    m_command_lookup.set_handler(
+      "version"
+    , std::bind(&t_command_parser_executor::version, &m_parser, p::_1)
+    , "Print version information."
     );
 }
 

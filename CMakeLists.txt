@@ -239,7 +239,7 @@ endif()
 # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
 #   set(BSDI TRUE)
 
-include_directories(external/easylogging++ src contrib/epee/include external)
+include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external)
 
 if(APPLE)
   include_directories(SYSTEM /usr/include/malloc)
@@ -463,9 +463,12 @@ link_directories(${LIBUNWIND_LIBRARY_DIRS})
 
 # Final setup for libpcsc
 if (PCSC_FOUND) 
+  message(STATUS "Using PCSC include dir at ${PCSC_INCLUDE_DIR}")
   add_definitions(-DHAVE_PCSC)
   include_directories(${PCSC_INCLUDE_DIR})
   link_directories(${LIBPCSC_LIBRARY_DIRS})
+else (PCSC_FOUND)
+  message(STATUS "Could not find PCSC")
 endif()
 
 if(MSVC)

@@ -6,7 +6,7 @@
 
 */
 
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2014-2018, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -138,6 +138,8 @@ public:
   bool relay_tx(const std::vector<std::string>& args);
 
   bool sync_info(const std::vector<std::string>& args);
+
+  bool version(const std::vector<std::string>& args);
 };
 
 } // namespace daemonize

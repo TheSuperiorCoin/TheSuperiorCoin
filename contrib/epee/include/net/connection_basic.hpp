@@ -1,4 +1,3 @@
-// Copyright (c) 2014-2018, TheSuperiorCoin Project
 /// @file
 /// @author rfree (current maintainer in superior.cc project)
 /// @brief base for connection, contains e.g. the ratelimit hooks
@@ -8,8 +7,9 @@
 // ! I am not a lawyer; afaik APIs, var names etc are not copyrightable ;)
 // ! (how ever if in some wonderful juristdictions that is not the case, then why not make another sub-class withat that members and licence it as epee part)
 // ! Working on above premise, IF this is valid in your juristdictions, then consider this code as released as:
-
-// 
+// Copyright (c) 2014-2018, The Monero Project
+// Copyright (c) 2014-2018, The Superior Project
+//
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are

@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 2014-2018, TheSuperioriorCoin Project
- *
  * libEtPan! -- a mail stuff library
  *
  * Copyright (C) 2001, 2005 - DINH Viet Hoa
@@ -31,7 +29,7 @@
  * SUCH DAMAGE.
  *
  * This may contain code Copyright (c) 2014-2017,  The Monero Project
- */ 
+ */
 
 /* hmac-md5.h -- HMAC_MD5 functions
  */

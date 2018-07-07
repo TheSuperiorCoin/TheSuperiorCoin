@@ -36,6 +36,7 @@
 #include <boost/filesystem/operations.hpp>
 #ifdef WIN32
 #include <windows.h>
+#include "string_tools.h"
 #endif
 
 // On Windows there is a problem with non-ASCII characters in path and file names

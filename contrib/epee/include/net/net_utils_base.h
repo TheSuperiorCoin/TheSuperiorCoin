@@ -23,7 +23,7 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // This may contain code Copyright (c) 2014-2017, The Monero Project
 //
 
@@ -283,6 +283,7 @@ namespace net_utils
 	{
 		virtual bool do_send(const void* ptr, size_t cb)=0;
     virtual bool close()=0;
+    virtual bool send_done()=0;
     virtual bool call_run_once_service_io()=0;
     virtual bool request_callback()=0;
     virtual boost::asio::io_service& get_io_service()=0;

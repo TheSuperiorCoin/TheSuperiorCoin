@@ -2,7 +2,7 @@
 /// @author rfree ( - most of code is from CryptoNote)
 /// @brief This is the orginal cryptonote protocol network-events handler, modified by us
 
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2014-2018, The Superior Project
 // 
 // All rights reserved.
 // 
