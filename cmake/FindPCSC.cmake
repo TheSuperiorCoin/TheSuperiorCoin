@@ -35,7 +35,7 @@ ELSE (NOT WIN32)
     set(PCSC_LIBRARY /mingw64/x86_64-w64-mingw32/lib/libwinscard.a)
   ELSE(BUILD_64 STREQUAL "ON")
     set(PCSC_INCLUDE_DIR /mingw32/i686-w64-mingw32/include)
-    set(PCSC_LIBRARY /mingw32/i686-w64-mingw32/lib/libwinscard.a)A
+    set(PCSC_LIBRARY /mingw32/i686-w64-mingw32/lib/libwinscard.a)
   ENDIF(BUILD_64 STREQUAL "ON")
 ENDIF (NOT WIN32)
 
