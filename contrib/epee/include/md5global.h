@@ -1,7 +1,6 @@
 /*
  * libEtPan! -- a mail stuff library
  *
- * Copyright (c) 2014-2018, TheSuperioriorCoin Project
  * Copyright (C) 2001, 2005 - DINH Viet Hoa
  * All rights reserved.
  *
@@ -28,8 +27,6 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- * 
- * This may contain code Copyright (c) 2014-2017, The Monero Project
  */
 
 /*

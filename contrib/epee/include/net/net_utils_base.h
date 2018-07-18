@@ -1,4 +1,3 @@
-// Copyright (c) 2014-2018, TheSuperioriorCoin Project
 // Copyright (c) 2006-2013, Andrey N. Sabelnikov, www.sabelnikov.net
 // All rights reserved.
 // 
@@ -24,8 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This may contain code Copyright (c) 2014-2017, The Monero Project
-//
+
 
 
 #ifndef _NET_UTILS_BASE_H_
@@ -283,6 +281,7 @@ namespace net_utils
 	{
 		virtual bool do_send(const void* ptr, size_t cb)=0;
     virtual bool close()=0;
+    virtual bool send_done()=0;
     virtual bool call_run_once_service_io()=0;
     virtual bool request_callback()=0;
     virtual boost::asio::io_service& get_io_service()=0;

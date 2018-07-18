@@ -1,5 +1,4 @@
 // Copyright (c) 2014-2018, TheSuperiorCoin Project
-// Copyright (c) 2014-2017, The Monero Project
 //
 // All rights reserved.
 //
@@ -28,6 +27,9 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+#
+# This may contain code Copyright (c) 2014-2017, The Monero Project
+#
 #pragma once
 
 namespace cryptonote

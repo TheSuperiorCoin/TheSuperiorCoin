@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, TheSuperiorcoin Project
+// Copyright (c) 2014-2018, The SuperiorCoin Project
 // 
 // All rights reserved.
 // 

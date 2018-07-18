@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2017, The Superior Project
+# Copyright (c) 2014-2018, The SuperiorCoin Project
 #
 # All rights reserved.
 #
@@ -105,6 +105,8 @@ if (NOT MSVC)
     PROPERTY
       COMPILE_FLAGS " -Wno-undef -Wno-sign-compare")
 endif ()
+
+SET_PROPERTY(SOURCE main.cpp PROPERTY COMPILE_FLAGS -DDEFAULT_DATA_DIR="\\"${CMAKE_SOURCE_DIR}/tests/data\\"")
 
 SET_PROPERTY(SOURCE memwipe.cpp PROPERTY COMPILE_FLAGS -Ofast)
 

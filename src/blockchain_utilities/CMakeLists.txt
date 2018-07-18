@@ -1,5 +1,5 @@
 # Copyright (c) 2017-2020, TheSuperiorCoin Project
-# Copyright (c) 2014-2018, The Moner Project
+# Copyright (c) 2014-2018, The Monero Project
 #
 # All rights reserved.
 #
