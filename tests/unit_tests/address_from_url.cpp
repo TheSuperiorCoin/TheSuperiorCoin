@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2014-2018, The SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -40,7 +40,7 @@
 
 TEST(AddressFromTXT, Success)
 {
-  std::string addr = "﻿5QaiHzo64sLDo42ky98uXtJ3zswCdpUrk1q5nSidtqovjjiC7FmxRt84Zu3HkpYQX1PLDU72aQMK6Cif4muRxwt3RyZXY6y";
+  std::string addr = "5QaiHzo64sLDo42ky98uXtJ3zswCdpUrk1q5nSidtqovjjiC7FmxRt84Zu3HkpYQX1PLDU72aQMK6Cif4muRxwt3RyZXY6y";
 
   std::string txtr = "oa1:sup";
   txtr += " recipient_address=";

@@ -1,4 +1,3 @@
-// Copyright (c) 2014-2018, TheSuperioriorCoin Project
 // Copyright (c) 2006-2013, Andrey N. Sabelnikov, www.sabelnikov.net
 // All rights reserved.
 // 
@@ -24,8 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This may contain code Copyright (c) 2014-2017, The Monero Project
-//
+
 
 #pragma once
 
@@ -38,9 +36,9 @@ namespace epee
     {
       /*
       local ip area
-      10.0.0.0 — 10.255.255.255 
-      172.16.0.0 — 172.31.255.255 
-      192.168.0.0 — 192.168.255.255 
+      10.0.0.0 ï¿½ 10.255.255.255 
+      172.16.0.0 ï¿½ 172.31.255.255 
+      192.168.0.0 ï¿½ 192.168.255.255 
       */
       if( (ip | 0xffffff00) == 0xffffff0a)
         return true;
@@ -50,7 +48,7 @@ namespace epee
 
       if( (ip | 0xffffff00) == 0xffffffac)
       {
-        uint32_t second_num = (ip << 8) & 0xff000000;
+        uint32_t second_num = (ip >> 8) & 0xff;
         if(second_num >= 16 && second_num <= 31 )
           return true;
       }
@@ -64,7 +62,7 @@ namespace epee
       //MAKE_IP
       /*
       loopback ip
-      127.0.0.0 — 127.255.255.255 
+      127.0.0.0 ï¿½ 127.255.255.255 
       */
       return false;
     }

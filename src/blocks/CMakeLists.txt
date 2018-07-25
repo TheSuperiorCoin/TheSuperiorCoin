@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2020, The Superior Project
+# Copyright (c) 2014-2018, The SuperiorCoin Project
 # 
 # All rights reserved.
 # 
@@ -25,7 +25,10 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# Parts of this file are originally copyright (c) 2014-2017 The Monero Project
+#
+# This may contain code Copyright (c) 2014-2017, The Monero Project
+##
+
 if(APPLE)
     add_library(blocks STATIC blockexports.c)
     set_target_properties(blocks PROPERTIES LINKER_LANGUAGE C)

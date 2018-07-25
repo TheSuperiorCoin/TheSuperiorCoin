@@ -6,7 +6,7 @@
 
 */
 
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2014-2018, The SuperiorCoin Project
 // 
 // All rights reserved.
 // 

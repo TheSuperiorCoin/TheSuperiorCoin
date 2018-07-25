@@ -1,6 +1,5 @@
 
 /*
-Copyright (c) 2014-2018, TheSuperioriorCoin Project
  Copyright (c) 2011, Micael Hildenborg
  All rights reserved.
 
@@ -25,8 +24,6 @@ Copyright (c) 2014-2018, TheSuperioriorCoin Project
  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
- This may contain code Copyright (c) 2014-2017, The Monero Project
  */
 
 /*

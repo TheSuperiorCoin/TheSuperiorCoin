@@ -48,6 +48,15 @@ namespace hw {
     /* ===================================================================== */
     /* ===                           Debug                              ==== */
     /* ===================================================================== */
+    #ifdef WIN32
+    static char *pcsc_stringify_error(LONG rv) {
+     static __thread char out[20];
+     sprintf_s(out, sizeof(out), "0x%08lX", rv);
+
+     return out;
+    }
+    #endif
+
     void set_apdu_verbose(bool verbose) {
       apdu_verbose = verbose;
     }
@@ -56,6 +65,7 @@ namespace hw {
     #define ASSERT_RV(rv)        CHECK_AND_ASSERT_THROW_MES((rv)==SCARD_S_SUCCESS, "Fail SCard API : (" << (rv) << ") "<< pcsc_stringify_error(rv)<<" Device="<<this->id<<", hCard="<<hCard<<", hContext="<<hContext);
     #define ASSERT_SW(sw,ok,msk) CHECK_AND_ASSERT_THROW_MES(((sw)&(mask))==(ok), "Wrong Device Status : SW=" << std::hex << (sw) << " (EXPECT=" << std::hex << (ok) << ", MASK=" << std::hex << (mask) << ")") ;
     #define ASSERT_T0(exp)       CHECK_AND_ASSERT_THROW_MES(exp, "Protocol assert failure: "#exp ) ;
+    #define ASSERT_X(exp,msg)    CHECK_AND_ASSERT_THROW_MES(exp, msg);
 
     #ifdef DEBUG_HWDEVICE
       crypto::secret_key dbg_viewkey;
@@ -125,6 +135,10 @@ namespace hw {
       return sec == crypto::null_skey;
     }
 
+    bool operator==(const crypto::key_derivation &d0, const crypto::key_derivation &d1) {
+      return !memcmp(&d0, &d1, sizeof(d0));
+    }
+
     /* ===================================================================== */
     /* ===                             Device                           ==== */
     /* ===================================================================== */
@@ -173,14 +187,15 @@ namespace hw {
     void device_ledger::logCMD() {
       if (apdu_verbose) {
         char  strbuffer[1024];
-        sprintf(strbuffer, "%.02x %.02x %.02x %.02x %.02x ",
+        snprintf(strbuffer, sizeof(strbuffer), "%.02x %.02x %.02x %.02x %.02x ",
           this->buffer_send[0],
           this->buffer_send[1],
           this->buffer_send[2],
           this->buffer_send[3],
           this->buffer_send[4]
           );
-        buffer_to_str(strbuffer+strlen(strbuffer), sizeof(strbuffer), (char*)(this->buffer_send+5), this->length_send-5);
+        const size_t len = strlen(strbuffer);
+        buffer_to_str(strbuffer+len, sizeof(strbuffer)-len, (char*)(this->buffer_send+5), this->length_send-5);
         MDEBUG( "CMD  :" << strbuffer);
       }
     }
@@ -188,11 +203,12 @@ namespace hw {
     void device_ledger::logRESP() {
       if (apdu_verbose) {
         char  strbuffer[1024];
-        sprintf(strbuffer, "%.02x%.02x ",
+        snprintf(strbuffer, sizeof(strbuffer), "%.02x%.02x ",
           this->buffer_recv[this->length_recv-2],
           this->buffer_recv[this->length_recv-1]
           );
-        buffer_to_str(strbuffer+strlen(strbuffer), sizeof(strbuffer), (char*)(this->buffer_recv), this->length_recv-2);
+        const size_t len = strlen(strbuffer);
+        buffer_to_str(strbuffer+len, sizeof(strbuffer)-len, (char*)(this->buffer_recv), this->length_recv-2);
         MDEBUG( "RESP :" << strbuffer);
 
       }
@@ -279,7 +295,7 @@ namespace hw {
      
     unsigned int device_ledger::exchange(unsigned int ok, unsigned int mask) {
       LONG rv;
-      int sw;
+      unsigned int sw;
 
       ASSERT_T0(this->length_send <= BUFFER_SEND_SIZE);
       logCMD();
@@ -288,6 +304,7 @@ namespace hw {
                          SCARD_PCI_T0, this->buffer_send, this->length_send,
                          NULL,         this->buffer_recv, &this->length_recv);
       ASSERT_RV(rv);
+      ASSERT_T0(this->length_recv >= 2);
       ASSERT_T0(this->length_recv <= BUFFER_RECV_SIZE);
       logRESP();
 
@@ -391,7 +408,7 @@ namespace hw {
         }
       }
 
-      if (mszReaders) {
+      if (rv == SCARD_S_SUCCESS && mszReaders) {
         #ifdef SCARD_AUTOALLOCATE
         SCardFreeMemory(this->hContext, mszReaders);
         #else
@@ -1092,6 +1109,24 @@ namespace hw {
       #endif
 
       return r;
+    }
+
+    bool device_ledger::conceal_derivation(crypto::key_derivation &derivation, const crypto::public_key &tx_pub_key, const std::vector<crypto::public_key> &additional_tx_pub_keys, const crypto::key_derivation &main_derivation, const std::vector<crypto::key_derivation> &additional_derivations) {
+      const crypto::public_key *pkey=NULL;
+      if (derivation == main_derivation) {
+        pkey = &tx_pub_key;
+        MDEBUG("conceal derivation with main tx pub key");
+      } else {
+        for(size_t n=0; n < additional_derivations.size();++n) {
+          if(derivation == additional_derivations[n]) {
+            pkey = &additional_tx_pub_keys[n];
+            MDEBUG("conceal derivation with additionnal tx pub key");
+            break;
+          }
+        }
+      }
+      ASSERT_X(pkey, "Mismatched derivation on scan info");
+      return this->generate_key_derivation(*pkey,  crypto::null_skey, derivation);
     }
 
     bool device_ledger::derivation_to_scalar(const crypto::key_derivation &derivation, const size_t output_index, crypto::ec_scalar &res) {

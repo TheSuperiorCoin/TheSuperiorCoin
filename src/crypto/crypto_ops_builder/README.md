@@ -1,6 +1,6 @@
 # Superior
 
-Copyright (c) 2014-2017, The Superior Project
+Copyright (c) 2014-2018, The SuperiorCoin Project
 
 ## Crypto Ops Builder
 
@@ -18,4 +18,4 @@ The operation to produce the ```crypto-ops.c``` is automatic and part of the bui
 
 ## Attribution
 
-The majority of the work we are using is from SUPERCOP, and copyrights and attribution fall to those developers and cryptographers. Beyond that we also include some of the original CryptoNote reference code. The entire build process, and all of the work analysing the functions and figuring out what comes from where, has been done by the Monero Research Lab. Shen Noether, in particular, deserves the bulk of the attribution for that.
+The majority of the work we are using is from SUPERCOP, and copyrights and attribution fall to those developers and cryptographers. Beyond that we also include some of the original CryptoNote reference code. The entire build process, and all of the work analysing the functions and figuring out what comes from where, has been done by the Superior Research Lab. Shen Noether, in particular, deserves the bulk of the attribution for that.

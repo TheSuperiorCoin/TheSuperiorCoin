@@ -14,7 +14,6 @@ ENDIF (PCSC_INCLUDE_DIR AND PCSC_LIBRARIES)
 IF (NOT WIN32)
   FIND_PACKAGE(PkgConfig)
   PKG_CHECK_MODULES(PC_PCSC libpcsclite)
-ENDIF (NOT WIN32)
 
 FIND_PATH(PCSC_INCLUDE_DIR winscard.h
   HINTS
@@ -24,13 +23,23 @@ FIND_PATH(PCSC_INCLUDE_DIR winscard.h
   PATH_SUFFIXES PCSC
   )
 
-FIND_LIBRARY(PCSC_LIBRARY NAMES pcsclite libpcsclite WinSCard PCSC
+  FIND_LIBRARY(PCSC_LIBRARY NAMES pcsclite libpcsclite PCSC
   HINTS
   ${PC_PCSC_LIBDIR}
   ${PC_PCSC_LIBRARY_DIRS}
   )
 
-# handle the QUIETLY and REQUIRED arguments and set PCSC_FOUND to TRUE if 
+ELSE (NOT WIN32)
+  IF(BUILD_64 STREQUAL "ON")
+    set(PCSC_INCLUDE_DIR /mingw64/x86_64-w64-mingw32/include)
+    set(PCSC_LIBRARY /mingw64/x86_64-w64-mingw32/lib/libwinscard.a)
+  ELSE(BUILD_64 STREQUAL "ON")
+    set(PCSC_INCLUDE_DIR /mingw32/i686-w64-mingw32/include)
+    set(PCSC_LIBRARY /mingw32/i686-w64-mingw32/lib/libwinscard.a)
+  ENDIF(BUILD_64 STREQUAL "ON")
+ENDIF (NOT WIN32)
+
+# handle the QUIETLY and REQUIRED arguments and set PCSC_FOUND to TRUE if
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(PCSC DEFAULT_MSG PCSC_LIBRARY PCSC_INCLUDE_DIR)

@@ -1,10 +1,9 @@
 /**
 @file
 @author from CrypoNote (see copyright below; Andrey N. Sabelnikov)
-@Superior rfree
+@monero rfree
 @brief the connection templated-class for one peer connection
 */
-// Copyright (c) 2014-2018, TheSuperioriorCoin Project
 // Copyright (c) 2006-2013, Andrey N. Sabelnikov, www.sabelnikov.net
 // All rights reserved.
 // 
@@ -29,8 +28,6 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 //
 
 
@@ -122,6 +119,7 @@ namespace net_utils
     //----------------- i_service_endpoint ---------------------
     virtual bool do_send(const void* ptr, size_t cb); ///< (see do_send from i_service_endpoint)
     virtual bool do_send_chunk(const void* ptr, size_t cb); ///< will send (or queue) a part of data
+    virtual bool send_done();
     virtual bool close();
     virtual bool call_run_once_service_io();
     virtual bool request_callback();
@@ -137,6 +135,14 @@ namespace net_utils
 
     /// Handle completion of a write operation.
     void handle_write(const boost::system::error_code& e, size_t cb);
+
+    /// reset connection timeout timer and callback
+    void reset_timer(boost::posix_time::milliseconds ms, bool add);
+    boost::posix_time::milliseconds get_default_timeout();
+    boost::posix_time::milliseconds get_timeout_from_bytes_read(size_t bytes);
+
+    /// host connection count tracking
+    unsigned int host_count(const std::string &host, int delta = 0);
 
     /// Buffer for incoming data.
     boost::array<char, 8192> buffer_;
@@ -160,6 +166,11 @@ namespace net_utils
     network_throttle m_throttle_speed_out;
     boost::mutex m_throttle_speed_in_mutex;
     boost::mutex m_throttle_speed_out_mutex;
+
+    boost::asio::deadline_timer m_timer;
+    bool m_local;
+    bool m_ready_to_close;
+    std::string m_host;
 
 	public:
 			void setRpcStation();
