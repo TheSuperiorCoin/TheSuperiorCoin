@@ -1189,7 +1189,7 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
   }
   //TODO: this check if blocks where mined with future timestamps
   uint64_t current_time = static_cast<uint64_t>(time(NULL));
-  if(b.timestamp > current_time){
+  if(b.timestamp > current_time + 30){
     MERROR_VER("Block Timestamp is greater than current time " << b.timestamp << " < Block Timestamp " << current_time << " < Current Time");
     return false;
   }
@@ -1242,6 +1242,12 @@ uint64_t Blockchain::get_current_cumulative_blocksize_median() const
 // necessary at all.
 bool Blockchain::create_block_template(block& b, const account_public_address& miner_address, difficulty_type& diffic, uint64_t& height, uint64_t& expected_reward, const blobdata& ex_nonce)
 {
+  uint64_t index = height - 1;
+      uint64_t l_timestamp = 0;
+      if(b.major_version > 6){
+     l_timestamp = m_db->get_block_timestamp(index);
+  }
+
   LOG_PRINT_L3("Blockchain::" << __func__);
   size_t median_size;
   uint64_t already_generated_coins;
@@ -1252,7 +1258,12 @@ bool Blockchain::create_block_template(block& b, const account_public_address& m
   b.major_version = m_hardfork->get_current_version();
   b.minor_version = m_hardfork->get_ideal_version();
   b.prev_id = get_tail_id();
-  b.timestamp = time(NULL);
+  if(l_timestamp > current_time){
+    b.timestamp = l_timestamp;
+  }else{
+    b.timestamp = time(NULL);
+  }
+
 
   diffic = get_difficulty_for_next_block();
   CHECK_AND_ASSERT_MES(diffic, false, "difficulty overhead.");
@@ -1261,11 +1272,7 @@ bool Blockchain::create_block_template(block& b, const account_public_address& m
   already_generated_coins = m_db->get_block_already_generated_coins(height - 1);
 
   CRITICAL_REGION_END();
-    uint64_t index = height - 1;
-    uint64_t l_timestamp = 0;
-    if(b.major_version > 6){
-   l_timestamp = m_db->get_block_timestamp(index);
- }
+
 
   size_t txs_size;
   uint64_t fee;
