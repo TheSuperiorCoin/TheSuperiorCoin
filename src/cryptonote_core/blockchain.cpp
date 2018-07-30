@@ -1258,7 +1258,7 @@ bool Blockchain::create_block_template(block& b, const account_public_address& m
   b.major_version = m_hardfork->get_current_version();
   b.minor_version = m_hardfork->get_ideal_version();
   b.prev_id = get_tail_id();
-  if(l_timestamp > current_time){
+  if(l_timestamp > time(NULL)){
     b.timestamp = l_timestamp;
   }else{
     b.timestamp = time(NULL);
