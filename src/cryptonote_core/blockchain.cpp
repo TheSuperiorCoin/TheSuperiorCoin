@@ -1264,8 +1264,10 @@ bool Blockchain::create_block_template(block& b, const account_public_address& m
   }else{
     b.timestamp = time(NULL);
   }
-
-
+    index = height - 1;
+    if(b.major_version > 6){
+         l_timestamp = m_db->get_block_timestamp(index);
+      }
   diffic = get_difficulty_for_next_block();
   CHECK_AND_ASSERT_MES(diffic, false, "difficulty overhead.");
 
