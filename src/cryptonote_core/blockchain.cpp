@@ -1242,7 +1242,7 @@ uint64_t Blockchain::get_current_cumulative_blocksize_median() const
 // necessary at all.
 bool Blockchain::create_block_template(block& b, const account_public_address& miner_address, difficulty_type& diffic, uint64_t& height, uint64_t& expected_reward, const blobdata& ex_nonce)
 {
-  uint64_t index = height - 1;
+  uint64_t index = height;
       uint64_t l_timestamp = 0;
       if(b.major_version > 6){
      l_timestamp = m_db->get_block_timestamp(index);
