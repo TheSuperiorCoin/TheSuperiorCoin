@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, TheSuperiorCoin Project
+# Copyright (c) 2014-2018, The SuperiorCoin Project
 #
 # All rights reserved.
 #
@@ -51,7 +51,6 @@ target_link_libraries(simplewallet
     cncrypto
     common
     mnemonics
-    epee
     ${EPEE_READLINE}
     version
     ${Boost_CHRONO_LIBRARY}

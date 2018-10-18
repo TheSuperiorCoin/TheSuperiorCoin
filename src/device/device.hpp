@@ -52,7 +52,7 @@
 #define USE_DEVICE_LEDGER 1
 #endif
 
-#if !defined(HAVE_PCSC) 
+#if !defined(HAVE_HIDAPI)
 #undef  USE_DEVICE_LEDGER
 #define USE_DEVICE_LEDGER 0
 #endif
@@ -96,6 +96,12 @@ namespace hw {
             TRANSACTION_CREATE_FAKE,
             TRANSACTION_PARSE
         };
+        enum device_type
+        {
+          SOFTWARE = 0,
+          LEDGER = 1
+        };
+
 
         /* ======================================================================= */
         /*                              SETUP/TEARDOWN                             */
@@ -111,6 +117,8 @@ namespace hw {
 
         virtual bool  set_mode(device_mode mode) = 0;
 
+        virtual device_type get_type() const = 0;
+
 
         /* ======================================================================= */
         /*  LOCKER                                                                 */
@@ -125,7 +133,7 @@ namespace hw {
         /* ======================================================================= */
         virtual bool  get_public_address(cryptonote::account_public_address &pubkey) = 0;
         virtual bool  get_secret_keys(crypto::secret_key &viewkey , crypto::secret_key &spendkey)  = 0;
-        virtual bool  generate_chacha_key(const cryptonote::account_keys &keys, crypto::chacha_key &key) = 0;
+        virtual bool  generate_chacha_key(const cryptonote::account_keys &keys, crypto::chacha_key &key, uint64_t kdf_rounds) = 0;
 
         /* ======================================================================= */
         /*                               SUB ADDRESS                               */
@@ -202,6 +210,17 @@ namespace hw {
         ~reset_mode() { hwref.set_mode(hw::device::NONE);}
     };
 
-    device& get_device(const std::string device_descriptor) ;
+    class device_registry {
+    private:
+      std::map<std::string, std::unique_ptr<device>> registry;
+
+    public:
+      device_registry();
+      bool register_device(const std::string & device_name, device * hw_device);
+      device& get_device(const std::string & device_descriptor);
+    };
+
+    device& get_device(const std::string & device_descriptor);
+    bool register_device(const std::string & device_name, device * hw_device);
 }
 

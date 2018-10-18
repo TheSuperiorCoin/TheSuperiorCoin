@@ -30,6 +30,8 @@
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include "gtest/gtest.h"
+#include "wipeable_string.h"
+#include "mnemonics/language_base.h"
 #include "mnemonics/electrum-words.h"
 #include "crypto/crypto.h"
 #include <stdlib.h>
@@ -77,14 +79,16 @@ namespace
   void test_language(const Language::Base &language)
   {
     const std::vector<std::string> &word_list = language.get_word_list();
-    std::string seed = "", return_seed = "";
+    epee::wipeable_string w_seed = "", w_return_seed = "";
+    std::string seed, return_seed;
     // Generate a random seed without checksum
     crypto::secret_key randkey;
     for (size_t ii = 0; ii < sizeof(randkey); ++ii)
     {
       randkey.data[ii] = rand();
     }
-    crypto::ElectrumWords::bytes_to_words(randkey, seed, language.get_language_name());
+    crypto::ElectrumWords::bytes_to_words(randkey, w_seed, language.get_language_name());
+    seed = std::string(w_seed.data(), w_seed.size());
     // remove the checksum word
     const char *space = strrchr(seed.c_str(), ' ');
     ASSERT_TRUE(space != NULL);
@@ -106,7 +110,8 @@ namespace
     ASSERT_STREQ(language.get_language_name().c_str(), language_name.c_str());
 
     // Convert the secret key back to seed
-    crypto::ElectrumWords::bytes_to_words(key, return_seed, language.get_language_name());
+    crypto::ElectrumWords::bytes_to_words(key, w_return_seed, language.get_language_name());
+    return_seed = std::string(w_return_seed.data(), w_return_seed.size());
     ASSERT_EQ(true, res);
     std::cout << "Returned seed:\n";
     std::cout << return_seed << std::endl;
@@ -129,8 +134,9 @@ namespace
     std::cout << "Detected language: " << language_name << std::endl;
     ASSERT_STREQ(language.get_language_name().c_str(), language_name.c_str());
 
-    return_seed = "";
-    crypto::ElectrumWords::bytes_to_words(key, return_seed, language.get_language_name());
+    w_return_seed = "";
+    crypto::ElectrumWords::bytes_to_words(key, w_return_seed, language.get_language_name());
+    return_seed = std::string(w_return_seed.data(), w_return_seed.size());
     ASSERT_EQ(true, res);
     std::cout << "Returned seed:\n";
     std::cout << return_seed << std::endl;
@@ -204,4 +210,18 @@ TEST(mnemonics, language_detection_with_bad_checksum)
     res = crypto::ElectrumWords::words_to_bytes(base_seed + " " + real_checksum, key, language_name);
     ASSERT_EQ(true, res);
     ASSERT_STREQ(language_name.c_str(), "Português");
+}
+
+TEST(mnemonics, utf8prefix)
+{
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("foo"), 0) == "");
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("foo"), 1) == "f");
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("foo"), 2) == "fo");
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("foo"), 3) == "foo");
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("foo"), 4) == "foo");
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("æon"), 0) == "");
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("æon"), 1) == "æ");
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("æon"), 2) == "æo");
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("æon"), 3) == "æon");
+  ASSERT_TRUE(Language::utf8prefix(epee::wipeable_string("æon"), 4) == "æon");
 }

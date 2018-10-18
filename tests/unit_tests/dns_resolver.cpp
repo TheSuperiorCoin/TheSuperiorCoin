@@ -143,22 +143,22 @@ TEST(DNSResolver, GetTXTRecord)
 {
   bool avail, valid;
 
-  std::vector<std::string> records = tools::DNSResolver::instance().get_txt_record("donate.superior-coin.com", avail, valid);
+  std::vector<std::string> records = tools::DNSResolver::instance().get_txt_record("donate.getsuperior.org", avail, valid);
 
   EXPECT_NE(0, records.size());
 
   for (auto& rec : records)
   {
-    std::cout << "TXT record for donate.superior-coin.com: " << rec << std::endl;
+    std::cout << "TXT record for donate.getsuperior.org: " << rec << std::endl;
   }
 
   // replace first @ with .
-  std::string addr = tools::DNSResolver::instance().get_dns_format_from_oa_address("donate.superior-coin.com");
-  EXPECT_STREQ("donate.superior-coin.com", addr.c_str());
+  std::string addr = tools::DNSResolver::instance().get_dns_format_from_oa_address("donate@getsuperior.org");
+  EXPECT_STREQ("donate.getsuperior.org", addr.c_str());
 
   // no change
-  addr = tools::DNSResolver::instance().get_dns_format_from_oa_address("donate.superior-coin.com");
-  EXPECT_STREQ("donate.superior-coin.com", addr.c_str());
+  addr = tools::DNSResolver::instance().get_dns_format_from_oa_address("donate.getsuperior.org");
+  EXPECT_STREQ("donate.getsuperior.org", addr.c_str());
 }
 
 bool is_equal(const char *s, const std::vector<std::string> &v) { return v.size() == 1 && v[0] == s; }

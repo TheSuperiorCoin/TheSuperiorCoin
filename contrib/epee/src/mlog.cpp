@@ -97,7 +97,7 @@ static const char *get_default_categories(int level)
   switch (level)
   {
     case 0:
-      categories = "*:WARNING,net:FATAL,net.p2p:FATAL,net.cn:FATAL,global:INFO,verify:FATAL,stacktrace:INFO,logging:INFO,msgwriter:INFO";
+      categories = "*:WARNING,net:FATAL,net.http:FATAL,net.p2p:FATAL,net.cn:FATAL,global:INFO,verify:FATAL,stacktrace:INFO,logging:INFO,msgwriter:INFO";
       break;
     case 1:
       categories = "*:INFO,global:INFO,stacktrace:INFO,logging:INFO,msgwriter:INFO";
@@ -117,7 +117,7 @@ static const char *get_default_categories(int level)
   return categories;
 }
 
-void mlog_configure(const std::string &filename_base, bool console, const std::size_t max_log_file_size)
+void mlog_configure(const std::string &filename_base, bool console, const std::size_t max_log_file_size, const std::size_t max_log_files)
 {
   el::Configurations c;
   c.setGlobally(el::ConfigurationType::Filename, filename_base);
@@ -135,9 +135,65 @@ void mlog_configure(const std::string &filename_base, bool console, const std::s
   el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
   el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
   el::Loggers::addFlag(el::LoggingFlag::StrictLogFileSizeCheck);
-  el::Helpers::installPreRollOutCallback([filename_base](const char *name, size_t){
+  el::Helpers::installPreRollOutCallback([filename_base, max_log_files](const char *name, size_t){
     std::string rname = generate_log_filename(filename_base.c_str());
-    rename(name, rname.c_str());
+    int ret = rename(name, rname.c_str());
+    if (ret < 0)
+    {
+      // can't log a failure, but don't do the file removal below
+      return;
+    }
+    if (max_log_files != 0)
+    {
+      std::vector<boost::filesystem::path> found_files;
+      const boost::filesystem::directory_iterator end_itr;
+      const boost::filesystem::path filename_base_path(filename_base);
+      const boost::filesystem::path parent_path = filename_base_path.has_parent_path() ? filename_base_path.parent_path() : ".";
+      for (boost::filesystem::directory_iterator iter(parent_path); iter != end_itr; ++iter)
+      {
+        const std::string filename = iter->path().string();
+        if (filename.size() >= filename_base.size() && std::memcmp(filename.data(), filename_base.data(), filename_base.size()) == 0)
+        {
+          found_files.push_back(iter->path());
+        }
+      }
+      if (found_files.size() >= max_log_files)
+      {
+        std::sort(found_files.begin(), found_files.end(), [](const boost::filesystem::path &a, const boost::filesystem::path &b) {
+          boost::system::error_code ec;
+          std::time_t ta = boost::filesystem::last_write_time(boost::filesystem::path(a), ec);
+          if (ec)
+          {
+            MERROR("Failed to get timestamp from " << a << ": " << ec);
+            ta = std::time(nullptr);
+          }
+          std::time_t tb = boost::filesystem::last_write_time(boost::filesystem::path(b), ec);
+          if (ec)
+          {
+            MERROR("Failed to get timestamp from " << b << ": " << ec);
+            tb = std::time(nullptr);
+          }
+          static_assert(std::is_integral<time_t>(), "bad time_t");
+          return ta < tb;
+        });
+        for (size_t i = 0; i <= found_files.size() - max_log_files; ++i)
+        {
+          try
+          {
+            boost::system::error_code ec;
+            boost::filesystem::remove(found_files[i], ec);
+            if (ec)
+            {
+              MERROR("Failed to remove " << found_files[i] << ": " << ec);
+            }
+          }
+          catch (const std::exception &e)
+          {
+            MERROR("Failed to remove " << found_files[i] << ": " << e.what());
+          }
+        }
+      }
+    }
   });
   mlog_set_common_prefix();
   const char *superior_log = getenv("SUPERIOR_LOGS");

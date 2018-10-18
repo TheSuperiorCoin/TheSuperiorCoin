@@ -19,6 +19,10 @@
 
 ## Build
 
+### IMPORTANT 
+
+These builds are of the master branch, which is used for active development and can be either unstable or incompatible with release software. Please compile release branches.
+
 | Operating System      | Processor | Status |
 | --------------------- | -------- |--------|
 | Ubuntu 16.04          |  i686    | [![Ubuntu 16.04 i686](https://build.getmonero.org/png?builder=Monero-static-ubuntu-i686)](https://build.getmonero.org/builders/Monero-static-ubuntu-i686)

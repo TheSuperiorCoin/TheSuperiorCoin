@@ -29,6 +29,10 @@
 #
 # Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
+if(WIN32)
+  set(EXTRA_LIBRARIES "${EXTRA_LIBRARIES};bcrypt")
+endif()
+
 set(functional_tests_sources
   main.cpp
   transactions_flow_test.cpp

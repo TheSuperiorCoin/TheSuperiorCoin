@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018, TheSuperiorCoin Project
+// Copyright (c) 2017-2018, The SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -64,6 +64,7 @@ int SignatureFuzzer::init()
       std::cerr << "failed to parse address" << std::endl;
       return 1;
     }
+    address = info.address;
   }
   catch (const std::exception &e)
   {

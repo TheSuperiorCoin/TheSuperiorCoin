@@ -30,7 +30,9 @@
 #
 # Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
+if (NOT CMAKE_HOST_WIN32)
 set (CMAKE_SYSTEM_NAME Windows)
+endif()
 
 set (GCC_PREFIX x86_64-w64-mingw32)
 set (CMAKE_C_COMPILER ${GCC_PREFIX}-gcc)

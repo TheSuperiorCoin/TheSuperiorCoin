@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Superior Project
+// Copyright (c) 2014-2018, The SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -322,7 +322,7 @@ TYPED_TEST(BlockchainDBTest, RetrieveBlockData)
 
   ASSERT_NO_THROW(this->m_db->add_block(this->m_blocks[0], t_sizes[0], t_diffs[0], t_coins[0], this->m_txs[0]));
 
-  ASSERT_EQ(t_sizes[0], this->m_db->get_block_size(0));
+  ASSERT_EQ(t_sizes[0], this->m_db->get_block_weight(0));
   ASSERT_EQ(t_diffs[0], this->m_db->get_block_cumulative_difficulty(0));
   ASSERT_EQ(t_diffs[0], this->m_db->get_block_difficulty(0));
   ASSERT_EQ(t_coins[0], this->m_db->get_block_already_generated_coins(0));

@@ -21,7 +21,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// Code surrounding the word list is Copyright (c) 2014-2018, The Superior Project
+// Code surrounding the word list is Copyright (c) 2014-2018, The SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -48,7 +48,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Code surrounding the word list is Copyright (c) 2014-2017, The Monero Project
+
 /*!
  * \file portuguese.h
  * 
@@ -72,7 +72,10 @@ namespace Language
   class Portuguese: public Base
   {
   public:
-    Portuguese(): Base("Português", "Portuguese", std::vector<std::string>({
+    Portuguese(): Base("Português", "Portuguese", {}, 4)
+    {
+      static constexpr const char * const words[NWORDS] =
+      {
         "abaular",
         "abdominal",
         "abeto",
@@ -1699,8 +1702,8 @@ namespace Language
         "zeloso",
         "zenite",
         "zumbi"
-      }), 4)
-    {
+      };
+      set_words(words);
       populate_maps();
     }
   };

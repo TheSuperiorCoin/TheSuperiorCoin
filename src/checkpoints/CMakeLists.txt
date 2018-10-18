@@ -30,9 +30,13 @@
 ##
 
 if(APPLE)
+  if(DEPENDS)
+    list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework ApplicationServices -framework AppKit -framework IOKit")
+  else()
   find_library(IOKIT_LIBRARY IOKit)
   mark_as_advanced(IOKIT_LIBRARY)
   list(APPEND EXTRA_LIBRARIES ${IOKIT_LIBRARY})
+endif()
 endif()
 
 set(checkpoints_sources
