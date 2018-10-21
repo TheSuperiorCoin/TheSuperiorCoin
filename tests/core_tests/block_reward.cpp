@@ -242,12 +242,12 @@ bool gen_block_reward::mark_checked_block(cryptonote::core& /*c*/, size_t ev_ind
   return true;
 }
 
-bool gen_block_reward::check_block_rewards(cryptonote::core& /*c*/, size_t /*ev_index*/, const std::vector<test_event_entry>& events)
+bool gen_block_reward::check_block_rewards(cryptonote::core& c, size_t /*ev_index*/, const std::vector<test_event_entry>& events)
 {
   DEFINE_TESTS_ERROR_CONTEXT("gen_block_reward_without_txs::check_block_rewards");
 
   int EMISSION_SPEED_FACTOR_PER_MINUTE_ = 0;
-  if(get_current_blockchain_height() < 2) {
+  if(c.get_current_blockchain_height() < 2) {
     EMISSION_SPEED_FACTOR_PER_MINUTE_ = (int)EMISSION_SPEED_FACTOR_PER_MINUTE_v1;
   }
   else {
