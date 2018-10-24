@@ -239,4 +239,6 @@ namespace tools
 #ifdef _WIN32
   std::string input_line_win();
 #endif
+
+  void closefrom(int fd);
 }

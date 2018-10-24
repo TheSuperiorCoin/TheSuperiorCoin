@@ -1641,7 +1641,7 @@ bool simple_wallet::blackball(const std::vector<std::string> &args)
   uint64_t amount = std::numeric_limits<uint64_t>::max(), offset, num_offsets;
   if (args.size() == 0)
   {
-    fail_msg_writer() << tr("usage: blackball <amount>/<offset> | <filename> [add]");
+    fail_msg_writer() << tr("usage: mark_output_spent <amount>/<offset> | <filename> [add]");
     return true;
   }
 
@@ -1719,7 +1719,7 @@ bool simple_wallet::blackball(const std::vector<std::string> &args)
   }
   catch (const std::exception &e)
   {
-    fail_msg_writer() << tr("Failed to blackball output: ") << e.what();
+    fail_msg_writer() << tr("Failed to mark output spent: ") << e.what();
   }
 
   return true;
@@ -1730,7 +1730,7 @@ bool simple_wallet::unblackball(const std::vector<std::string> &args)
   std::pair<uint64_t, uint64_t> output;
   if (args.size() != 1)
   {
-    fail_msg_writer() << tr("usage: unblackball <amount>/<offset>");
+    fail_msg_writer() << tr("usage: mark_output_unspent <amount>/<offset>");
     return true;
   }
 
@@ -1746,7 +1746,7 @@ bool simple_wallet::unblackball(const std::vector<std::string> &args)
   }
   catch (const std::exception &e)
   {
-    fail_msg_writer() << tr("Failed to unblackball output: ") << e.what();
+    fail_msg_writer() << tr("Failed to mark output unspent: ") << e.what();
   }
 
   return true;
@@ -1757,7 +1757,7 @@ bool simple_wallet::blackballed(const std::vector<std::string> &args)
   std::pair<uint64_t, uint64_t> output;
   if (args.size() != 1)
   {
-    fail_msg_writer() << tr("usage: blackballed <amount>/<offset>");
+    fail_msg_writer() << tr("usage: is_output_spent <amount>/<offset>");
     return true;
   }
 
@@ -1770,13 +1770,13 @@ bool simple_wallet::blackballed(const std::vector<std::string> &args)
   try
   {
     if (m_wallet->is_output_blackballed(output))
-      message_writer() << tr("Blackballed: ") << output.first << "/" << output.second;
+      message_writer() << tr("Spent: ") << output.first << "/" << output.second;
     else
-      message_writer() << tr("not blackballed: ") << output.first << "/" << output.second;
+      message_writer() << tr("Not spent: ") << output.first << "/" << output.second;
   }
   catch (const std::exception &e)
   {
-    fail_msg_writer() << tr("Failed to unblackball output: ") << e.what();
+    fail_msg_writer() << tr("Failed to check whether output is spent: ") << e.what();
   }
 
   return true;
@@ -2038,7 +2038,7 @@ bool simple_wallet::set_unit(const std::vector<std::string> &args/* = std::vecto
   if (unit == "superior")
     decimal_point = CRYPTONOTE_DISPLAY_DECIMAL_POINT;
   else if (unit == "millisup")
-    decimal_point = CRYPTONOTE_DISPLAY_DECIMAL_POINT - 2;
+    decimal_point = CRYPTONOTE_DISPLAY_DECIMAL_POINT - 3;
   else if (unit == "microsup")
     decimal_point = CRYPTONOTE_DISPLAY_DECIMAL_POINT - 4;
   else if (unit == "nanosup")
@@ -2600,18 +2600,18 @@ simple_wallet::simple_wallet()
                            boost::bind(&simple_wallet::save_known_rings, this, _1),
                            tr("save_known_rings"),
                            tr("Save known rings to the shared rings database"));
-  m_cmd_binder.set_handler("blackball",
+  m_cmd_binder.set_handler("mark_output_spent",
                            boost::bind(&simple_wallet::blackball, this, _1),
-                           tr("blackball <amount>/<offset> | <filename> [add]"),
-                           tr("Blackball output(s) so they never get selected as fake outputs in a ring"));
-  m_cmd_binder.set_handler("unblackball",
+                           tr("mark_output_spent <amount>/<offset> | <filename> [add]"),
+                           tr("Mark output(s) as spent so they never get selected as fake outputs in a ring"));
+  m_cmd_binder.set_handler("mark_output_unspent",
                            boost::bind(&simple_wallet::unblackball, this, _1),
-                           tr("unblackball <amount>/<offset>"),
-                           tr("Unblackballs an output so it may get selected as a fake output in a ring"));
-  m_cmd_binder.set_handler("blackballed",
+                           tr("mark_output_unspent <amount>/<offset>"),
+                           tr("Marks an output as unspent so it may get selected as a fake output in a ring"));
+  m_cmd_binder.set_handler("is_output_spent",
                            boost::bind(&simple_wallet::blackballed, this, _1),
-                           tr("blackballed <amount>/<offset>"),
-                           tr("Checks whether an output is blackballed"));
+                           tr("is_output_spent <amount>/<offset>"),
+                           tr("Checks whether an output is marked as spent"));
   m_cmd_binder.set_handler("version",
                            boost::bind(&simple_wallet::version, this, _1),
                            tr("version"),
@@ -2707,7 +2707,7 @@ bool simple_wallet::set_variable(const std::vector<std::string> &args)
     CHECK_SIMPLE_VARIABLE("priority", set_default_priority, tr("0, 1, 2, 3, or 4, or one of ") << join_priority_strings(", "));
     CHECK_SIMPLE_VARIABLE("confirm-missing-payment-id", set_confirm_missing_payment_id, tr("0 or 1"));
     CHECK_SIMPLE_VARIABLE("ask-password", set_ask_password, tr("0|1|2 (or never|action|decrypt)"));
-    CHECK_SIMPLE_VARIABLE("unit", set_unit, tr("superior, millinero, micronero, nanonero, piconero"));
+    CHECK_SIMPLE_VARIABLE("unit", set_unit, tr("superior, millisup, microsup, nanosup, picosup"));
     CHECK_SIMPLE_VARIABLE("min-outputs-count", set_min_output_count, tr("unsigned integer"));
     CHECK_SIMPLE_VARIABLE("min-outputs-value", set_min_output_value, tr("amount"));
     CHECK_SIMPLE_VARIABLE("merge-destinations", set_merge_destinations, tr("0 or 1"));

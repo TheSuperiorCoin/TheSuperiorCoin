@@ -121,6 +121,8 @@ using namespace cryptonote;
 
 #define FIRST_REFRESH_GRANULARITY     1024
 
+#define GAMMA_PICK_HALF_WINDOW 5
+
 static const std::string MULTISIG_SIGNATURE_MAGIC = "SigMultisigPkV1";
 static const std::string MULTISIG_EXTRA_INFO_MAGIC = "MultisigxV1";
 
@@ -6793,10 +6795,29 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>> 
           error::get_output_distribution, "Decreasing offsets in rct distribution: " +
           std::to_string(block_offset) + ": " + std::to_string(rct_offsets[block_offset]) + ", " +
           std::to_string(block_offset + 1) + ": " + std::to_string(rct_offsets[block_offset + 1]));
-      uint64_t n_rct = rct_offsets[block_offset + 1] - rct_offsets[block_offset];
+      uint64_t first_block_offset = block_offset, last_block_offset = block_offset;
+      for (size_t half_window = 0; half_window < GAMMA_PICK_HALF_WINDOW; ++half_window)
+      {
+        // end when we have a non empty block
+        uint64_t cum0 = first_block_offset > 0 ? rct_offsets[first_block_offset] - rct_offsets[first_block_offset - 1] : rct_offsets[0];
+        if (cum0 > 1)
+          break;
+        uint64_t cum1 = last_block_offset > 0 ? rct_offsets[last_block_offset] - rct_offsets[last_block_offset - 1] : rct_offsets[0];
+        if (cum1 > 1)
+          break;
+        if (first_block_offset == 0 && last_block_offset >= rct_offsets.size() - 2)
+          break;
+        // expand up to bounds
+        if (first_block_offset > 0)
+          --first_block_offset;
+        if (last_block_offset < rct_offsets.size() - 1)
+          ++last_block_offset;
+      }
+      const uint64_t n_rct = rct_offsets[last_block_offset] - (first_block_offset == 0 ? 0 : rct_offsets[first_block_offset - 1]);
       if (n_rct == 0)
         return rct_offsets[block_offset] ? rct_offsets[block_offset] - 1 : 0;
-      return rct_offsets[block_offset] + crypto::rand<uint64_t>() % n_rct;
+      MDEBUG("Picking 1/" << n_rct << " in " << (last_block_offset - first_block_offset + 1) << " blocks centered around " << block_offset);
+      return rct_offsets[first_block_offset] + crypto::rand<uint64_t>() % n_rct;
     };
 
     size_t num_selected_transfers = 0;
@@ -6980,7 +7001,7 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>> 
             // outputs, we still need to reach the minimum ring size)
             if (allow_blackballed)
               break;
-            MINFO("Not enough non blackballed outputs, we'll allow blackballed ones");
+            MINFO("Not enough output not marked as spent, we'll allow outputs marked as spent");
             allow_blackballed = true;
             num_usable_outs = num_outs;
           }
@@ -10168,18 +10189,18 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
 uint64_t wallet2::get_approximate_blockchain_height() const
 {
   // time of v2 fork
-  const time_t fork_time = m_nettype == TESTNET ? 1448285909 : m_nettype == STAGENET ? 1520937818 : 1458748658;
-  // v2 fork block
-  const uint64_t fork_block = m_nettype == TESTNET ? 624634 : m_nettype == STAGENET ? 32000 : 1009827;
-  // avg seconds per block
-  const int seconds_per_block = DIFFICULTY_TARGET_V2;
-  // Calculated blockchain height
-  uint64_t approx_blockchain_height = fork_block + (time(NULL) - fork_time)/seconds_per_block;
-  // testnet got some huge rollbacks, so the estimation is way off
-  static const uint64_t approximate_testnet_rolled_back_blocks = 303967;
-  if (m_nettype == TESTNET && approx_blockchain_height > approximate_testnet_rolled_back_blocks)
-    approx_blockchain_height -= approximate_testnet_rolled_back_blocks;
-  LOG_PRINT_L2("Calculated blockchain height: " << approx_blockchain_height);
+  const time_t fork_time = m_nettype == TESTNET ? 1448285909 : m_nettype == STAGENET ? 1520937818 : 1498902738;
+    // v2 fork block
+    const uint64_t fork_block = m_nettype == TESTNET ? 624634 : m_nettype == STAGENET ? 32000 : 10;
+    // avg seconds per block
+    const int seconds_per_block = DIFFICULTY_TARGET_V2;
+    // Calculated blockchain height
+    uint64_t approx_blockchain_height = 0;
+    // testnet got some huge rollbacks, so the estimation is way off
+    static const uint64_t approximate_testnet_rolled_back_blocks = 148540;
+    if (m_nettype == TESTNET && approx_blockchain_height > approximate_testnet_rolled_back_blocks)
+      approx_blockchain_height -= approximate_testnet_rolled_back_blocks;
+    LOG_PRINT_L2("Calculated blockchain height: " << approx_blockchain_height);
   return approx_blockchain_height;
 }
 
