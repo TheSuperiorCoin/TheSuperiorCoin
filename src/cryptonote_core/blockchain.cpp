@@ -94,22 +94,22 @@ static const struct {
   { 1, 1, 0, 1341378000 },
 
   // version 2 starts from block 3657, Premine.
-  { 2, 10, 0, 1442763710 },
+  { 2, 3657, 0, 1442763710 },
 
   // version 3 starts from block 3700, Premine.
-  { 3, 20, 0, 1458558528 },
+  { 3, 3700, 0, 1458558528 },
 
   // version 4 starts from block 3750, Premine.
-  { 4, 30, 0, 1483574400 },
+  { 4, 3750, 0, 1483574400 },
 
   // version 5 starts from block Skipped
   // { 5, 40, 0, 1505865600 },
 
   // version 6 starts from block 101000 -TESTNET-was done from-31744-33906, which is on or around the 24th of Nov, 2017. Fork time finalised on Undifined 95500+5500=101000.
-  { 6, 40, 0, 1503046577 },
+  { 6, 101000, 0, 1503046577 },
 
   // version 7 starts from block 191850, which is on or around the 10th of April, 2018.
-  { 7, 50, 0, 1522719232 },
+  { 7, 191850, 0, 1522719232 },
 
   // version 8 starts from block 1685555, which is on or around the 18th of October, 2018. Fork time finalised on 2018-09-02.
   { 8, 60, 0, 1535889547 },
