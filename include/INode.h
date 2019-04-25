@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,12 +25,8 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
-//
+// 
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
-#
-# This may contain code Copyright (c) 2014-2017, The Monero Project
-#
 
 #pragma once
 

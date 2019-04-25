@@ -2,7 +2,7 @@
 /// @author rfree (current maintainer in superior.cc project)
 /// @brief interface for throttling of connection (count and rate-limit speed etc)
 
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -29,7 +29,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
 
 /* rfree: throttle basic interface */
 /* rfree: also includes the manager for singeton/global such objects */

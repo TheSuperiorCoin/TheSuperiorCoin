@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -51,6 +51,9 @@ bool isAddressLocal(const std::string &address)
 void onStartup()
 {
     tools::on_startup();
+#ifdef NDEBUG
+    tools::disable_core_dumps();
+#endif
 }
 
 }

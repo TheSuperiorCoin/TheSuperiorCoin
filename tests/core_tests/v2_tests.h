@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -26,10 +26,7 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-//  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-//
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
-
+// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once 
 #include "chaingen.h"
@@ -84,7 +81,7 @@ template<>
 struct get_test_options<gen_v2_tx_validation_base> {
   const std::pair<uint8_t, uint64_t> hard_forks[3] = {std::make_pair(1, 0), std::make_pair(2, 1), std::make_pair(0, 0)};
   const cryptonote::test_options test_options = {
-    hard_forks
+    hard_forks, 0
   };
 };
 

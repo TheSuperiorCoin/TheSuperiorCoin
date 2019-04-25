@@ -22,13 +22,13 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
+// 
 
 
 #ifndef _FILE_IO_UTILS_H_
 #define _FILE_IO_UTILS_H_
 
-#include <iostream>
+#include <fstream>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #ifdef WIN32
@@ -178,7 +178,7 @@ namespace file_io_utils
 	inline
 		bool append_string_to_file(const std::string& path_to_file, const std::string& str)
 	{
-                // No special Windows implementation because so far not used in Monero code
+                // No special Windows implementation because so far not used in Superior code
 		try
 		{
 			std::ofstream fstream;

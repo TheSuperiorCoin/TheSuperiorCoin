@@ -1,8 +1,8 @@
 /// @file
-/// @author rfree ( - most of code is from CryptoNote)
-/// @brief This is the orginal cryptonote protocol network-events handler, modified by us
+/// @author rfree (current maintainer/user in superior.cc project - most of code is from CryptoNote)
+/// @brief This is the original cryptonote protocol network-events handler, modified by us
 
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 

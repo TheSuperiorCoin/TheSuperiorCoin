@@ -6,7 +6,7 @@
 
 */
 
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -143,7 +143,7 @@ public:
 
   bool print_coinbase_tx_sum(uint64_t height, uint64_t count);
 
-  bool alt_chain_info();
+  bool alt_chain_info(const std::string &tip);
 
   bool print_blockchain_dynamic_stats(uint64_t nblocks);
 

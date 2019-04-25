@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,9 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-//
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 // FIXME: move this into a full wallet2 unit test suite, if possible
 
@@ -40,7 +37,7 @@
 
 TEST(AddressFromTXT, Success)
 {
-  std::string addr = "5QaiHzo64sLDo42ky98uXtJ3zswCdpUrk1q5nSidtqovjjiC7FmxRt84Zu3HkpYQX1PLDU72aQMK6Cif4muRxwt3RyZXY6y";
+  std::string addr = "46BeWrHpwXmHDpDEUmZBWZfoQpdc6HaERCNmx1pEYL2rAcuwufPN9rXHHtyUA4QVy66qeFQkn6sfK8aHYjA3jk3o1Bv16em";
 
   std::string txtr = "oa1:sup";
   txtr += " recipient_address=";
@@ -91,7 +88,7 @@ TEST(AddressFromURL, Success)
   
   bool dnssec_result = false;
 
-  std::vector<std::string> addresses = tools::dns_utils::addresses_from_url("donate.superior-coin.com", dnssec_result);
+  std::vector<std::string> addresses = tools::dns_utils::addresses_from_url("donate.getsuperior.org", dnssec_result);
 
   EXPECT_EQ(1, addresses.size());
   if (addresses.size() == 1)
@@ -100,7 +97,7 @@ TEST(AddressFromURL, Success)
   }
 
   // OpenAlias address with an @ instead of first .
-  addresses = tools::dns_utils::addresses_from_url("donate@superior-coin.com", dnssec_result);
+  addresses = tools::dns_utils::addresses_from_url("donate@getsuperior.org", dnssec_result);
   EXPECT_EQ(1, addresses.size());
   if (addresses.size() == 1)
   {
@@ -112,7 +109,7 @@ TEST(AddressFromURL, Failure)
 {
   bool dnssec_result = false;
 
-  std::vector<std::string> addresses = tools::dns_utils::addresses_from_url("example.invalid", dnssec_result);
+  std::vector<std::string> addresses = tools::dns_utils::addresses_from_url("example.veryinvalid", dnssec_result);
 
   // for a non-existing domain such as "example.invalid", the non-existence is proved with NSEC records
   ASSERT_TRUE(dnssec_result);

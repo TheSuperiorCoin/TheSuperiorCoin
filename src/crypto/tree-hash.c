@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -36,7 +36,8 @@
 
 #ifdef _MSC_VER
 #include <malloc.h>
-#elif !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__DragonFly__)
+#elif !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__DragonFly__) \
+  && !defined(__NetBSD__)
  #include <alloca.h>
 #else
  #include <stdlib.h>
@@ -67,14 +68,14 @@ size_t tree_hash_cnt(size_t count) {
 }
 
 void tree_hash(const char (*hashes)[HASH_SIZE], size_t count, char *root_hash) {
-// The blockchain block at height 202612 http://superior-coin.info:8081/block/bbd604d2ba11ba27935e006ed39c9bfdd99b76bf4a50654bc1e1e61217962698
+// The blockchain block at height 202612 https://superiorblocks.info/block/202612
 // contained 514 transactions, that triggered bad calculation of variable "cnt" in the original version of this function
 // as from CryptoNote code.
 //
 // This bug applies to all CN altcoins.
 //
 // Mathematical bug here was first published on 14:45:34 (GMT+2) 2014-09-04 by Rafal Freeman <rfree>
-// https://github.com/rfree2monero/bitmonero/commit/b417abfb7a297d09f1bbb6de29030f8de9952ac8
+// https://github.com/rfree2superior/bitsuperior/commit/b417abfb7a297d09f1bbb6de29030f8de9952ac8
 // and soon also applied to CryptoNote (15:10 GMT+2), and BoolBerry used not fully correct work around:
 // the work around of sizeof(size_t)*8 or <<3 as used before in 2 coins and in BBL later was blocking
 // exploitation on normal platforms, how ever we strongly recommend the following fix because it removes

@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 # 
 # All rights reserved.
 # 
@@ -25,9 +25,6 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-#
-# Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 # We aren't even going to check the system for an installed LMDB driver, as it is too
 # critical a consensus component to rely on dynamically linked libraries
@@ -35,3 +32,6 @@ message(STATUS "Using ${ARCH_WIDTH}-bit LMDB from source tree")
 add_subdirectory(liblmdb)
 set(LMDB_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/liblmdb" CACHE STRING "LMDB Include path")
 set(LMDB_LIBRARY "lmdb" CACHE STRING "LMDB Library name")
+if(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
+	set_property(TARGET lmdb APPEND_STRING PROPERTY COMPILE_FLAGS " -D_SEM_SEMUN_UNDEFINED")
+endif()

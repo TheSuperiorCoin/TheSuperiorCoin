@@ -1,6 +1,6 @@
 # Superior
 
-Copyright (c) 2014-2018, The SuperiorCoin Project
+Copyright (c) 2014-2018, The Superior Project
 
 ## Crypto Ops Builder
 

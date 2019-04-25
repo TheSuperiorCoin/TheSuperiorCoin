@@ -48,7 +48,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Code surrounding the word list is Copyright (c) 2014-2017, The Monero Project
+
 /*!
  * \file spanish.h
  * 
@@ -72,7 +72,10 @@ namespace Language
   class Spanish: public Base
   {
   public:
-    Spanish(): Base("Español", "Spanish", std::vector<std::string>({
+    Spanish(): Base("Español", "Spanish", {}, 4)
+    {
+      static constexpr const char * const words[NWORDS] =
+      {
         "ábaco",
         "abdomen",
         "abeja",
@@ -1699,8 +1702,8 @@ namespace Language
         "risa",
         "ritmo",
         "rito"
-      }), 4)
-    {
+      };
+      set_words(words);
       populate_maps(ALLOW_SHORT_WORDS);
     }
   };

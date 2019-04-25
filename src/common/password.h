@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -27,7 +27,7 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
-// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
+
 #pragma once
 
 #include <string>
@@ -47,9 +47,10 @@ namespace tools
 
     //! `password` is used as password
     password_container(std::string&& password) noexcept;
+    password_container(const epee::wipeable_string& password) noexcept;
 
     //! \return A password from stdin TTY prompt or `std::cin` pipe.
-    static boost::optional<password_container> prompt(bool verify, const char *mesage = "Password");
+    static boost::optional<password_container> prompt(bool verify, const char *mesage = "Password", bool hide_input = true);
     static std::atomic<bool> is_prompting;
 
     password_container(const password_container&) = delete;

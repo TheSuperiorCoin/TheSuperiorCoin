@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 #
 # All rights reserved.
 #
@@ -25,9 +25,6 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# This may contain code Copyright (c) 2014-2017, The Monero Project
-##
 
 add_executable(block_fuzz_tests block.cpp fuzzer.cpp)
 target_link_libraries(block_fuzz_tests
@@ -173,6 +170,21 @@ target_link_libraries(levin_fuzz_tests
     ${CMAKE_THREAD_LIBS_INIT}
     ${EXTRA_LIBRARIES})
 set_property(TARGET levin_fuzz_tests
+  PROPERTY
+    FOLDER "tests")
+
+add_executable(bulletproof_fuzz_tests bulletproof.cpp fuzzer.cpp)
+target_link_libraries(bulletproof_fuzz_tests
+  PRIVATE
+    common
+    epee
+    ${Boost_THREAD_LIBRARY}
+    ${Boost_CHRONO_LIBRARY}
+    ${Boost_REGEX_LIBRARY}
+    ${Boost_PROGRAM_OPTIONS_LIBRARY}
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${EXTRA_LIBRARIES})
+set_property(TARGET bulletproof_fuzz_tests
   PROPERTY
     FOLDER "tests")
 

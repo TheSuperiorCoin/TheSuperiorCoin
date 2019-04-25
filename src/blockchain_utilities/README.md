@@ -1,6 +1,6 @@
 # Superior Blockchain Utilities
 
-Copyright (c) 2014-2018, The SuperiorCoin Project
+Copyright (c) 2014-2018, The Superior Project
 
 ## Introduction
 

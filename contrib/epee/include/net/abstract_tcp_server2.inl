@@ -1,7 +1,7 @@
 /**
 @file
 @author from CrypoNote (see copyright below; Andrey N. Sabelnikov)
-@monero rfree
+@superior rfree
 @brief the connection templated-class for one peer connection
 */
 // Copyright (c) 2006-2013, Andrey N. Sabelnikov, www.sabelnikov.net
@@ -28,7 +28,7 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
+// 
 
 
 
@@ -461,7 +461,7 @@ PRAGMA_WARNING_DISABLE_VS(4355)
 					if (!all_ok) {
 						MDEBUG("do_send() DONE ***FAILED*** from packet="<<cb<<" B for ptr="<<ptr);
 						MDEBUG("do_send() SEND was aborted in middle of big package - this is mostly harmless "
-							<< " (e.g. peer closed connection) but if it causes trouble tell us at #monero-dev. " << cb);
+							<< " (e.g. peer closed connection) but if it causes trouble tell us at #superior-dev. " << cb);
 						return false; // partial failure in sending
 					}
 					pos = pos+len;
@@ -649,6 +649,10 @@ PRAGMA_WARNING_DISABLE_VS(4355)
   template<class t_protocol_handler>
   bool connection<t_protocol_handler>::shutdown()
   {
+    CRITICAL_REGION_BEGIN(m_shutdown_lock);
+    if (m_was_shutdown)
+      return true;
+    m_was_shutdown = true;
     // Initiate graceful connection closure.
     m_timer.cancel();
     boost::system::error_code ignored_ec;
@@ -658,7 +662,7 @@ PRAGMA_WARNING_DISABLE_VS(4355)
       try { host_count(m_host, -1); } catch (...) { /* ignore */ }
       m_host = "";
     }
-    m_was_shutdown = true;
+    CRITICAL_REGION_END();
     m_protocol_handler.release_protocol();
     return true;
   }
@@ -667,6 +671,9 @@ PRAGMA_WARNING_DISABLE_VS(4355)
   bool connection<t_protocol_handler>::close()
   {
     TRY_ENTRY();
+    auto self = safe_shared_from_this();
+    if(!self)
+      return false;
     //_info("[sock " << socket_.native_handle() << "] Que Shutdown called.");
     m_timer.cancel();
     size_t send_que_size = 0;
@@ -1062,7 +1069,7 @@ POP_WARNINGS
     }
 
     // error path, if e or exception
-      _erro("Some problems at accept: " << e.message() << ", connections_count = " << m_sock_count);
+    _erro("Some problems at accept: " << e.message() << ", connections_count = " << m_sock_count);
     misc_utils::sleep_no_w(100);
     new_connection_.reset(new connection<t_protocol_handler>(io_service_, m_config, m_sock_count, m_sock_number, m_pfilter, m_connection_type));
     acceptor_.async_accept(new_connection_->socket(),
@@ -1102,8 +1109,16 @@ POP_WARNINGS
     sock_.open(remote_endpoint.protocol());
     if(bind_ip != "0.0.0.0" && bind_ip != "0" && bind_ip != "" )
     {
-      boost::asio::ip::tcp::endpoint local_endpoint(boost::asio::ip::address::from_string(adr.c_str()), 0);
-      sock_.bind(local_endpoint);
+      boost::asio::ip::tcp::endpoint local_endpoint(boost::asio::ip::address::from_string(bind_ip.c_str()), 0);
+      boost::system::error_code ec;
+      sock_.bind(local_endpoint, ec);
+      if (ec)
+      {
+        MERROR("Error binding to " << bind_ip << ": " << ec.message());
+        if (sock_.is_open())
+          sock_.close();
+        return false;
+      }
     }
 
     /*
@@ -1208,8 +1223,16 @@ POP_WARNINGS
     sock_.open(remote_endpoint.protocol());
     if(bind_ip != "0.0.0.0" && bind_ip != "0" && bind_ip != "" )
     {
-      boost::asio::ip::tcp::endpoint local_endpoint(boost::asio::ip::address::from_string(adr.c_str()), 0);
-      sock_.bind(local_endpoint);
+      boost::asio::ip::tcp::endpoint local_endpoint(boost::asio::ip::address::from_string(bind_ip.c_str()), 0);
+      boost::system::error_code ec;
+      sock_.bind(local_endpoint, ec);
+      if (ec)
+      {
+        MERROR("Error binding to " << bind_ip << ": " << ec.message());
+        if (sock_.is_open())
+          sock_.close();
+        return false;
+      }
     }
     
     boost::shared_ptr<boost::asio::deadline_timer> sh_deadline(new boost::asio::deadline_timer(io_service_));

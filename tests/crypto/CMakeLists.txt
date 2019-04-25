@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 #
 # All rights reserved.
 #
@@ -25,9 +25,6 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-#
-# Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 set(crypto_sources
   crypto-ops-data.c
@@ -55,3 +52,16 @@ set_property(TARGET cncrypto-tests
 add_test(
   NAME    cncrypto
   COMMAND cncrypto-tests "${CMAKE_CURRENT_SOURCE_DIR}/tests.txt")
+
+add_executable(cnv4-jit-tests cnv4-jit.c)
+target_link_libraries(cnv4-jit-tests
+  PRIVATE
+    common
+    ${EXTRA_LIBRARIES})
+set_property(TARGET cnv4-jit-tests
+  PROPERTY
+    FOLDER "tests")
+
+add_test(
+  NAME    cnv4-jit
+  COMMAND cnv4-jit-tests 1788000 1789000)

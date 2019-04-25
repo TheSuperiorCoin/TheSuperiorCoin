@@ -1,6 +1,4 @@
-// Copyright (c) 2014-2018, TheSuperiorCoin Project
-// Copyright (c) 2014-2017, The Monero Project
-
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -89,8 +87,8 @@ const command_line::arg_descriptor<std::string> arg_db_type = {
 };
 const command_line::arg_descriptor<std::string> arg_db_sync_mode = {
   "db-sync-mode"
-, "Specify sync option, using format [safe|fast|fastest]:[sync|async]:[nblocks_per_sync]." 
-, "fast:async:1000"
+, "Specify sync option, using format [safe|fast|fastest]:[sync|async]:[<nblocks_per_sync>[blocks]|<nbytes_per_sync>[bytes]]."
+, "fast:async:250000000bytes"
 };
 const command_line::arg_descriptor<bool> arg_db_salvage  = {
   "db-salvage"
@@ -123,10 +121,10 @@ void BlockchainDB::pop_block()
   pop_block(blk, txs);
 }
 
-void BlockchainDB::add_transaction(const crypto::hash& blk_hash, const transaction& tx, const crypto::hash* tx_hash_ptr)
+void BlockchainDB::add_transaction(const crypto::hash& blk_hash, const transaction& tx, const crypto::hash* tx_hash_ptr, const crypto::hash* tx_prunable_hash_ptr)
 {
   bool miner_tx = false;
-  crypto::hash tx_hash;
+  crypto::hash tx_hash, tx_prunable_hash;
   if (!tx_hash_ptr)
   {
     // should only need to compute hash for miner transactions
@@ -136,6 +134,13 @@ void BlockchainDB::add_transaction(const crypto::hash& blk_hash, const transacti
   else
   {
     tx_hash = *tx_hash_ptr;
+  }
+  if (tx.version >= 2)
+  {
+    if (!tx_prunable_hash_ptr)
+      tx_prunable_hash = get_transaction_prunable_hash(tx);
+    else
+      tx_prunable_hash = *tx_prunable_hash_ptr;
   }
 
   for (const txin_v& tx_input : tx.vin)
@@ -163,7 +168,7 @@ void BlockchainDB::add_transaction(const crypto::hash& blk_hash, const transacti
     }
   }
 
-  uint64_t tx_id = add_transaction_data(blk_hash, tx, tx_hash);
+  uint64_t tx_id = add_transaction_data(blk_hash, tx, tx_hash, tx_prunable_hash);
 
   std::vector<uint64_t> amount_output_indices;
 
@@ -191,7 +196,8 @@ void BlockchainDB::add_transaction(const crypto::hash& blk_hash, const transacti
 }
 
 uint64_t BlockchainDB::add_block( const block& blk
-                                , const size_t& block_size
+                                , size_t block_weight
+                                , uint64_t long_term_block_weight
                                 , const difficulty_type& cumulative_difficulty
                                 , const uint64_t& coins_generated
                                 , const std::vector<transaction>& txs
@@ -213,13 +219,22 @@ uint64_t BlockchainDB::add_block( const block& blk
   // call out to add the transactions
 
   time1 = epee::misc_utils::get_tick_count();
+
+  uint64_t num_rct_outs = 0;
   add_transaction(blk_hash, blk.miner_tx);
+  if (blk.miner_tx.version == 2)
+    num_rct_outs += blk.miner_tx.vout.size();
   int tx_i = 0;
   crypto::hash tx_hash = crypto::null_hash;
   for (const transaction& tx : txs)
   {
     tx_hash = blk.tx_hashes[tx_i];
     add_transaction(blk_hash, tx, &tx_hash);
+    for (const auto &vout: tx.vout)
+    {
+      if (vout.amount == 0)
+        ++num_rct_outs;
+    }
     ++tx_i;
   }
   TIME_MEASURE_FINISH(time1);
@@ -227,7 +242,7 @@ uint64_t BlockchainDB::add_block( const block& blk
 
   // call out to subclass implementation to add the block & metadata
   time1 = epee::misc_utils::get_tick_count();
-  add_block(blk, block_size, cumulative_difficulty, coins_generated, blk_hash);
+  add_block(blk, block_weight, long_term_block_weight, cumulative_difficulty, coins_generated, num_rct_outs, blk_hash);
   TIME_MEASURE_FINISH(time1);
   time_add_block1 += time1;
 
@@ -363,7 +378,7 @@ void BlockchainDB::fixup()
   // instances of such transactions, in blocks 202612 and 685498.
   // The key images below are those from the inputs in those transactions.
   // On testnet, there are no such transactions
-  // See commit 533acc30eda7792c802ea8b6417917fa99b8bc2b for the fix this was monero , not needed now
+  // See commit 533acc30eda7792c802ea8b6417917fa99b8bc2b for the fix this was superior , not needed now
   static const char * const mainnet_genesis_hex = "418015bb9ae982a1975da7d79277c2705727a56894ba0fb246adaabb1f4632e3";
   crypto::hash mainnet_genesis_hash;
   epee::string_tools::hex_to_pod(mainnet_genesis_hex, mainnet_genesis_hash );

@@ -1,5 +1,4 @@
-// Copyright (c) 2018, The SuperiorCoin Project
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2017-2018, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -47,10 +46,10 @@ namespace tools
 
     // All four SuperiorPulse domains have DNSSEC on and valid
     static const std::vector<std::string> dns_urls = {
-        "superior-coin.com",
-        "the-superior-coin.com",
-        "superiorcoinpool.com",
-        "superior-coin.info"
+        "updates.superiorpulse.org",
+        "updates.superiorpulse.net",
+        "updates.superiorpulse.co",
+        "updates.superiorpulse.se"
     };
 
     if (!tools::dns_utils::load_txt_records_from_dns(records, dns_urls))
@@ -70,12 +69,12 @@ namespace tools
         continue;
 
       bool alnum = true;
-      for (auto c: hash)
+      for (auto c: fields[3])
         if (!isalnum(c))
           alnum = false;
-      if (hash.size() != 64 && !alnum)
+      if (fields[3].size() != 64 && !alnum)
       {
-        MWARNING("Invalid hash: " << hash);
+        MWARNING("Invalid hash: " << fields[3]);
         continue;
       }
 
@@ -100,7 +99,7 @@ namespace tools
 
   std::string get_update_url(const std::string &software, const std::string &subdir, const std::string &buildtag, const std::string &version, bool user)
   {
-    const char *base = user ? "https://downloads.superior-coin.com/" : "http://updates.superior-coin.com/";
+    const char *base = user ? "https://downloads.getsuperior.org/" : "https://updates.getsuperior.org/";
 #ifdef _WIN32
     static const char *extension = strncmp(buildtag.c_str(), "install-", 8) ? ".zip" : ".exe";
 #else

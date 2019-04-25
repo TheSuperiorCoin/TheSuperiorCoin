@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
+
 #pragma once
 
 #include "misc_log_ex.h"
@@ -73,7 +73,7 @@ public:
 #if defined(_MSC_VER)
     , m_oss(std::move(rhs.m_oss))
 #else
-      // GCC bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=54316
+      // GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54316
     , m_oss(rhs.m_oss.str(), std::ios_base::out | std::ios_base::ate)
 #endif
     , m_color(std::move(rhs.m_color))

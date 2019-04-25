@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 #
 # All rights reserved.
 #
@@ -25,9 +25,6 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-#
-# Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 set(core_tests_sources
   block_reward.cpp
@@ -44,7 +41,8 @@ set(core_tests_sources
   transaction_tests.cpp
   tx_validation.cpp
   v2_tests.cpp
-  rct.cpp)
+  rct.cpp
+  bulletproofs.cpp)
 
 set(core_tests_headers
   block_reward.h
@@ -61,7 +59,8 @@ set(core_tests_headers
   transaction_tests.h
   tx_validation.h
   v2_tests.h
-  rct.h)
+  rct.h
+  bulletproofs.h)
 
 add_executable(core_tests
   ${core_tests_sources}
@@ -76,6 +75,7 @@ target_link_libraries(core_tests
     device
     ${CMAKE_THREAD_LIBS_INIT}
     ${EXTRA_LIBRARIES})
+enable_stack_trace(core_tests)
 set_property(TARGET core_tests
   PROPERTY
     FOLDER "tests")

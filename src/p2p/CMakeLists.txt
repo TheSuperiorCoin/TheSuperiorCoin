@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 #
 # All rights reserved.
 #
@@ -25,9 +25,6 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# This may contain code Copyright (c) 2014-2017, The Monero Project
-##
 
 cmake_minimum_required (VERSION 2.6)
 project (superior CXX)
@@ -41,7 +38,6 @@ source_group(p2p FILES ${P2P})
 superior_add_library(p2p ${P2P})
 target_link_libraries(p2p
   PUBLIC
-    epee
     version
     cryptonote_core
     ${UPNP_LIBRARIES}

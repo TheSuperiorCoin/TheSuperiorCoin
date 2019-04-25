@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 #
 # All rights reserved.
 #
@@ -25,14 +25,15 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# This may contain code Copyright (c) 2014-2017, The Monero Project
-##
 
 if(APPLE)
-  find_library(IOKIT_LIBRARY IOKit)
-  mark_as_advanced(IOKIT_LIBRARY)
-  list(APPEND EXTRA_LIBRARIES ${IOKIT_LIBRARY})
+  if(DEPENDS)
+    list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework ApplicationServices -framework AppKit -framework IOKit")
+  else()
+    find_library(IOKIT_LIBRARY IOKit)
+    mark_as_advanced(IOKIT_LIBRARY)
+    list(APPEND EXTRA_LIBRARIES ${IOKIT_LIBRARY})
+  endif()
 endif()
 
 set(cryptonote_basic_sources

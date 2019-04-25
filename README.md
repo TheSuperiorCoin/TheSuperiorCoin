@@ -1,9 +1,9 @@
 # The Superior Coin
 
 - Copyright (c) 2014-2018, TheSuperioriorCoin Project
-- This may contain code Copyright (c) 2014-2018, The Monero Project
+- This may contain code Copyright (c) 2014-2018, The Superior Project
 - Copyright (c) 2012-1013 Part of this may Include Source Code from The Cryptonote developers
-- This may contain code Copyright (c) 2014-2017,  The Monero Project 
+- This may contain code Copyright (c) 2014-2017,  The Superior Project 
 
 ## Development Resources
 
@@ -16,22 +16,32 @@
 - IRC: [#SuperiorCoin on Freenode](irc://chat.freenode.net/#Superiorcoin)
 - FB: [https://www.facebook.com/TheSuperiorCoin](https://www.facebook.com/TheSuperiorCoin)
 
+- Our [Vulnerability Response Process](https://github.com/superior-project/meta/blob/master/VULNERABILITY_RESPONSE_PROCESS.md) encourages responsible disclosure
+- We are also available via [HackerOne](https://hackerone.com/superior)
+
+## Announcements
+
+- You can subscribe to an [announcement listserv](https://lists.getsuperior.org) to get critical announcements from the Superior core team. The announcement list can be very helpful for knowing when software updates are needed.
 
 ## Build
 
+### IMPORTANT 
+
+These builds are of the master branch, which is used for active development and can be either unstable or incompatible with release software. Please compile release branches.
+
 | Operating System      | Processor | Status |
 | --------------------- | -------- |--------|
-| Ubuntu 16.04          |  i686    | [![Ubuntu 16.04 i686](https://build.getmonero.org/png?builder=Monero-static-ubuntu-i686)](https://build.getmonero.org/builders/Monero-static-ubuntu-i686)
-| Ubuntu 16.04          |  amd64   | [![Ubuntu 16.04 amd64](https://build.getmonero.org/png?builder=Monero-static-ubuntu-amd64)](https://build.getmonero.org/builders/Monero-static-ubuntu-amd64)
-| Ubuntu 16.04          |  armv7   | [![Ubuntu 16.04 armv7](https://build.getmonero.org/png?builder=Monero-static-ubuntu-arm7)](https://build.getmonero.org/builders/Monero-static-ubuntu-arm7)
-| Debian Stable         |  armv8   | [![Debian armv8](https://build.getmonero.org/png?builder=Monero-static-debian-armv8)](https://build.getmonero.org/builders/Monero-static-debian-armv8)
-| OSX 10.10             |  amd64   | [![OSX 10.10 amd64](https://build.getmonero.org/png?builder=Monero-static-osx-10.10)](https://build.getmonero.org/builders/Monero-static-osx-10.10)
-| OSX 10.11             |  amd64   | [![OSX 10.11 amd64](https://build.getmonero.org/png?builder=Monero-static-osx-10.11)](https://build.getmonero.org/builders/Monero-static-osx-10.11)
-| OSX 10.12             |  amd64   | [![OSX 10.12 amd64](https://build.getmonero.org/png?builder=Monero-static-osx-10.12)](https://build.getmonero.org/builders/Monero-static-osx-10.12)
-| FreeBSD 11            |  amd64   | [![FreeBSD 11 amd64](https://build.getmonero.org/png?builder=Monero-static-freebsd64)](https://build.getmonero.org/builders/Monero-static-freebsd64)
-| DragonFly BSD 4.6     |  amd64   | [![DragonFly BSD amd64](https://build.getmonero.org/png?builder=Monero-static-dragonflybsd-amd64)](https://build.getmonero.org/Monero/Superior-static-dragonflybsd-amd64)
-| Windows (MSYS2/MinGW) |  i686    | [![Windows (MSYS2/MinGW) i686](https://build.getmonero.org/png?builder=Monero-static-win32)](https://build.getmonero.org/builders/Monero-static-win32)
-| Windows (MSYS2/MinGW) |  amd64   | [![Windows (MSYS2/MinGW) amd64](https://build.getmonero.org/png?builder=Monero-static-win64)](https://build.getmonero.org/builders/Monero-static-win64)
+| Ubuntu 16.04          |  i686    | [![Ubuntu 16.04 i686](https://build.getsuperior.org/png?builder=Superior-static-ubuntu-i686)](https://build.getsuperior.org/builders/Superior-static-ubuntu-i686)
+| Ubuntu 16.04          |  amd64   | [![Ubuntu 16.04 amd64](https://build.getsuperior.org/png?builder=Superior-static-ubuntu-amd64)](https://build.getsuperior.org/builders/Superior-static-ubuntu-amd64)
+| Ubuntu 16.04          |  armv7   | [![Ubuntu 16.04 armv7](https://build.getsuperior.org/png?builder=Superior-static-ubuntu-arm7)](https://build.getsuperior.org/builders/Superior-static-ubuntu-arm7)
+| Debian Stable         |  armv8   | [![Debian armv8](https://build.getsuperior.org/png?builder=Superior-static-debian-armv8)](https://build.getsuperior.org/builders/Superior-static-debian-armv8)
+| OSX 10.10             |  amd64   | [![OSX 10.10 amd64](https://build.getsuperior.org/png?builder=Superior-static-osx-10.10)](https://build.getsuperior.org/builders/Superior-static-osx-10.10)
+| OSX 10.11             |  amd64   | [![OSX 10.11 amd64](https://build.getsuperior.org/png?builder=Superior-static-osx-10.11)](https://build.getsuperior.org/builders/Superior-static-osx-10.11)
+| OSX 10.12             |  amd64   | [![OSX 10.12 amd64](https://build.getsuperior.org/png?builder=Superior-static-osx-10.12)](https://build.getsuperior.org/builders/Superior-static-osx-10.12)
+| FreeBSD 11            |  amd64   | [![FreeBSD 11 amd64](https://build.getsuperior.org/png?builder=Superior-static-freebsd64)](https://build.getsuperior.org/builders/Superior-static-freebsd64)
+| DragonFly BSD 4.6     |  amd64   | [![DragonFly BSD amd64](https://build.getsuperior.org/png?builder=Superior-static-dragonflybsd-amd64)](https://build.getsuperior.org/Superior/Superior-static-dragonflybsd-amd64)
+| Windows (MSYS2/MinGW) |  i686    | [![Windows (MSYS2/MinGW) i686](https://build.getsuperior.org/png?builder=Superior-static-win32)](https://build.getsuperior.org/builders/Superior-static-win32)
+| Windows (MSYS2/MinGW) |  amd64   | [![Windows (MSYS2/MinGW) amd64](https://build.getsuperior.org/png?builder=Superior-static-win64)](https://build.getsuperior.org/builders/Superior-static-win64)
 
 ## Coverage
 
@@ -65,7 +75,7 @@ Superior development can be supported directly through donations.
 
 Both Superior and Bitcoin donations can be made to Address's below.
 
-The Superior donation address is: `﻿5QaiHzo64sLDo42ky98uXtJ3zswCdpUrk1q5nSidtqovjjiC7FmxRt84Zu3HkpYQX1PLDU72aQMK6Cif4muRxwt3RyZXY6y` (viewkey: `not updated`)
+The Superior donation address is: `5PThLKJKNMQTQk5mBc6LpJ5VBpCqyLaJfG1TDkLoKfGJ7Rr49tZh1MPH3avopFcrj2ZrWKE8EKN9hJULRjXDa2fULX2XqTG` (viewkey: `not updated`)
 
 The Bitcoin donation address is: `1Fj6b8tPqbHV5ac2hnxP9RfkgUAYfj9uWd`
 

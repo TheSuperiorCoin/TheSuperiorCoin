@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -26,10 +26,7 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-//  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-//
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
-
+// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once 
 #include "chaingen.h"
@@ -48,12 +45,12 @@ public:
   bool check_split_switched(cryptonote::core& c, size_t ev_index, const std::vector<test_event_entry>& events);
 
 private:
-  std::list<cryptonote::block> m_chain_1;
+  std::vector<cryptonote::block> m_chain_1;
 
   cryptonote::account_base m_recipient_account_1;
   cryptonote::account_base m_recipient_account_2;
   cryptonote::account_base m_recipient_account_3;
   cryptonote::account_base m_recipient_account_4;
 
-  std::list<cryptonote::transaction> m_tx_pool;
+  std::vector<cryptonote::transaction> m_tx_pool;
 };

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The Superior Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -49,7 +49,10 @@ namespace Language
   class French: public Base
   {
   public:
-    French(): Base("Français", "French", std::vector<std::string>({
+    French(): Base("Français", "French", {}, 4)
+    {
+      static constexpr const char * const words[NWORDS] =
+      {
         "abandon",
         "abattre",
         "aboi",
@@ -1676,8 +1679,8 @@ namespace Language
         "zinc",
         "zone",
         "zoom"
-      }), 4)
-    {
+      };
+      set_words(words);
       populate_maps();
     }
   };

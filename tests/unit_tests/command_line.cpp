@@ -1,7 +1,5 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 //
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
-
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are

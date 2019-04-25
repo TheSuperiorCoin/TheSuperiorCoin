@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, The SuperiorCoin Project
+// Copyright (c) 2016-2018, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -25,18 +25,18 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
+
 #pragma once 
 
 #define GET_FIELD_FROM_JSON_RETURN_ON_ERROR(json, name, type, jtype, mandatory, def) \
-  type field_##name = def; \
+  type field_##name = static_cast<type>(def); \
   bool field_##name##_found = false; \
   (void)field_##name##_found; \
   do if (json.HasMember(#name)) \
   { \
     if (json[#name].Is##jtype()) \
     { \
-      field_##name = json[#name].Get##jtype(); \
+      field_##name = static_cast<type>(json[#name].Get##jtype()); \
       field_##name##_found = true; \
     } \
     else \

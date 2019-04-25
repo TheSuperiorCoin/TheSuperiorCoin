@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2017, TheSuperiorCoin Project
+# Copyright (c) 2014-2017, The Superior Project
 #
 # All rights reserved.
 #
@@ -25,9 +25,6 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# This may contain code Copyright (c) 2014-2017, The Monero Project
-##
 
 set(device_sources
   device.cpp
@@ -35,18 +32,27 @@ set(device_sources
   log.cpp
   )
 
-if(PCSC_FOUND)
-  set(device_sources ${device_sources} device_ledger.cpp)
+if(HIDAPI_FOUND)
+  set(device_sources 
+    ${device_sources} 
+    device_ledger.cpp
+    device_io_hid.cpp
+    )
 endif()
 
 set(device_headers
   device.hpp
+  device_io.hpp
   device_default.hpp
   log.hpp
  )
 
-if(PCSC_FOUND)
-  set(device_headers ${device_headers} device_ledger.hpp)
+if(HIDAPI_FOUND)
+  set(device_headers 
+    ${device_headers} 
+    device_ledger.hpp
+    device_io_hid.hpp
+    )
 endif()
 
 set(device_private_headers)
@@ -68,7 +74,7 @@ superior_add_library(device
 
 target_link_libraries(device
   PUBLIC
-    ${PCSC_LIBRARIES}
+    ${HIDAPI_LIBRARIES}
     cncrypto
     ringct_basic
     ${OPENSSL_CRYPTO_LIBRARIES}

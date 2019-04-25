@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2018, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
 //
 // Parts of this file Copyright (c) 2009-2015 The Bitcoin Core developers
 
@@ -51,7 +50,7 @@
 
 void *memwipe(void *ptr, size_t n)
 {
-  if (memset_s(ptr, n, 0, n))
+  if (n > 0 && memset_s(ptr, n, 0, n))
   {
 #ifdef NDEBUG
     fprintf(stderr, "Error: memset_s failed\n");
@@ -68,7 +67,8 @@ void *memwipe(void *ptr, size_t n)
 
 void *memwipe(void *ptr, size_t n)
 {
-  explicit_bzero(ptr, n);
+  if (n > 0)
+    explicit_bzero(ptr, n);
   SCARECROW
   return ptr;
 }
@@ -106,7 +106,8 @@ static void memory_cleanse(void *ptr, size_t len)
 
 void *memwipe(void *ptr, size_t n)
 {
-  memory_cleanse(ptr, n);
+  if (n > 0)
+    memory_cleanse(ptr, n);
   SCARECROW
   return ptr;
 }

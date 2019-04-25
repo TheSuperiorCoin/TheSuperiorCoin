@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 # 
 # All rights reserved.
 # 
@@ -25,12 +25,9 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# This may contain code Copyright (c) 2014-2017, The Monero Project
-##
 
 add_library(epee STATIC hex.cpp http_auth.cpp mlog.cpp net_utils_base.cpp string_tools.cpp wipeable_string.cpp memwipe.c
-    connection_basic.cpp network_throttle.cpp network_throttle-detail.cpp)
+    connection_basic.cpp network_throttle.cpp network_throttle-detail.cpp mlocker.cpp)
 if (USE_READLINE AND GNU_READLINE_FOUND)
   add_library(epee_readline STATIC readline_buffer.cpp)
 endif()
@@ -57,7 +54,9 @@ endif()
 target_link_libraries(epee
   PUBLIC
     easylogging
+    ${Boost_CHRONO_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_THREAD_LIBRARY}
   PRIVATE
     ${OPENSSL_LIBRARIES}
     ${EXTRA_LIBRARIES})

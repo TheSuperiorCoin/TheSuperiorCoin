@@ -1,5 +1,5 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
-#
+# Copyright (c) 2014-2018, The Superior Project
+# 
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without modification, are
@@ -26,8 +26,6 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
-# Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-#
 # Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 use Math::BigInt only => 'GMP';

@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018, TheSuperiorCoin Project
+// Copyright (c) 2017-2018, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -40,7 +40,11 @@ namespace rct
 
 Bulletproof bulletproof_PROVE(const rct::key &v, const rct::key &gamma);
 Bulletproof bulletproof_PROVE(uint64_t v, const rct::key &gamma);
+Bulletproof bulletproof_PROVE(const rct::keyV &v, const rct::keyV &gamma);
+Bulletproof bulletproof_PROVE(const std::vector<uint64_t> &v, const rct::keyV &gamma);
 bool bulletproof_VERIFY(const Bulletproof &proof);
+bool bulletproof_VERIFY(const std::vector<const Bulletproof*> &proofs);
+bool bulletproof_VERIFY(const std::vector<Bulletproof> &proofs);
 
 }
 

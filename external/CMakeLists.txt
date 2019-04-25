@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 # 
 # All rights reserved.
 # 
@@ -26,9 +26,8 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
-#  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-#
-# Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+# Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+
 
 # This is broken up into two parts: first we check for miniupnp, compile it if we can't
 # find it, and thereafter we check for libunbound, and compile it if we can't find it.
@@ -39,17 +38,18 @@
 find_package(Miniupnpc REQUIRED)
 
 message(STATUS "Using in-tree miniupnpc")
-
 add_subdirectory(miniupnp/miniupnpc)
+set_property(TARGET libminiupnpc-static PROPERTY FOLDER "external")
+if(MSVC)
+  set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -wd4244 -wd4267")
+elseif(NOT MSVC)
+  set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-unused-result -Wno-unused-value")
+endif()
+if(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
+	set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -D_NETBSD_SOURCE")
+endif()
 
-  set_property(TARGET libminiupnpc-static PROPERTY FOLDER "external")
-  if(MSVC)
-    set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -wd4244 -wd4267")
-  elseif(NOT MSVC)
-    set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-unused-result -Wno-unused-value")
-  endif()
-
-  set(UPNP_LIBRARIES "libminiupnpc-static" PARENT_SCOPE)
+set(UPNP_LIBRARIES "libminiupnpc-static" PARENT_SCOPE)
 
 find_package(Unbound)
 

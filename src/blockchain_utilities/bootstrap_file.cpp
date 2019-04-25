@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
+
 #include "bootstrap_serialization.h"
 #include "serialization/binary_utils.h" // dump_binary(), parse_binary()
 #include "serialization/json_utils.h" // dump_json()
@@ -236,11 +236,11 @@ void BootstrapFile::write_block(block& block)
   bool include_extra_block_data = true;
   if (include_extra_block_data)
   {
-    size_t block_size = m_blockchain_storage->get_db().get_block_size(block_height);
+    size_t block_weight = m_blockchain_storage->get_db().get_block_weight(block_height);
     difficulty_type cumulative_difficulty = m_blockchain_storage->get_db().get_block_cumulative_difficulty(block_height);
     uint64_t coins_generated = m_blockchain_storage->get_db().get_block_already_generated_coins(block_height);
 
-    bp.block_size = block_size;
+    bp.block_weight = block_weight;
     bp.cumulative_difficulty = cumulative_difficulty;
     bp.coins_generated = coins_generated;
   }
@@ -400,18 +400,18 @@ uint64_t BootstrapFile::count_bytes(std::ifstream& import_file, uint64_t blocks,
     {
       std::cout << refresh_string;
       MWARNING("WARNING: chunk_size " << chunk_size << " > BUFFER_SIZE " << BUFFER_SIZE
-          << "  height: " << h-1);
+          << "  height: " << h-1 << ", offset " << bytes_read);
       throw std::runtime_error("Aborting: chunk size exceeds buffer size");
     }
     if (chunk_size > CHUNK_SIZE_WARNING_THRESHOLD)
     {
       std::cout << refresh_string;
       MDEBUG("NOTE: chunk_size " << chunk_size << " > " << CHUNK_SIZE_WARNING_THRESHOLD << " << height: "
-          << h-1);
+          << h-1 << ", offset " << bytes_read);
     }
     else if (chunk_size <= 0) {
       std::cout << refresh_string;
-      MDEBUG("ERROR: chunk_size " << chunk_size << " <= 0" << "  height: " << h-1);
+      MDEBUG("ERROR: chunk_size " << chunk_size << " <= 0" << "  height: " << h-1 << ", offset " << bytes_read);
       throw std::runtime_error("Aborting");
     }
     // skip to next expected block size value

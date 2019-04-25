@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 # 
 # All rights reserved.
 # 
@@ -25,12 +25,10 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#   
-# This may contain code Copyright (c) 2014-2017, The Monero Project
-#
-# Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
-set (CMAKE_SYSTEM_NAME Windows)
+if (NOT CMAKE_HOST_WIN32)
+  set (CMAKE_SYSTEM_NAME Windows)
+endif()
 
 set (GCC_PREFIX i686-w64-mingw32)
 set (CMAKE_C_COMPILER ${GCC_PREFIX}-gcc)

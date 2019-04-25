@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2020, The Superior Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// Parts of this file are originally copyright (c) 2014-2017 The Monero Project
+
 #pragma once
 
 #include "cryptonote_basic/cryptonote_boost_serialization.h"
@@ -70,14 +70,14 @@ namespace cryptonote
     {
       cryptonote::block block;
       std::vector<transaction> txs;
-      size_t block_size;
+      size_t block_weight;
       difficulty_type cumulative_difficulty;
       uint64_t coins_generated;
 
       BEGIN_SERIALIZE()
         FIELD(block)
         FIELD(txs)
-        VARINT_FIELD(block_size)
+        VARINT_FIELD(block_weight)
         VARINT_FIELD(cumulative_difficulty)
         VARINT_FIELD(coins_generated)
       END_SERIALIZE()

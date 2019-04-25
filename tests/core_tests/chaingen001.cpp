@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -26,9 +26,7 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-//  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-//
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include <vector>
 #include <iostream>
@@ -80,7 +78,7 @@ bool one_block::verify_1(cryptonote::core& c, size_t ev_index, const std::vector
     //CHECK_TEST_CONDITION(get_block_reward(0) == get_balance(alice, events, chain, mtx));
 
     // check height
-    std::list<cryptonote::block> blocks;
+    std::vector<cryptonote::block> blocks;
     std::list<crypto::public_key> outs;
     bool r = c.get_blocks(0, 100, blocks);
     //c.get_outs(100, outs);

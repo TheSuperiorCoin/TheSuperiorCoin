@@ -22,7 +22,7 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
+// 
 
 
 
@@ -46,6 +46,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include "hex.h"
 #include "memwipe.h"
+#include "mlocker.h"
 #include "span.h"
 #include "warnings.h"
 
@@ -354,6 +355,12 @@ POP_WARNINGS
   //----------------------------------------------------------------------------
   template<class t_pod_type>
   bool hex_to_pod(const std::string& hex_str, tools::scrubbed<t_pod_type>& s)
+  {
+    return hex_to_pod(hex_str, unwrap(s));
+  }
+  //----------------------------------------------------------------------------
+  template<class t_pod_type>
+  bool hex_to_pod(const std::string& hex_str, epee::mlocked<t_pod_type>& s)
   {
     return hex_to_pod(hex_str, unwrap(s));
   }

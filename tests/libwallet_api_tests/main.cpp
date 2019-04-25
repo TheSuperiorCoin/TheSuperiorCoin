@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -81,14 +81,14 @@ const char * TESTNET_WALLET_PASS = "";
 std::string CURRENT_SRC_WALLET;
 std::string CURRENT_DST_WALLET;
 
-const uint64_t AMOUNT_10SUP =  1000000000L;
-const uint64_t AMOUNT_5SUP  =  500000000L;
-const uint64_t AMOUNT_1SUP  =  100000000L;
+const uint64_t AMOUNT_10SUP =  10000000000000L;
+const uint64_t AMOUNT_5SUP  =  5000000000000L;
+const uint64_t AMOUNT_1SUP  =  1000000000000L;
 
 const std::string PAYMENT_ID_EMPTY = "";
 
 std::string TESTNET_DAEMON_ADDRESS = "localhost:38081";
-std::string MAINNET_DAEMON_ADDRESS = "localhost:16035";
+std::string MAINNET_DAEMON_ADDRESS = "localhost:18081";
 
 
 }

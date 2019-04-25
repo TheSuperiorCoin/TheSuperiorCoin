@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 # 
 # All rights reserved.
 # 
@@ -26,8 +26,6 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
-# Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-#
 # Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 # The docs say this only affects grouping in IDEs
@@ -87,6 +85,7 @@ add_subdirectory(performance_tests)
 add_subdirectory(core_proxy)
 add_subdirectory(unit_tests)
 add_subdirectory(difficulty)
+add_subdirectory(block_weight)
 add_subdirectory(hash)
 add_subdirectory(net_load_tests)
 if (BUILD_GUI_DEPS)
@@ -117,6 +116,7 @@ add_test(
 set(enabled_tests
     core_tests
     difficulty
+    block_weight
     hash
     performance_tests
     core_proxy

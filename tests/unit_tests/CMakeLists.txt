@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The SuperiorCoin Project
+# Copyright (c) 2014-2018, The Superior Project
 #
 # All rights reserved.
 #
@@ -25,11 +25,9 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-#
-# Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 set(unit_tests_sources
+  account.cpp
   apply_permutation.cpp
   address_from_url.cpp
   ban.cpp
@@ -44,20 +42,29 @@ set(unit_tests_sources
   command_line.cpp
   crypto.cpp
   decompose_amount_into_digits.cpp
+  device.cpp
   dns_resolver.cpp
   epee_boosted_tcp_server.cpp
   epee_levin_protocol_handler_async.cpp
   epee_utils.cpp
+  expect.cpp
   fee.cpp
+  json_serialization.cpp
   get_xtype_from_string.cpp
   hashchain.cpp
   http.cpp
+  keccak.cpp
+  long_term_block_weight.cpp
   main.cpp
   memwipe.cpp
+  mlocker.cpp
   mnemonics.cpp
   mul_div.cpp
+  multiexp.cpp
   multisig.cpp
+  notify.cpp
   parse_amount.cpp
+  random.cpp
   serialization.cpp
   sha256.cpp
   slow_memmem.cpp
@@ -65,13 +72,18 @@ set(unit_tests_sources
   test_tx_utils.cpp
   test_peerlist.cpp
   test_protocol_pack.cpp
+  threadpool.cpp
   hardfork.cpp
   unbound.cpp
   uri.cpp
   varint.cpp
   ringct.cpp
   output_selection.cpp
-  vercmp.cpp)
+  vercmp.cpp
+  ringdb.cpp
+  wipeable_string.cpp
+  is_hdd.cpp
+  aligned.cpp)
 
 set(unit_tests_headers
   unit_tests_utils.h)
@@ -86,10 +98,10 @@ target_link_libraries(unit_tests
     cryptonote_core
     blockchain_db
     rpc
+    serialization
     wallet
     p2p
     version
-    epee
     ${Boost_CHRONO_LIBRARY}
     ${Boost_THREAD_LIBRARY}
     ${GTEST_LIBRARIES}

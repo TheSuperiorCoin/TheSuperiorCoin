@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018, The SuperiorCoin Project
+// Copyright (c) 2017-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -26,9 +26,7 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-//  Parts of this file are originally copyright (c) 2013-2017 The Monero Project
-//
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developersParts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
+// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include "gtest/gtest.h"
 
@@ -55,6 +53,8 @@ namespace cryptonote { template class t_cryptonote_protocol_handler<cryptonote::
 
 int main(int argc, char** argv)
 {
+  TRY_ENTRY();
+
   tools::on_startup();
   epee::string_tools::set_module_name_and_folder(argv[0]);
   mlog_configure(mlog_get_default_log_path("unit_tests.log"), true);
@@ -76,7 +76,9 @@ int main(int argc, char** argv)
   if (! r)
     return 1;
 
-    unit_test::data_dir = command_line::get_arg(vm, arg_data_dir);
+  unit_test::data_dir = command_line::get_arg(vm, arg_data_dir);
+
+  CATCH_ENTRY_L0("main", 1);
 
   return RUN_ALL_TESTS();
 }
