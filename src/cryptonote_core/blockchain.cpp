@@ -93,36 +93,36 @@ static const struct {
   { 1, 1, 0, 1341378000 },
 
   // version 2 starts from block 3657, Premine.
-  { 2, 10, 0, 1442763710 },
+  { 2, 3657, 0, 1442763710 },
 
   // version 3 starts from block 3700, Premine.
-  { 3, 20, 0, 1458558528 },
+  { 3, 3700, 0, 1458558528 },
 
   // version 4 starts from block 3750, Premine.
-  { 4, 30, 0, 1483574400 },
+  { 4, 3750, 0, 1483574400 },
 
   // version 5 starts from block Skipped
   // { 5, 40, 0, 1505865600 },
 
   // version 6 starts from block 101000 -TESTNET-was done from-31744-33906, which is on or around the 24th of Nov, 2017. Fork time finalised on Undifined 95500+5500=101000.
-  { 6, 40, 0, 1503046577 },
+  { 6, 101000, 0, 1503046577 },
 
   // version 7 starts from block 191850, which is on or around the 10th of April, 2018.
-  { 7, 50, 0, 1522719232 },
+  { 7, 191850, 0, 1522719232 },
 
-  // version 8 starts from block 1685555, which is on or around the 18th of October, 2018. Fork time finalised on 2018-09-02.
-  { 8, 60, 0, 1535889547 },
+  // version 8 starts from block 1685555, which is on or around *. Fork time finalised on 2018-09-02.
+  { 8, 1685555, 0, 1535889547 },
 
-        // version 9 starts from block 1686275, which is on or around the 19th of October, 2018. Fork time finalised on 2018-09-02.
-  { 9, 70, 0, 1535889548 },
+        // version 9 starts from block 1686275, which is on or around *. Fork time finalised on 2018-09-02.
+  { 9, 1686275, 0, 1535889548 },
 
-        // version 10 starts from block 1788000, which is on or around the 9th of March, 2019. Fork time finalised on 2019-02-10.
-  { 10, 80, 0, 1549792439 },
+        // version 10 starts from block 1788000, which is on or around *. Fork time finalised on 2019-02-10.
+  { 10, 1788000, 0, 1549792439 },
 
-        // version 11 starts from block 1788720, which is on or around the 10th of March, 2019. Fork time finalised on 2019-02-15.
-  { 11, 90, 0, 1550225678 },
+        // version 11 starts from block 1788720, which is on or around *, 2019. Fork time finalised on 2019-02-15.
+  { 11, 1788720, 0, 1550225678 },
 };
-static const uint64_t mainnet_hard_fork_version_1_till = 10;
+static const uint64_t mainnet_hard_fork_version_1_till = 3656;
 
 static const struct {
   uint8_t version;
