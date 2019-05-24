@@ -464,8 +464,7 @@ namespace nodetool
     }
     else
     {
-
-       full_addrs.insert("52.168.91.103:17369"); //poolserver
+       full_addrs.insert("54.39.52.140:17369"); //poolserver
        full_addrs.insert("52.168.12.187:17369"); //blockchainexplorer
        full_addrs.insert("179.49.115.2:17369"); //HondurasDNS
        full_addrs.insert("13.91.59.2:17369"); //superminer
@@ -473,7 +472,6 @@ namespace nodetool
        full_addrs.insert("20.188.110.55:17369"); //opendaemon
        full_addrs.insert("179.49.117.130:17369"); //Honduras-Daemon
        full_addrs.insert("13.84.182.118:17369"); //test pool
-
     }
     return full_addrs;
   }
