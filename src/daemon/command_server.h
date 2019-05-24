@@ -9,7 +9,7 @@ Passing RPC commands:
 
 */
 
-// Copyright (c) 2017-2019, SuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 

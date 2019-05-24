@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, SuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -34,7 +34,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <memory>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/lock_guard.hpp>
 #include <boost/shared_ptr.hpp>

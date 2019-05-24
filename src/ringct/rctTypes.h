@@ -120,22 +120,19 @@ namespace rct {
     // If the pedersen commitment to an amount is C = aG + bH,
     // "mask" contains a 32 byte key a
     // "amount" contains a hex representation (in 32 bytes) of a 64 bit number
-    // "senderPk" is not the senders actual public key, but a one-time public key generated for
     // the purpose of the ECDH exchange
     struct ecdhTuple {
         key mask;
         key amount;
-        key senderPk;
 
         BEGIN_SERIALIZE_OBJECT()
           FIELD(mask) // not saved from v2 BPs
           FIELD(amount)
-          // FIELD(senderPk) // not serialized, as we do not use it in superior currently
         END_SERIALIZE()
     };
 
     //containers for representing amounts
-    typedef uint64_t sup_amount;
+    typedef uint64_t xmr_amount;
     typedef unsigned int bits[ATOMS];
     typedef key key64[64];
 
@@ -187,11 +184,14 @@ namespace rct {
       rct::keyV L, R;
       rct::key a, b, t;
 
-      Bulletproof() {}
+      Bulletproof():
+        A({}), S({}), T1({}), T2({}), taux({}), mu({}), a({}), b({}), t({}) {}
       Bulletproof(const rct::key &V, const rct::key &A, const rct::key &S, const rct::key &T1, const rct::key &T2, const rct::key &taux, const rct::key &mu, const rct::keyV &L, const rct::keyV &R, const rct::key &a, const rct::key &b, const rct::key &t):
         V({V}), A(A), S(S), T1(T1), T2(T2), taux(taux), mu(mu), L(L), R(R), a(a), b(b), t(t) {}
       Bulletproof(const rct::keyV &V, const rct::key &A, const rct::key &S, const rct::key &T1, const rct::key &T2, const rct::key &taux, const rct::key &mu, const rct::keyV &L, const rct::keyV &R, const rct::key &a, const rct::key &b, const rct::key &t):
         V(V), A(A), S(S), T1(T1), T2(T2), taux(taux), mu(mu), L(L), R(R), a(a), b(b), t(t) {}
+
+      bool operator==(const Bulletproof &other) const { return V == other.V && A == other.A && S == other.S && T1 == other.T1 && T2 == other.T2 && taux == other.taux && mu == other.mu && L == other.L && R == other.R && a == other.a && b == other.b && t == other.t; }
 
       BEGIN_SERIALIZE_OBJECT()
         // Commitments aren't saved, they're restored via outPk
@@ -245,7 +245,7 @@ namespace rct {
         keyV pseudoOuts; //C - for simple rct
         std::vector<ecdhTuple> ecdhInfo;
         ctkeyV outPk;
-        sup_amount txnFee; // contains b
+        xmr_amount txnFee; // contains b
 
         template<bool W, template <bool> class Archive>
         bool serialize_rctsig_base(Archive<W> &ar, size_t inputs, size_t outputs)
@@ -525,7 +525,7 @@ namespace rct {
     void dp(const char * a, int l);
     void dp(keyV a);
     void dp(keyM a);
-    void dp(sup_amount vali);
+    void dp(xmr_amount vali);
     void dp(int vali);
     void dp(bits amountb);
     void dp(const char * st);
@@ -533,20 +533,20 @@ namespace rct {
     //various conversions
 
     //uint long long to 32 byte key
-    void d2h(key & amounth, sup_amount val);
-    key d2h(sup_amount val);
+    void d2h(key & amounth, xmr_amount val);
+    key d2h(xmr_amount val);
     //uint long long to int[64]
-    void d2b(bits  amountb, sup_amount val);
+    void d2b(bits  amountb, xmr_amount val);
     //32 byte key to uint long long
     // if the key holds a value > 2^64
     // then the value in the first 8 bytes is returned
-    sup_amount h2d(const key &test);
+    xmr_amount h2d(const key &test);
     //32 byte key to int[64]
     void h2b(bits  amountb2, const key & test);
     //int[64] to 32 byte key
     void b2h(key  & amountdh, bits amountb2);
     //int[64] to uint long long
-    sup_amount b2d(bits amountb);
+    xmr_amount b2d(bits amountb);
 
     bool is_rct_simple(int type);
     bool is_rct_bulletproof(int type);

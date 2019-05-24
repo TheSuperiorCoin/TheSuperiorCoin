@@ -32,6 +32,9 @@
 #include "enableable.h"
 #include "keyvalue_serialization_overloads.h"
 
+#undef SUPERIOR_DEFAULT_LOG_CATEGORY
+#define SUPERIOR_DEFAULT_LOG_CATEGORY "serialization"
+
 namespace epee
 {
   /************************************************************************/

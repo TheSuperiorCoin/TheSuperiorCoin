@@ -35,7 +35,7 @@
 #include <vector>
 
 #include "include_base_utils.h"
-#include "common/int-util.h"
+#include "int-util.h"
 #include "crypto/hash.h"
 #include "cryptonote_config.h"
 #include "misc_language.h"
@@ -107,7 +107,7 @@ namespace cryptonote {
     return a + b < a || (c && a + b == (uint64_t) -1);
   }
 
-  bool check_hash(const crypto::hash &hash, difficulty_type difficulty) {
+  bool check_hash_64(const crypto::hash &hash, uint64_t difficulty) {
     uint64_t low, high, top, cur;
     // First check the highest word, this will most likely fail for a random hash.
     mul(swap64le(((const uint64_t *) &hash)[3]), difficulty, top, high);
@@ -124,8 +124,91 @@ namespace cryptonote {
     return !carry;
   }
 
-  difficulty_type next_difficulty(std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
+  uint64_t next_difficulty_64(std::vector<std::uint64_t> timestamps, std::vector<uint64_t> cumulative_difficulties, size_t target_seconds) {
 
+    if(timestamps.size() > DIFFICULTY_WINDOW)
+    {
+      timestamps.resize(DIFFICULTY_WINDOW);
+      cumulative_difficulties.resize(DIFFICULTY_WINDOW);
+    }
+
+
+    size_t length = timestamps.size();
+    assert(length == cumulative_difficulties.size());
+    if (length <= 1) {
+      return 1;
+    }
+    static_assert(DIFFICULTY_WINDOW >= 2, "Window is too small");
+    assert(length <= DIFFICULTY_WINDOW);
+    sort(timestamps.begin(), timestamps.end());
+    size_t cut_begin, cut_end;
+    static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Cut length is too large");
+    if (length <= DIFFICULTY_WINDOW - 2 * DIFFICULTY_CUT) {
+      cut_begin = 0;
+      cut_end = length;
+    } else {
+      cut_begin = (length - (DIFFICULTY_WINDOW - 2 * DIFFICULTY_CUT) + 1) / 2;
+      cut_end = cut_begin + (DIFFICULTY_WINDOW - 2 * DIFFICULTY_CUT);
+    }
+    assert(/*cut_begin >= 0 &&*/ cut_begin + 2 <= cut_end && cut_end <= length);
+    uint64_t time_span = timestamps[cut_end - 1] - timestamps[cut_begin];
+    if (time_span == 0) {
+      time_span = 1;
+    }
+    uint64_t total_work = cumulative_difficulties[cut_end - 1] - cumulative_difficulties[cut_begin];
+    assert(total_work > 0);
+    uint64_t low, high;
+    mul(total_work, target_seconds, low, high);
+    // blockchain errors "difficulty overhead" if this function returns zero.
+    // TODO: consider throwing an exception instead
+    if (high != 0 || low + time_span - 1 < low) {
+      return 0;
+    }
+    return (low + time_span - 1) / time_span;
+  }
+
+
+#if defined(_MSC_VER)
+#ifdef max
+#undef max
+#endif
+
+#endif
+
+  const difficulty_type max64bit(std::numeric_limits<std::uint64_t>::max());
+  const boost::multiprecision::uint256_t max128bit(std::numeric_limits<boost::multiprecision::uint128_t>::max());
+  const boost::multiprecision::uint512_t max256bit(std::numeric_limits<boost::multiprecision::uint256_t>::max());
+
+#define FORCE_FULL_128_BITS
+
+  bool check_hash_128(const crypto::hash &hash, difficulty_type difficulty) {
+#ifndef FORCE_FULL_128_BITS
+    // fast check
+    if (difficulty >= max64bit && ((const uint64_t *) &hash)[3] > 0)
+      return false;
+#endif
+    // usual slow check
+    boost::multiprecision::uint512_t hashVal = 0;
+#ifdef FORCE_FULL_128_BITS
+    for(int i = 0; i < 4; i++) { // highest word is zero
+#else
+    for(int i = 1; i < 4; i++) { // highest word is zero
+#endif
+      hashVal <<= 64;
+      hashVal |= swap64le(((const uint64_t *) &hash)[3 - i]);
+    }
+    return hashVal * difficulty <= max256bit;
+  }
+
+  bool check_hash(const crypto::hash &hash, difficulty_type difficulty) {
+    if (difficulty <= max64bit) // if can convert to small difficulty - do it
+      return check_hash_64(hash, difficulty.convert_to<std::uint64_t>());
+    else
+      return check_hash_128(hash, difficulty);
+  }
+
+  difficulty_type next_difficulty(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
+    //cutoff DIFFICULTY_LAG
     if(timestamps.size() > DIFFICULTY_WINDOW)
     {
       timestamps.resize(DIFFICULTY_WINDOW);
@@ -157,88 +240,92 @@ namespace cryptonote {
     }
     difficulty_type total_work = cumulative_difficulties[cut_end - 1] - cumulative_difficulties[cut_begin];
     assert(total_work > 0);
-    uint64_t low, high;
-    mul(total_work, target_seconds, low, high);
-    // blockchain errors "difficulty overhead" if this function returns zero.
-    // TODO: consider throwing an exception instead
-    if (high != 0 || low + time_span - 1 < low) {
-      return 0;
-    }
-    return (low + time_span - 1) / time_span;
+    boost::multiprecision::uint256_t res =  (boost::multiprecision::uint256_t(total_work) * target_seconds + time_span - 1) / time_span;
+    if(res > max128bit)
+      return 0; // to behave like previous implementation, may be better return max128bit?
+    return res.convert_to<difficulty_type>();
   }
+  difficulty_type next_difficulty_v2(std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
 
-    difficulty_type next_difficulty_v2(std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
-
-    if (timestamps.size() > DIFFICULTY_BLOCKS_COUNT_V2)
-    {
-      timestamps.resize(DIFFICULTY_BLOCKS_COUNT_V2);
-      cumulative_difficulties.resize(DIFFICULTY_BLOCKS_COUNT_V2);
-    }
-
-    size_t length = timestamps.size();
-    assert(length == cumulative_difficulties.size());
-    if (length <= 1) {
-      return 1;
-    }
-
-    sort(timestamps.begin(), timestamps.end());
-    size_t cut_begin, cut_end;
-    static_assert(2 * DIFFICULTY_CUT_V2 <= DIFFICULTY_BLOCKS_COUNT_V2 - 2, "Cut length is too large");
-    if (length <= DIFFICULTY_BLOCKS_COUNT_V2 - 2 * DIFFICULTY_CUT_V2) {
-      cut_begin = 0;
-      cut_end = length;
-    }
-    else {
-      cut_begin = (length - (DIFFICULTY_BLOCKS_COUNT_V2 - 2 * DIFFICULTY_CUT_V2) + 1) / 2;
-      cut_end = cut_begin + (DIFFICULTY_BLOCKS_COUNT_V2 - 2 * DIFFICULTY_CUT_V2);
-    }
-    assert(/*cut_begin >= 0 &&*/ cut_begin + 2 <= cut_end && cut_end <= length);
-    uint64_t total_timespan = timestamps[cut_end - 1] - timestamps[cut_begin];
-    if (total_timespan == 0) {
-      total_timespan = 1;
-    }
-
-    uint64_t timespan_median = 0;
-    if (cut_begin > 0 && length >= cut_begin * 2 + 3){
-      std::vector<std::uint64_t> time_spans;
-      for (size_t i = length - cut_begin * 2 - 3; i < length - 1; i++){
-        uint64_t time_span = timestamps[i + 1] - timestamps[i];
-        if (time_span == 0) {
-          time_span = 1;
+        if (timestamps.size() > DIFFICULTY_BLOCKS_COUNT_V2)
+        {
+            timestamps.resize(DIFFICULTY_BLOCKS_COUNT_V2);
+            cumulative_difficulties.resize(DIFFICULTY_BLOCKS_COUNT_V2);
         }
-        time_spans.push_back(time_span);
 
-        LOG_PRINT_L3("Timespan " << i << ": " << (time_span / 60) / 60 << ":" << (time_span > 3600 ? (time_span % 3600) / 60 : time_span / 60) << ":" << time_span % 60 << " (" << time_span << ")");
-      }
-      timespan_median = epee::misc_utils::median(time_spans);
+        size_t length = timestamps.size();
+        assert(length == cumulative_difficulties.size());
+        if (length <= 1) {
+            return 1;
+        }
+
+        sort(timestamps.begin(), timestamps.end());
+        size_t cut_begin, cut_end;
+        static_assert(2 * DIFFICULTY_CUT_V2 <= DIFFICULTY_BLOCKS_COUNT_V2 - 2, "Cut length is too large");
+        if (length <= DIFFICULTY_BLOCKS_COUNT_V2 - 2 * DIFFICULTY_CUT_V2) {
+            cut_begin = 0;
+            cut_end = length;
+        }
+        else {
+            cut_begin = (length - (DIFFICULTY_BLOCKS_COUNT_V2 - 2 * DIFFICULTY_CUT_V2) + 1) / 2;
+            cut_end = cut_begin + (DIFFICULTY_BLOCKS_COUNT_V2 - 2 * DIFFICULTY_CUT_V2);
+        }
+        assert(/*cut_begin >= 0 &&*/ cut_begin + 2 <= cut_end && cut_end <= length);
+        uint64_t total_timespan = timestamps[cut_end - 1] - timestamps[cut_begin];
+        if (total_timespan == 0) {
+            total_timespan = 1;
+        }
+
+        uint64_t timespan_median = 0;
+        if (cut_begin > 0 && length >= cut_begin * 2 + 3){
+            std::vector<std::uint64_t> time_spans;
+            for (size_t i = length - cut_begin * 2 - 3; i < length - 1; i++){
+                uint64_t time_span = timestamps[i + 1] - timestamps[i];
+                if (time_span == 0) {
+                    time_span = 1;
+                }
+                time_spans.push_back(time_span);
+
+                LOG_PRINT_L3("Timespan " << i << ": " << (time_span / 60) / 60 << ":" << (time_span > 3600 ? (time_span % 3600) / 60 : time_span / 60) << ":" << time_span % 60 << " (" << time_span << ")");
+            }
+            timespan_median = epee::misc_utils::median(time_spans);
+        }
+
+        uint64_t timespan_length = length - cut_begin * 2 - 1;
+        LOG_PRINT_L2("Timespan Median: " << timespan_median << ", Timespan Average: " << total_timespan / timespan_length);
+
+        uint64_t total_timespan_median = timespan_median > 0 ? timespan_median * timespan_length : total_timespan * 7 / 10;
+        uint64_t adjusted_total_timespan = (total_timespan * 8 + total_timespan_median * 3) / 10; //  0.8A + 0.3M (the median of a poisson distribution is 70% of the mean, so 0.25A = 0.25/0.7 = 0.285M)
+        if (adjusted_total_timespan > MAX_AVERAGE_TIMESPAN * timespan_length){
+            adjusted_total_timespan = MAX_AVERAGE_TIMESPAN * timespan_length;
+        }
+        if (adjusted_total_timespan < MIN_AVERAGE_TIMESPAN * timespan_length){
+            adjusted_total_timespan = MIN_AVERAGE_TIMESPAN * timespan_length;
+        }
+
+        difficulty_type total_work = cumulative_difficulties[cut_end - 1] - cumulative_difficulties[cut_begin];
+        assert(total_work > 0);
+      boost::multiprecision::uint256_t res =  (boost::multiprecision::uint256_t(total_work) * target_seconds + adjusted_total_timespan - 1) / adjusted_total_timespan;
+      if(res > max128bit)
+          return 0; // to behave like previous implementation, may be better return max128bit?
+      LOG_PRINT_L2("Total timespan: " << total_timespan << ", Adjusted total timespan: " << adjusted_total_timespan << ", Total work: " << total_work << ", Next diff: " << res << ", Hashrate (H/s): " << res / target_seconds);
+
+      return res.convert_to<difficulty_type>();
+
     }
-
-    uint64_t timespan_length = length - cut_begin * 2 - 1;
-    LOG_PRINT_L2("Timespan Median: " << timespan_median << ", Timespan Average: " << total_timespan / timespan_length);
-
-    uint64_t total_timespan_median = timespan_median > 0 ? timespan_median * timespan_length : total_timespan * 7 / 10;
-    uint64_t adjusted_total_timespan = (total_timespan * 8 + total_timespan_median * 3) / 10; //  0.8A + 0.3M (the median of a poisson distribution is 70% of the mean, so 0.25A = 0.25/0.7 = 0.285M)
-    if (adjusted_total_timespan > MAX_AVERAGE_TIMESPAN * timespan_length){
-      adjusted_total_timespan = MAX_AVERAGE_TIMESPAN * timespan_length;
+  std::string hex(difficulty_type v)
+  {
+    static const char chars[] = "0123456789abcdef";
+    std::string s;
+    while (v > 0)
+    {
+      s.push_back(chars[(v & 0xf).convert_to<unsigned>()]);
+      v >>= 4;
     }
-    if (adjusted_total_timespan < MIN_AVERAGE_TIMESPAN * timespan_length){
-      adjusted_total_timespan = MIN_AVERAGE_TIMESPAN * timespan_length;
-    }
-
-    difficulty_type total_work = cumulative_difficulties[cut_end - 1] - cumulative_difficulties[cut_begin];
-    assert(total_work > 0);
-
-    uint64_t low, high;
-    mul(total_work, target_seconds, low, high);
-    if (high != 0) {
-      return 0;
-    }
-
-    uint64_t next_diff = (low + adjusted_total_timespan - 1) / adjusted_total_timespan;
-    if (next_diff < 1) next_diff = 1;
-    LOG_PRINT_L2("Total timespan: " << total_timespan << ", Adjusted total timespan: " << adjusted_total_timespan << ", Total work: " << total_work << ", Next diff: " << next_diff << ", Hashrate (H/s): " << next_diff / target_seconds);
-
-    return next_diff;
+    if (s.empty())
+      s += "0";
+    std::reverse(s.begin(), s.end());
+    return "0x" + s;
   }
 
 }

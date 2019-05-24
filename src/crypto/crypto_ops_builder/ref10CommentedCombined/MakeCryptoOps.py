@@ -15,7 +15,7 @@ print("maybe someone smart can replace the sed with perl..")
 a = ""
 
 license = textwrap.dedent("""\
-    // Copyright (c) 2017-2019, SuperiorCoin Project
+    // Copyright (c) 2014-2019, SuperiorCoin Project
     // 
     // All rights reserved.
     // 
@@ -120,10 +120,10 @@ ge_comments = textwrap.dedent("""\
     */
     """)
 
-sup_comments = textwrap.dedent("""\
+xmr_comments = textwrap.dedent("""\
     /*
      *
-     * sup specific code
+     * xmr specific code
      *
      *
     This code is from the original CryptoNote.
@@ -171,7 +171,7 @@ if a == "m":
         os.system("cp "+g+" "+g.replace("fe", "fe.superior."))
     qhasmToC("fe_pow22523.c", "pow22523.h", "fe.superior._pow22523.c")
     qhasmToC("fe_invert.c", "pow225521.h", "fe.superior._invert.c")
-    os.system("rm fe.superior._isnonzero.c") #since it's modified, it's in supSpecificOld
+    os.system("rm fe.superior._isnonzero.c") #since it's modified, it's in xmrSpecificOld
     os.system("cat fe.superior.*.c | grep -v '^#include' > fe.superior.c")
 
     #sc things
@@ -180,7 +180,7 @@ if a == "m":
     #so you don't get multiple "loads"
     os.system("tail -n +24 sc_reduce.c > sc.superior._reduce.c") #also good on linux
     os.system("tail -n +24 sc_muladd.c > sc.superior._muladd.c")
-    os.system("tail -n +31 sc_sub.sup.c > sc.superior._sub.sup.c") #careful with the tails if you change these files!
+    os.system("tail -n +31 sc_sub.xmr.c > sc.superior._sub.xmr.c") #careful with the tails if you change these files!
     os.system("cat sc.superior.*.c | grep -v '^#include' > sc.superior.c")
 
     #ge stuff
@@ -223,9 +223,9 @@ if a == "m":
             text_file.write(ge_comments)
     with open("sc.superior.comments", "w") as text_file:
             text_file.write(sc_comments)
-    with open("sup.superior.comments", "w") as text_file:
-            text_file.write(sup_comments)
-    with open("sup.superior.predeclarations", "w") as text_file:
+    with open("xmr.superior.comments", "w") as text_file:
+            text_file.write(xmr_comments)
+    with open("xmr.superior.predeclarations", "w") as text_file:
             text_file.write(predeclarations)
 
 
@@ -238,7 +238,7 @@ if a == "m":
         text_file.write(crypto_ops_includes)
 
     #note you may have duplicates of load_3, load_4 and possibly some other functions ... 
-    os.system("cat superior.license crypto-ops.superior.includes sup.superior.predeclarations fe.superior.comments fe.superior.c sc.superior.comments sc.superior.c ge.superior.comments ge.superior.c sup.superior.comments supSpecificOld.c > crypto-ops.c")
+    os.system("cat superior.license crypto-ops.superior.includes xmr.superior.predeclarations fe.superior.comments fe.superior.c sc.superior.comments sc.superior.c ge.superior.comments ge.superior.c xmr.superior.comments xmrSpecificOld.c > crypto-ops.c")
 
     #superior specific header files
     #print("making crypto-ops-tmp.h")

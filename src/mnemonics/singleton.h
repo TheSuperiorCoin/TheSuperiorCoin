@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, SuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -50,8 +50,8 @@ namespace Language
   class Singleton
   {
     Singleton() {}
-    Singleton(Singleton &s) {}
-    Singleton& operator=(const Singleton&) {}
+    Singleton(Singleton &s) = delete;
+    Singleton& operator=(const Singleton&) = delete;
   public:
     static T* instance()
     {

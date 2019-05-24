@@ -2,27 +2,13 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project (miniupnpc C)
 
-# - we comment out this block as we don't support these other build types
-if(0)
-if (NOT CMAKE_BUILD_TYPE)
-  if (WIN32)
-    set (DEFAULT_BUILD_TYPE MinSizeRel)
-  else (WIN32)
-    set (DEFAULT_BUILD_TYPE RelWithDebInfo)
-  endif(WIN32)
-    set (CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE} CACHE STRING
-        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
-        FORCE)
-endif()
-endif()
-
 set (MINIUPNPC_VERSION 2.1)
 set (MINIUPNPC_API_VERSION 17)
 
 option (UPNPC_BUILD_STATIC "Build static library" TRUE)
-option (UPNPC_BUILD_SHARED "Build shared library" FALSE)
-option (UPNPC_BUILD_TESTS "Build test executables" FALSE)
-option (UPNPC_BUILD_SAMPLE "Build sample executables" FALSE)
+option (UPNPC_BUILD_SHARED "Build shared library" TRUE)
+option (UPNPC_BUILD_TESTS "Build test executables" TRUE)
+option (UPNPC_BUILD_SAMPLE "Build sample executables" TRUE)
 option (NO_GETADDRINFO "Define NO_GETADDRINFO" FALSE)
 
 if (NOT UPNPC_BUILD_STATIC AND NOT UPNPC_BUILD_SHARED)
@@ -52,21 +38,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_compile_definitions(miniupnpc-private INTERFACE _DARWIN_C_SOURCE)
 endif ()
 
-# - we comment out this block as we already set flags
-if(0)
 # Set compiler specific build flags
 if (CMAKE_COMPILER_IS_GNUCC AND NOT CMAKE_SYSTEM_NAME STREQUAL "AmigaOS")
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   target_compile_options(miniupnpc-private INTERFACE -Wall)
 endif ()
-endif()
-
-# always add -fPIC
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fPIC")
-set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fPIC")
-set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -fPIC")
-set (CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fPIC")
 
 # Suppress noise warnings
 if (MSVC)
@@ -195,9 +171,20 @@ if (UPNPC_BUILD_TESTS)
   target_link_libraries (testminiwget PRIVATE miniupnpc-tests)
 
 # set (UPNPC_INSTALL_TARGETS ${UPNPC_INSTALL_TARGETS} testminixml minixmlvalid testupnpreplyparse testigddescparse testminiwget)
-endif (UPNPC_BUILD_TESTS)
+endif ()
 
-# commented out by Ben Boeckel, who I presume knows what he's doing;)
-#set (CONFIGURED YES CACHE INTERNAL "")
+install (FILES
+	miniupnpc.h
+  miniwget.h
+  upnpcommands.h
+  igd_desc_parse.h
+  upnpreplyparse.h
+  upnperrors.h
+  upnpdev.h
+  miniupnpctypes.h
+  portlistingparse.h
+  miniupnpc_declspec.h
+  DESTINATION include/miniupnpc
+)
 
 # vim: ts=2:sw=2

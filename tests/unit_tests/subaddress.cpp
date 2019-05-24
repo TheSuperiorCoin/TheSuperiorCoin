@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, SuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -49,7 +49,7 @@ class WalletSubaddress : public ::testing::Test
       catch (const std::exception& e)
       {
         LOG_ERROR("failed to generate wallet: " << e.what());
-        throw e;
+        throw;
       }
 
       w1.add_subaddress_account(test_label);

@@ -1,4 +1,4 @@
-// Copyright (c) 2018, The Superior Project
+// Copyright (c) 2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -82,7 +82,6 @@ TEST(notify, works)
         ok = true;
         break;
       }
-      std::cout << "got: [" << s << "]" << std::endl;
     }
   }
   boost::filesystem::remove(name_template);

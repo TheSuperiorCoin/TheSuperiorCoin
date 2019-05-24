@@ -44,13 +44,47 @@ using namespace std;
 
 #define CHECK_AND_ASSERT_MES_L1(expr, ret, message) {if(!(expr)) {MCERROR("verify", message); return ret;}}
 
+namespace
+{
+    rct::Bulletproof make_dummy_bulletproof(const std::vector<uint64_t> &outamounts, rct::keyV &C, rct::keyV &masks)
+    {
+        const size_t n_outs = outamounts.size();
+        const rct::key I = rct::identity();
+        size_t nrl = 0;
+        while ((1u << nrl) < n_outs)
+          ++nrl;
+        nrl += 6;
+
+        C.resize(n_outs);
+        masks.resize(n_outs);
+        for (size_t i = 0; i < n_outs; ++i)
+        {
+            masks[i] = I;
+            rct::key sv8, sv;
+            sv = rct::zero();
+            sv.bytes[0] = outamounts[i] & 255;
+            sv.bytes[1] = (outamounts[i] >> 8) & 255;
+            sv.bytes[2] = (outamounts[i] >> 16) & 255;
+            sv.bytes[3] = (outamounts[i] >> 24) & 255;
+            sv.bytes[4] = (outamounts[i] >> 32) & 255;
+            sv.bytes[5] = (outamounts[i] >> 40) & 255;
+            sv.bytes[6] = (outamounts[i] >> 48) & 255;
+            sv.bytes[7] = (outamounts[i] >> 56) & 255;
+            sc_mul(sv8.bytes, sv.bytes, rct::INV_EIGHT.bytes);
+            rct::addKeys2(C[i], rct::INV_EIGHT, sv8, rct::H);
+        }
+
+        return rct::Bulletproof{rct::keyV(n_outs, I), I, I, I, I, I, I, rct::keyV(nrl, I), rct::keyV(nrl, I), I, I, I};
+    }
+}
+
 namespace rct {
-    Bulletproof proveRangeBulletproof(keyV &C, keyV &masks, const std::vector<uint64_t> &amounts, const std::vector<key> &sk)
+    Bulletproof proveRangeBulletproof(keyV &C, keyV &masks, const std::vector<uint64_t> &amounts, epee::span<const key> sk, hw::device &hwdev)
     {
         CHECK_AND_ASSERT_THROW_MES(amounts.size() == sk.size(), "Invalid amounts/sk sizes");
         masks.resize(amounts.size());
         for (size_t i = 0; i < masks.size(); ++i)
-            masks[i] = genCommitmentMask(sk[i]);
+            masks[i] = hwdev.genCommitmentMask(sk[i]);
         Bulletproof proof = bulletproof_PROVE(amounts, masks);
         CHECK_AND_ASSERT_THROW_MES(proof.V.size() == amounts.size(), "V does not have the expected size");
         C = proof.V;
@@ -299,7 +333,7 @@ namespace rct {
     //   thus this proves that "amount" is in [0, 2^64]
     //   mask is a such that C = aG + bH, and b = amount
     //verRange verifies that \sum Ci = C and that each Ci is a commitment to 0 or 2^i
-    rangeSig proveRange(key & C, key & mask, const sup_amount & amount) {
+    rangeSig proveRange(key & C, key & mask, const xmr_amount & amount) {
         sc_0(mask.bytes);
         identity(C);
         bits b;
@@ -434,8 +468,7 @@ namespace rct {
     //   this shows that sum inputs = sum outputs
     //Ver:    
     //   verifies the above sig is created corretly
-    mgSig proveRctMG(const key &message, const ctkeyM & pubs, const ctkeyV & inSk, const ctkeyV &outSk, const ctkeyV & outPk, const multisig_kLRki *kLRki, key *mscout, unsigned int index, key txnFeeKey, hw::device &hwdev) {
-        mgSig mg;
+    mgSig proveRctMG(const key &message, const ctkeyM & pubs, const ctkeyV & inSk, const ctkeyV &outSk, const ctkeyV & outPk, const multisig_kLRki *kLRki, key *mscout, unsigned int index, const key &txnFeeKey, hw::device &hwdev) {
         //setup vars
         size_t cols = pubs.size();
         CHECK_AND_ASSERT_THROW_MES(cols >= 1, "Empty pubs");
@@ -493,7 +526,6 @@ namespace rct {
     //       a_out, Cout is for the output commitment
     //       index is the signing index..
     mgSig proveRctMGSimple(const key &message, const ctkeyV & pubs, const ctkey & inSk, const key &a , const key &Cout, const multisig_kLRki *kLRki, key *mscout, unsigned int index, hw::device &hwdev) {
-        mgSig mg;
         //setup vars
         size_t rows = 1;
         size_t cols = pubs.size();
@@ -524,7 +556,7 @@ namespace rct {
     //   this shows that sum inputs = sum outputs
     //Ver:    
     //   verifies the above sig is created corretly
-    bool verRctMG(const mgSig &mg, const ctkeyM & pubs, const ctkeyV & outPk, key txnFeeKey, const key &message) {
+    bool verRctMG(const mgSig &mg, const ctkeyM & pubs, const ctkeyV & outPk, const key &txnFeeKey, const key &message) {
         PERF_TIMER(verRctMG);
         //setup vars
         size_t cols = pubs.size();
@@ -574,10 +606,19 @@ namespace rct {
             keyV tmp(rows + 1);
             size_t i;
             keyM M(cols, tmp);
+            ge_p3 Cp3;
+            CHECK_AND_ASSERT_MES_L1(ge_frombytes_vartime(&Cp3, C.bytes) == 0, false, "point conv failed");
+            ge_cached Ccached;
+            ge_p3_to_cached(&Ccached, &Cp3);
+            ge_p1p1 p1;
             //create the matrix to mg sig
             for (i = 0; i < cols; i++) {
                     M[i][0] = pubs[i].dest;
-                    subKeys(M[i][1], pubs[i].mask, C);
+                    ge_p3 p3;
+                    CHECK_AND_ASSERT_MES_L1(ge_frombytes_vartime(&p3, pubs[i].mask.bytes) == 0, false, "point conv failed");
+                    ge_sub(&p1, &p3, &Ccached);
+                    ge_p1p1_to_p3(&p3, &p1);
+                    ge_p3_tobytes(M[i][1].bytes, &p3);
             }
             //DP(C);
             return MLSAG_Ver(message, M, mg, rows);
@@ -601,15 +642,15 @@ namespace rct {
     //getKeyFromBlockchain grabs a key from the blockchain at "reference_index" to mix with
     //populateFromBlockchain creates a keymatrix with "mixin" + 1 columns and one of the columns is inPk
     //   the return value are the key matrix, and the index where inPk was put (random).     
-    tuple<ctkeyM, sup_amount> populateFromBlockchain(ctkeyV inPk, int mixin) {
+    tuple<ctkeyM, xmr_amount> populateFromBlockchain(ctkeyV inPk, int mixin) {
         int rows = inPk.size();
         ctkeyM rv(mixin + 1, inPk);
-        int index = randSupAmount(mixin);
+        int index = randXmrAmount(mixin);
         int i = 0, j = 0;
         for (i = 0; i <= mixin; i++) {
             if (i != index) {
                 for (j = 0; j < rows; j++) {
-                    getKeyFromBlockchain(rv[i][j], (size_t)randSupAmount);
+                    getKeyFromBlockchain(rv[i][j], (size_t)randXmrAmount);
                 }
             }
         }
@@ -621,12 +662,12 @@ namespace rct {
     //getKeyFromBlockchain grabs a key from the blockchain at "reference_index" to mix with
     //populateFromBlockchain creates a keymatrix with "mixin" columns and one of the columns is inPk
     //   the return value are the key matrix, and the index where inPk was put (random).     
-    sup_amount populateFromBlockchainSimple(ctkeyV & mixRing, const ctkey & inPk, int mixin) {
-        int index = randSupAmount(mixin);
+    xmr_amount populateFromBlockchainSimple(ctkeyV & mixRing, const ctkey & inPk, int mixin) {
+        int index = randXmrAmount(mixin);
         int i = 0;
         for (i = 0; i <= mixin; i++) {
             if (i != index) {
-                getKeyFromBlockchain(mixRing[i], (size_t)randSupAmount(1000));
+                getKeyFromBlockchain(mixRing[i], (size_t)randXmrAmount(1000));
             } else {
                 mixRing[i] = inPk;
             }
@@ -646,7 +687,7 @@ namespace rct {
     //   must know the destination private key to find the correct amount, else will return a random number
     //   Note: For txn fees, the last index in the amounts vector should contain that
     //   Thus the amounts vector will be "one" longer than the destinations vectort
-    rctSig genRct(const key &message, const ctkeyV & inSk, const keyV & destinations, const vector<sup_amount> & amounts, const ctkeyM &mixRing, const keyV &amount_keys, const multisig_kLRki *kLRki, multisig_out *msout, unsigned int index, ctkeyV &outSk, const RCTConfig &rct_config, hw::device &hwdev) {
+    rctSig genRct(const key &message, const ctkeyV & inSk, const keyV & destinations, const vector<xmr_amount> & amounts, const ctkeyM &mixRing, const keyV &amount_keys, const multisig_kLRki *kLRki, multisig_out *msout, unsigned int index, ctkeyV &outSk, const RCTConfig &rct_config, hw::device &hwdev) {
         CHECK_AND_ASSERT_THROW_MES(amounts.size() == destinations.size() || amounts.size() == destinations.size() + 1, "Different number of amounts/destinations");
         CHECK_AND_ASSERT_THROW_MES(amount_keys.size() == destinations.size(), "Different number of amount_keys/destinations");
         CHECK_AND_ASSERT_THROW_MES(index < mixRing.size(), "Bad index into mixRing");
@@ -654,6 +695,7 @@ namespace rct {
           CHECK_AND_ASSERT_THROW_MES(mixRing[n].size() == inSk.size(), "Bad mixRing size");
         }
         CHECK_AND_ASSERT_THROW_MES((kLRki && msout) || (!kLRki && !msout), "Only one of kLRki/msout is present");
+        CHECK_AND_ASSERT_THROW_MES(inSk.size() < 2, "genRct is not suitable for 2+ rings");
 
         rctSig rv;
         rv.type = RCTTypeFull;
@@ -697,7 +739,7 @@ namespace rct {
         return rv;
     }
 
-    rctSig genRct(const key &message, const ctkeyV & inSk, const ctkeyV  & inPk, const keyV & destinations, const vector<sup_amount> & amounts, const keyV &amount_keys, const multisig_kLRki *kLRki, multisig_out *msout, const int mixin, const RCTConfig &rct_config, hw::device &hwdev) {
+    rctSig genRct(const key &message, const ctkeyV & inSk, const ctkeyV  & inPk, const keyV & destinations, const vector<xmr_amount> & amounts, const keyV &amount_keys, const multisig_kLRki *kLRki, multisig_out *msout, const int mixin, const RCTConfig &rct_config, hw::device &hwdev) {
         unsigned int index;
         ctkeyM mixRing;
         ctkeyV outSk;
@@ -707,7 +749,7 @@ namespace rct {
     
     //RCT simple    
     //for post-rct only
-    rctSig genRctSimple(const key &message, const ctkeyV & inSk, const keyV & destinations, const vector<sup_amount> &inamounts, const vector<sup_amount> &outamounts, sup_amount txnFee, const ctkeyM & mixRing, const keyV &amount_keys, const std::vector<multisig_kLRki> *kLRki, multisig_out *msout, const std::vector<unsigned int> & index, ctkeyV &outSk, const RCTConfig &rct_config, hw::device &hwdev) {
+    rctSig genRctSimple(const key &message, const ctkeyV & inSk, const keyV & destinations, const vector<xmr_amount> &inamounts, const vector<xmr_amount> &outamounts, xmr_amount txnFee, const ctkeyM & mixRing, const keyV &amount_keys, const std::vector<multisig_kLRki> *kLRki, multisig_out *msout, const std::vector<unsigned int> & index, ctkeyV &outSk, const RCTConfig &rct_config, hw::device &hwdev) {
         const bool bulletproof = rct_config.range_proof_type != RangeProofBorromean;
         CHECK_AND_ASSERT_THROW_MES(inamounts.size() > 0, "Empty inamounts");
         CHECK_AND_ASSERT_THROW_MES(inamounts.size() == inSk.size(), "Different number of inamounts/inSk");
@@ -750,17 +792,24 @@ namespace rct {
         rv.p.bulletproofs.clear();
         if (bulletproof)
         {
-            std::vector<uint64_t> proof_amounts;
             size_t n_amounts = outamounts.size();
             size_t amounts_proved = 0;
             if (rct_config.range_proof_type == RangeProofPaddedBulletproof)
             {
                 rct::keyV C, masks;
-                const std::vector<key> keys(amount_keys.begin(), amount_keys.end());
-                rv.p.bulletproofs.push_back(proveRangeBulletproof(C, masks, outamounts, keys));
-                #ifdef DBG
-                CHECK_AND_ASSERT_THROW_MES(verBulletproof(rv.p.bulletproofs.back()), "verBulletproof failed on newly created proof");
-                #endif
+                if (hwdev.get_mode() == hw::device::TRANSACTION_CREATE_FAKE)
+                {
+                    // use a fake bulletproof for speed
+                    rv.p.bulletproofs.push_back(make_dummy_bulletproof(outamounts, C, masks));
+                }
+                else
+                {
+                    const epee::span<const key> keys{&amount_keys[0], amount_keys.size()};
+                    rv.p.bulletproofs.push_back(proveRangeBulletproof(C, masks, outamounts, keys, hwdev));
+                    #ifdef DBG
+                    CHECK_AND_ASSERT_THROW_MES(verBulletproof(rv.p.bulletproofs.back()), "verBulletproof failed on newly created proof");
+                    #endif
+                }
                 for (i = 0; i < outamounts.size(); ++i)
                 {
                     rv.outPk[i].mask = rct::scalarmult8(C[i]);
@@ -777,13 +826,19 @@ namespace rct {
                 std::vector<uint64_t> batch_amounts(batch_size);
                 for (i = 0; i < batch_size; ++i)
                   batch_amounts[i] = outamounts[i + amounts_proved];
-                std::vector<key> keys(batch_size);
-                for (size_t j = 0; j < batch_size; ++j)
-                  keys[j] = amount_keys[amounts_proved + j];
-                rv.p.bulletproofs.push_back(proveRangeBulletproof(C, masks, batch_amounts, keys));
-            #ifdef DBG
-                CHECK_AND_ASSERT_THROW_MES(verBulletproof(rv.p.bulletproofs.back()), "verBulletproof failed on newly created proof");
-            #endif
+                if (hwdev.get_mode() == hw::device::TRANSACTION_CREATE_FAKE)
+                {
+                    // use a fake bulletproof for speed
+                    rv.p.bulletproofs.push_back(make_dummy_bulletproof(batch_amounts, C, masks));
+                }
+                else
+                {
+                    const epee::span<const key> keys{&amount_keys[amounts_proved], batch_size};
+                    rv.p.bulletproofs.push_back(proveRangeBulletproof(C, masks, batch_amounts, keys, hwdev));
+                #ifdef DBG
+                    CHECK_AND_ASSERT_THROW_MES(verBulletproof(rv.p.bulletproofs.back()), "verBulletproof failed on newly created proof");
+                #endif
+                }
                 for (i = 0; i < batch_size; ++i)
                 {
                   rv.outPk[i + amounts_proved].mask = rct::scalarmult8(C[i]);
@@ -819,7 +874,6 @@ namespace rct {
             sc_add(sumpouts.bytes, a[i].bytes, sumpouts.bytes);
             genC(pseudoOuts[i], a[i], inamounts[i]);
         }
-        rv.mixRing = mixRing;
         sc_sub(a[i].bytes, sumout.bytes, sumpouts.bytes);
         genC(pseudoOuts[i], a[i], inamounts[i]);
         DP(pseudoOuts[i]);
@@ -833,7 +887,7 @@ namespace rct {
         return rv;
     }
 
-    rctSig genRctSimple(const key &message, const ctkeyV & inSk, const ctkeyV & inPk, const keyV & destinations, const vector<sup_amount> &inamounts, const vector<sup_amount> &outamounts, const keyV &amount_keys, const std::vector<multisig_kLRki> *kLRki, multisig_out *msout, sup_amount txnFee, unsigned int mixin, const RCTConfig &rct_config, hw::device &hwdev) {
+    rctSig genRctSimple(const key &message, const ctkeyV & inSk, const ctkeyV & inPk, const keyV & destinations, const vector<xmr_amount> &inamounts, const vector<xmr_amount> &outamounts, const keyV &amount_keys, const std::vector<multisig_kLRki> *kLRki, multisig_out *msout, xmr_amount txnFee, unsigned int mixin, const RCTConfig &rct_config, hw::device &hwdev) {
         std::vector<unsigned int> index;
         index.resize(inPk.size());
         ctkeyM mixRing;
@@ -1093,7 +1147,7 @@ namespace rct {
     //decodeRct: (c.f. https://eprint.iacr.org/2015/1098 section 5.1.1)
     //   uses the attached ecdh info to find the amounts represented by each output commitment 
     //   must know the destination private key to find the correct amount, else will return a random number    
-    sup_amount decodeRct(const rctSig & rv, const key & sk, unsigned int i, key & mask, hw::device &hwdev) {
+    xmr_amount decodeRct(const rctSig & rv, const key & sk, unsigned int i, key & mask, hw::device &hwdev) {
         CHECK_AND_ASSERT_MES(rv.type == RCTTypeFull, false, "decodeRct called on non-full rctSig");
         CHECK_AND_ASSERT_THROW_MES(i < rv.ecdhInfo.size(), "Bad index");
         CHECK_AND_ASSERT_THROW_MES(rv.outPk.size() == rv.ecdhInfo.size(), "Mismatched sizes of rv.outPk and rv.ecdhInfo");
@@ -1118,12 +1172,12 @@ namespace rct {
         return h2d(amount);
     }
 
-    sup_amount decodeRct(const rctSig & rv, const key & sk, unsigned int i, hw::device &hwdev) {
+    xmr_amount decodeRct(const rctSig & rv, const key & sk, unsigned int i, hw::device &hwdev) {
       key mask;
       return decodeRct(rv, sk, i, mask, hwdev);
     }
 
-    sup_amount decodeRctSimple(const rctSig & rv, const key & sk, unsigned int i, key &mask, hw::device &hwdev) {
+    xmr_amount decodeRctSimple(const rctSig & rv, const key & sk, unsigned int i, key &mask, hw::device &hwdev) {
         CHECK_AND_ASSERT_MES(rv.type == RCTTypeSimple || rv.type == RCTTypeBulletproof || rv.type == RCTTypeBulletproof2, false, "decodeRct called on non simple rctSig");
         CHECK_AND_ASSERT_THROW_MES(i < rv.ecdhInfo.size(), "Bad index");
         CHECK_AND_ASSERT_THROW_MES(rv.outPk.size() == rv.ecdhInfo.size(), "Mismatched sizes of rv.outPk and rv.ecdhInfo");
@@ -1148,7 +1202,7 @@ namespace rct {
         return h2d(amount);
     }
 
-    sup_amount decodeRctSimple(const rctSig & rv, const key & sk, unsigned int i, hw::device &hwdev) {
+    xmr_amount decodeRctSimple(const rctSig & rv, const key & sk, unsigned int i, hw::device &hwdev) {
       key mask;
       return decodeRctSimple(rv, sk, i, mask, hwdev);
     }

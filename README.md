@@ -597,7 +597,7 @@ Enter `echo core | sudo tee /proc/sys/kernel/core_pattern` to stop cores from be
 
 Run the build.
 
-When it terminates with an output along the lines of "Segmentation fault (core dumped)", there should be a core dump file in the same directory as superiord. It may be named just `core`, or `core.xxxx` with numbers appended.
+When it terminates with an output along the lines of "gdbSegmentation fault (core dumped)", there should be a core dump file in the same directory as superiord. It may be named just `core`, or `core.xxxx` with numbers appended.
 
 You can now analyse this core dump with `gdb` as follows:
 

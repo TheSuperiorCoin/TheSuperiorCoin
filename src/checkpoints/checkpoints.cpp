@@ -28,17 +28,15 @@
 //
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
-#include "include_base_utils.h"
-
-using namespace epee;
-
 #include "checkpoints.h"
 
 #include "common/dns_utils.h"
-#include "include_base_utils.h"
 #include "string_tools.h"
 #include "storages/portable_storage_template_helper.h" // epee json include
 #include "serialization/keyvalue_serialization.h"
+#include <vector>
+
+using namespace epee;
 
 #undef SUPERIOR_DEFAULT_LOG_CATEGORY
 #define SUPERIOR_DEFAULT_LOG_CATEGORY "checkpoints"
@@ -76,7 +74,7 @@ namespace cryptonote
   bool checkpoints::add_checkpoint(uint64_t height, const std::string& hash_str)
   {
     crypto::hash h = crypto::null_hash;
-    bool r = epee::string_tools::parse_tpod_from_hex_string(hash_str, h);
+    bool r = epee::string_tools::hex_to_pod(hash_str, h);
     CHECK_AND_ASSERT_MES(r, false, "Failed to parse checkpoint hash string into binary representation!");
 
     // return false if adding at a height we already have AND the hash is different
@@ -173,16 +171,16 @@ namespace cryptonote
       //ADD_CHECKPOINT(10000,   "1f8b0ce313f8b9ba9a46108bfd285c45ad7c2176871fd41c3a690d4830ce2fd5");
       return true;
     }
-    ADD_CHECKPOINT(1,     "165264703669c77122855c0ec488b5f1a6792e8c91a2904f264bdc42b84bf17f");
-    ADD_CHECKPOINT(10,    "bb1077ee090287593219f66f557a058ef12392240a9641086689b5214a8e3fc8");
-    ADD_CHECKPOINT(100,   "55c240f78855bb526b0b949ded152ea4769a5498ff6e5a1f97a56d3f3ec9d5c0");
-    ADD_CHECKPOINT(1000,  "c730bb5138d47f0a39675294539025e9c60887243c6c193b9104e0cba1402880");
-    ADD_CHECKPOINT(10000, "2278e48b8dee552f3bdf2fd1227e33f14ec901ffdcb89610353b9bea06b8d9b6");
-    ADD_CHECKPOINT(22231, "74e249fc98edb0af4cb6f0c20b897d1fd84570762b9dca0bfe731d4b63531f76");
-    ADD_CHECKPOINT(29556, "366692d5a26396a6305236d37b1deb8837e0305ef0085d086335147f66c85986");
-    ADD_CHECKPOINT(50000, "02b4073178550fbd897ddb7c81f499fa4c74c952149c61f703f08345776c4981");
-    ADD_CHECKPOINT(80000, "e4efef80693e0c926f5e185bd34748c7d3a5a852047aea463443c662102dd2bd");
-    ADD_CHECKPOINT(175352, "b6418feb39d3b9e843efced55959a6003a9b63d459441d07ee3a3331d62e1d0c");
+    //ADD_CHECKPOINT(1,     "165264703669c77122855c0ec488b5f1a6792e8c91a2904f264bdc42b84bf17f");
+    //ADD_CHECKPOINT(10,    "bb1077ee090287593219f66f557a058ef12392240a9641086689b5214a8e3fc8");
+    //ADD_CHECKPOINT(100,   "55c240f78855bb526b0b949ded152ea4769a5498ff6e5a1f97a56d3f3ec9d5c0");
+    //ADD_CHECKPOINT(1000,  "c730bb5138d47f0a39675294539025e9c60887243c6c193b9104e0cba1402880");
+    //ADD_CHECKPOINT(10000, "2278e48b8dee552f3bdf2fd1227e33f14ec901ffdcb89610353b9bea06b8d9b6");
+    //ADD_CHECKPOINT(22231, "74e249fc98edb0af4cb6f0c20b897d1fd84570762b9dca0bfe731d4b63531f76");
+    //ADD_CHECKPOINT(29556, "366692d5a26396a6305236d37b1deb8837e0305ef0085d086335147f66c85986");
+    //ADD_CHECKPOINT(50000, "02b4073178550fbd897ddb7c81f499fa4c74c952149c61f703f08345776c4981");
+    //ADD_CHECKPOINT(80000, "e4efef80693e0c926f5e185bd34748c7d3a5a852047aea463443c662102dd2bd");
+    //ADD_CHECKPOINT(175352, "b6418feb39d3b9e843efced55959a6003a9b63d459441d07ee3a3331d62e1d0c");
 
     
 
@@ -270,7 +268,7 @@ namespace cryptonote
         // parse the second part as crypto::hash,
         // if this fails move on to the next record
         std::string hashStr = record.substr(pos + 1);
-        if (!epee::string_tools::parse_tpod_from_hex_string(hashStr, hash))
+        if (!epee::string_tools::hex_to_pod(hashStr, hash))
         {
     continue;
         }

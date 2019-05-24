@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, SuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -37,7 +37,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "common/int-util.h"
+#include "int-util.h"
 #include "warnings.h"
 
 static inline void *padd(void *p, size_t i) {
