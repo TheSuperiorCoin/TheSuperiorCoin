@@ -190,12 +190,12 @@ COPY --from=builder /src/build/release/bin /usr/local/bin/
 
 # Create superior user
 RUN adduser --system --group --disabled-password superior && \
-	mkdir -p /wallet /home/superior/.bitsuperior && \
-	chown -R superior:superior /home/superior/.bitsuperior && \
+	mkdir -p /wallet /home/superior/.SuperiorCoin && \
+	chown -R superior:superior /home/superior/.SuperiorCoin && \
 	chown -R superior:superior /wallet
 
 # Contains the blockchain
-VOLUME /home/superior/.bitsuperior
+VOLUME /home/superior/.SuperiorCoin
 
 # Generate your wallet via accessing the container and run:
 # cd /wallet

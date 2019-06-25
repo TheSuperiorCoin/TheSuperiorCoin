@@ -133,7 +133,8 @@ namespace cryptonote {
     return true;
   }
     bool get_block_rewardb(size_t median_weight, size_t current_block_weight, uint64_t already_generated_coins, uint64_t &reward, uint8_t version, uint64_t ts, uint64_t l_timestamp) {
-            static_assert(DIFFICULTY_TARGET_V2%60==0&&DIFFICULTY_TARGET_V1%60==0,"difficulty targets must be a multiple of 60");
+
+        static_assert(DIFFICULTY_TARGET_V2%60==0&&DIFFICULTY_TARGET_V1%60==0,"difficulty targets must be a multiple of 60");
             const int target = version < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
             const int EMISSION_SPEED_FACTOR_PER_MINUTE_ = version < 2 ? (int)EMISSION_SPEED_FACTOR_PER_MINUTE_v1 : (int)EMISSION_SPEED_FACTOR_PER_MINUTE_v2;
             const int target_minutes = target / 60;
@@ -160,9 +161,13 @@ namespace cryptonote {
           uint64_t l_time = b_timestamp - l_timestamp;
           uint64_t d_time = l_time * base_reward;
           base_reward = d_time/120;
+            LOG_PRINT_L1("l_time " << l_time);
+            LOG_PRINT_L1("d_time " << d_time);
+            LOG_PRINT_L1("base_reward " << base_reward);
           }
           else{
-            base_reward = 0;
+            LOG_PRINT_L0("Timestamp is invalid");
+            return false;
           }
           if(base_reward > 5000000000000){
               base_reward = 5000000000000;
@@ -207,7 +212,8 @@ namespace cryptonote {
             reward = n_reward;
         }
         else{
-            reward = 0;
+            MERROR("Timestamp is invalid");
+            return false;
         }
         if(reward > 5000000000000){
               reward = 5000000000000;

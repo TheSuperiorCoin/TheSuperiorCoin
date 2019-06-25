@@ -234,7 +234,7 @@ int main(int argc, char const * argv[])
     }
 
     // data_dir
-    //   default: e.g. ~/.bitsuperior/ or ~/.bitsuperior/testnet
+    //   default: e.g. ~/.SuperiorCoin/ or ~/.SuperiorCoin/testnet
     //   if data-dir argument given:
     //     absolute path
     //     relative path: relative to cwd

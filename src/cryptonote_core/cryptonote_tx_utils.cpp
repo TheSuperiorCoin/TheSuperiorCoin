@@ -92,6 +92,7 @@ namespace cryptonote
     in.height = height;
 
     uint64_t block_reward;
+      LOG_PRINT_L0("Block 1");
     if(!get_block_rewardb(median_weight, current_block_weight, already_generated_coins, block_reward, hard_fork_version, ts, l_timestamp))
     {
       LOG_PRINT_L0("Block is too big");

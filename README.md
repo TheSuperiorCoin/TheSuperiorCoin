@@ -1,9 +1,9 @@
 # The Superior Coin
 
 - Copyright (c) 2014-2018, TheSuperioriorCoin Project
-- This may contain code Copyright (c) 2014-2018, The Superior Project
+- This may contain code Copyright (c) 2014-2018, The SuperiorCoin Project
 - Copyright (c) 2012-1013 Part of this may Include Source Code from The Cryptonote developers
-- This may contain code Copyright (c) 2014-2017,  The Superior Project 
+- This may contain code Copyright (c) 2014-2017,  The Monero Project 
 
 ## Development Resources
 
@@ -140,10 +140,10 @@ Packages are available for
         docker build --build-arg NPROC=1 -t superior .
      
         # either run in foreground
-        docker run -it -v /superior/chain:/root/.bitsuperior -v /superior/wallet:/wallet -p 17369:17369 superior
+        docker run -it -v /superior/chain:/root/.SuperiorCoin -v /superior/wallet:/wallet -p 17369:17369 superior
 
         # or in background
-        docker run -it -d -v /superior/chain:/root/.bitsuperior -v /superior/wallet:/wallet -p 17369:17369 superior
+        docker run -it -d -v /superior/chain:/root/.SuperiorCoin -v /superior/wallet:/wallet -p 17369:17369 superior
 
 Packaging for your favorite distribution would be a welcome contribution!
 

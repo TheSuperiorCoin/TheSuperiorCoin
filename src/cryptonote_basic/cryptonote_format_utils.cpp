@@ -1164,7 +1164,6 @@ namespace cryptonote
     if (b.miner_tx.vin.size() == 1 && b.miner_tx.vin[0].type() == typeid(cryptonote::txin_gen))
     {
       const cryptonote::txin_gen &txin_gen = boost::get<cryptonote::txin_gen>(b.miner_tx.vin[0]);
-        return true;
     }
 
     return hash_result;

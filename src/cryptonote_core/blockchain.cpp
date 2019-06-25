@@ -954,7 +954,7 @@ difficulty_type Blockchain::get_difficulty_for_next_block()
     m_timestamps = timestamps;
     m_difficulties = difficulties;
   }
-  size_t target = get_current_hard_fork_version() < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
+  size_t target = get_difficulty_target();
   difficulty_type diff = get_current_hard_fork_version() < 5 ?  next_difficulty(timestamps, difficulties, target) : next_difficulty_v2(timestamps, difficulties, target);
   CRITICAL_REGION_LOCAL1(m_difficulty_lock);
   m_difficulty_for_next_block_top_hash = top_hash;
@@ -1221,6 +1221,7 @@ bool Blockchain::prevalidate_miner_transaction(const block& b, uint64_t height)
 // This function validates the miner transaction reward
 bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_block_weight, uint64_t fee, uint64_t& base_reward, uint64_t already_generated_coins, bool &partial_block_reward, uint8_t version)
 {
+
     const int g_height = m_db->height();
 
     if (g_height == 193175){
@@ -1258,6 +1259,7 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
     uint64_t index = g_height - 1;
     if(version > 6){
         l_timestamp = m_db->get_block_timestamp(index);
+        LOG_PRINT_L1("index" << index);
         if (!get_block_rewardb(epee::misc_utils::median(last_blocks_weights), cumulative_block_weight, already_generated_coins, base_reward, version, b.timestamp, l_timestamp))
           {
             MERROR_VER("block size " << cumulative_block_weight << " is bigger than allowed for this blockchain");
@@ -1282,15 +1284,20 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
    if(version > 6){
        if(b.timestamp > l_timestamp){
            uint64_t l_time = b.timestamp - l_timestamp;
+           LOG_PRINT_L1("l_time" << l_time);
            uint64_t d_time = l_time * base_reward;
+           LOG_PRINT_L1("d_time" << d_time);
            base_reward = d_time/120;
+           LOG_PRINT_L1("base_reward" << base_reward);
        }
        else{
-           base_reward = 0;
+           MERROR_VER("Timestamp is invalid");
+           return false;
        }
        if(base_reward > 5000000000000){
                base_reward = 5000000000000;
        }
+       MERROR_VER("base_reward" << base_reward);
    }
 
 
@@ -1523,6 +1530,8 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
   uint64_t l_timestamp = 0;
   if(b.major_version > 6){
    l_timestamp = m_db->get_block_timestamp(index);
+      LOG_PRINT_L0("index" << index);
+
   }
 
   size_t txs_weight;
