@@ -1,0 +1,33 @@
+{
+  "symbol": "ESUP",
+  "address": "0xc98e0639c6d2EC037A615341c369666B110e80E5",
+  "decimals": 8,
+  "name": "eSUPcoin",
+  "ens_address": "",
+  "website": "https://esup.io/",
+  "logo": {
+    "src": "",
+    "width": "",
+    "height": "",
+    "ipfs_hash": ""
+  },
+  "support": {
+    "email": "support@esup.io",
+    "url": ""
+  },
+  "social": {
+    "blog": "",
+    "chat": "",
+    "facebook": "https://www.facebook.com/esupcoin/",
+    "forum": "",
+    "github": "https://github.com/eSUPcoin/",
+    "gitter": "",
+    "instagram": "",
+    "linkedin": "",
+    "reddit": "https://www.reddit.com/user/eSUPcoin/",
+    "slack": "",
+    "telegram": "https://t.me/joinESUP/",
+    "twitter": "https://www.twitter.com/eSUPCoin",
+    "youtube": ""
+  }
+}
