@@ -1236,6 +1236,43 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
             return false;
         }
     }
+    if (g_height == 194803){
+        const std::string sblock = "6faf1af9116dc95169dae1321a110342d19b11fa1839c862dcffddd37d66fbaf";
+        const crypto::hash vblock = get_block_hash(b);
+        if(sblock == epee::string_tools::pod_to_hex(vblock)){
+            MERROR_VER("good hash pass" << get_block_hash(b));
+            return true;
+        }
+        else {
+            MERROR_VER("bad hash failed" << get_block_hash(b));
+            return false;
+        }
+    }
+    if (g_height == 194990){
+        const std::string sblock = "ab14ec1fcd72a1c8b2b6f39f4ec799705f8ea0f565493ee94a28f086a93dede4";
+        const crypto::hash vblock = get_block_hash(b);
+        if(sblock == epee::string_tools::pod_to_hex(vblock)){
+            MERROR_VER("good hash pass" << get_block_hash(b));
+            return true;
+        }
+        else {
+            MERROR_VER("bad hash failed" << get_block_hash(b));
+            return false;
+        }
+    }
+    if (g_height == 195031){
+        const std::string sblock = "53ea7c45c85d55644900068005587bf7bb68cf810a659b155f666d43480e6e9e";
+        const crypto::hash vblock = get_block_hash(b);
+        if(sblock == epee::string_tools::pod_to_hex(vblock)){
+            MERROR_VER("good hash pass" << get_block_hash(b));
+            return true;
+        }
+        else {
+            MERROR_VER("bad hash failed" << get_block_hash(b));
+            return false;
+        }
+    }
+
   LOG_PRINT_L3("Blockchain::" << __func__);
   //validate reward
   uint64_t money_in_use = 0;
@@ -1291,8 +1328,10 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
            LOG_PRINT_L1("base_reward" << base_reward);
        }
        else{
-           MERROR_VER("Timestamp is invalid");
-           return false;
+           if(version < 8) {
+               MERROR_VER("Timestamp is invalid" << g_height);
+               base_reward = 0;
+           }
        }
        if(base_reward > 5000000000000){
                base_reward = 5000000000000;

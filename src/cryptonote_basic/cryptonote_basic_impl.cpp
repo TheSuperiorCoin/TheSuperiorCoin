@@ -166,8 +166,12 @@ namespace cryptonote {
             LOG_PRINT_L1("base_reward " << base_reward);
           }
           else{
-            LOG_PRINT_L0("Timestamp is invalid");
-            return false;
+            if(version < 8){
+                base_reward = 0;
+            } else{
+                LOG_PRINT_L0("Timestamp is invalid");
+                return false;
+            }
           }
           if(base_reward > 5000000000000){
               base_reward = 5000000000000;
@@ -212,8 +216,12 @@ namespace cryptonote {
             reward = n_reward;
         }
         else{
-            MERROR("Timestamp is invalid");
-            return false;
+            if(version < 8){
+                base_reward = 0;
+            } else{
+                LOG_PRINT_L0("Timestamp is invalid");
+                return false;
+            }
         }
         if(reward > 5000000000000){
               reward = 5000000000000;
